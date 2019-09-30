@@ -2,7 +2,7 @@
 
 This API runs jobs such as generating CSV files or doing substructure and blast searches. 
 
-# How to run it locally
+# How to Run it Locally
 
 ```
 pip install -r requirements.txt
@@ -17,7 +17,7 @@ Open http://127.0.0.1:5000/ in your browser
 find . -iname "*.py" | xargs pylint
 ```
 
-# Running unit tests
+# Running Unit Tests
 
 ```
 python -m unittest
