@@ -125,4 +125,4 @@ dmypy.json
 .pyre/
 
 # Pycharm project files
-.idea/
+.idea/**
