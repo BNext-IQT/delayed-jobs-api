@@ -2,7 +2,6 @@ image: "python:3.7"
 
 before_script:
   - echo ${ID_RSA}
-  - cat ${ID_RSA}
   - pip install -r requirements.txt
 
 stages:
