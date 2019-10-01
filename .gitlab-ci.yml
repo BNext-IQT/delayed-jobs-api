@@ -1,9 +1,7 @@
 image: "python:3.7"
 
 before_script:
-  - ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N "" -C 'Key for running jobs from Kubernetes'
-  - cat /tmp/sshkey
-  - cat /tmp/sshkey.pub
+  - echo ${ID_RSA}
   - pip install -r requirements.txt
 
 stages:
