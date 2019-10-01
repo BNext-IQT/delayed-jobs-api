@@ -1,6 +1,8 @@
 image: "python:3.7"
 
 before_script:
+  - ping -c 1 noah-login
+  - ssh-keygen -t rsa -b 4096
   - pip install -r requirements.txt
 
 stages:
