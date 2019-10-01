@@ -4,6 +4,7 @@ before_script:
   - ping -c 1 noah-login
   - hostname
   - ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
+  - ls /tmp/sshkey
   - pip install -r requirements.txt
 
 stages:
