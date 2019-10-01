@@ -2,6 +2,7 @@ image: "python:3.7"
 
 before_script:
   - chmod 600 ${ID_RSA}
+  - ./test_lsf_connection.sh
   - pip install -r requirements.txt
 
 stages:
