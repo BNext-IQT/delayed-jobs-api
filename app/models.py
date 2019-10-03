@@ -1,3 +1,8 @@
+"""
+    Module with app's models
+"""
+
+# pylint: disable=too-few-public-methods
 class DelayedJob:
     """
     Model to represent jobs

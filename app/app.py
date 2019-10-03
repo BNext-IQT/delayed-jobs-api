@@ -18,8 +18,7 @@ class JobStatus(Resource):
         Resource that handles job status requests
     """
 
-    # pylint: disable=no-self-use
-    def get(self):
+    def get(self): # pylint: disable=no-self-use
         """
         Returns the status of a job
         :return: a json response with the current job status
@@ -32,14 +31,18 @@ class JobStatus(Resource):
 @NAME_SPACE.route('/submit/similarity')
 class SubmitSimilarityJob(Resource):
     """
-        Resource that handles similarity job submission requests
+        Resource that handles similarity search job submission requests
     """
     job_type = DelayedJob.SIMILARITY
     fields = APP.model('SubmitSimilarityJob', {
         'structure': fields.String(description='The structure (SMILES) you want to search against',
                                    required=True,
-                                   example='hola'),
-        'threshold': fields.Integer(required=True, min=70, max=100, example=90)
+                                   example='[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1'),
+        'threshold': fields.Integer(description='The threshold for the similarity search',
+                                    required=True,
+                                    min=70,
+                                    max=100,
+                                    example=90)
     })
     @APP.doc(body=fields)
     def post(self): # pylint: disable=no-self-use
@@ -51,27 +54,35 @@ class SubmitSimilarityJob(Resource):
             "status": f'A new {self.job_type.lower()} job has been submitted!'
         }
 
-
-
+# pylint: disable=fixme
+# TODO
 @NAME_SPACE.route('/sumbit/substructure')
 class SubmitSubstructureJob(Resource):
+    """
+        Resource that handles substructure search job submission requests
+    """
     job_type = DelayedJob.SUBSTRUCTURE
-    pass
 
-
+# TODO
 @NAME_SPACE.route('/sumbit/connectivity')
 class SubmitConnectivityJob(Resource):
+    """
+        Resource that handles connectivity search job submission requests
+    """
     job_type = DelayedJob.CONNECTIVITY
-    pass
 
-
+# TODO
 @NAME_SPACE.route('/sumbit/blast')
 class SubmitBlastJob(Resource):
+    """
+        Resource that handles BLAST search job submission requests
+    """
     job_type = DelayedJob.BLAST
-    pass
 
-
+# TODO
 @NAME_SPACE.route('/sumbit/download')
 class SubmitDownloadJob(Resource):
+    """
+        Resource that handles Download job submission requests
+    """
     job_type = DelayedJob.DOWNLOAD
-    pass
