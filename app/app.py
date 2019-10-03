@@ -3,7 +3,8 @@ Entry file for the delayed jobs app
 """
 from flask import Flask
 from flask_restplus import Api, Resource, fields
-from .models import DelayedJob
+import app.models.delayed_job as DelayedJob
+from app import job_submitter
 
 FLASK_APP = Flask(__name__)
 APP = Api(app=FLASK_APP)
@@ -33,7 +34,7 @@ class SubmitSimilarityJob(Resource):
     """
         Resource that handles similarity search job submission requests
     """
-    job_type = DelayedJob.SIMILARITY
+    job_type = DelayedJob.JobTypes.SIMILARITY
     fields = APP.model('SubmitSimilarityJob', {
         'structure': fields.String(description='The structure (SMILES) you want to search against',
                                    required=True,
@@ -50,9 +51,9 @@ class SubmitSimilarityJob(Resource):
         Submits a job to the queue.
         :return: a json response with the result of the submission
         """
-        return {
-            "status": f'A new {self.job_type.lower()} job has been submitted!'
-        }
+
+        response = job_submitter.submit_job(self.job_type, APP.payload)
+        return response
 
 # pylint: disable=fixme
 # TODO
@@ -61,7 +62,7 @@ class SubmitSubstructureJob(Resource):
     """
         Resource that handles substructure search job submission requests
     """
-    job_type = DelayedJob.SUBSTRUCTURE
+    job_type = DelayedJob.JobTypes.SUBSTRUCTURE
 
 # TODO
 @NAME_SPACE.route('/sumbit/connectivity')
@@ -69,7 +70,7 @@ class SubmitConnectivityJob(Resource):
     """
         Resource that handles connectivity search job submission requests
     """
-    job_type = DelayedJob.CONNECTIVITY
+    job_type = DelayedJob.JobTypes.CONNECTIVITY
 
 # TODO
 @NAME_SPACE.route('/sumbit/blast')
@@ -77,7 +78,7 @@ class SubmitBlastJob(Resource):
     """
         Resource that handles BLAST search job submission requests
     """
-    job_type = DelayedJob.BLAST
+    job_type = DelayedJob.JobTypes.BLAST
 
 # TODO
 @NAME_SPACE.route('/sumbit/download')
@@ -85,4 +86,4 @@ class SubmitDownloadJob(Resource):
     """
         Resource that handles Download job submission requests
     """
-    job_type = DelayedJob.DOWNLOAD
+    job_type = DelayedJob.JobTypes.DOWNLOAD
