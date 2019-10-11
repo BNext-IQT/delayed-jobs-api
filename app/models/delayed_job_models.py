@@ -5,18 +5,7 @@ import json
 import hashlib
 import base64
 from enum import Enum
-
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-from sqlalchemy import Column, Integer, String
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine('sqlite:///:memory:', echo=True)
-
-Session = sessionmaker(bind=engine)
-session = Session()
+from app.models.db import db
 
 
 class JobTypes(Enum):
@@ -33,9 +22,11 @@ class JobTypes(Enum):
         return self.name
 
 
-class DelayedJobModel(Base):
-    __tablename__ = 'delayed_job'
-    id = Column(String, primary_key=True)
+class DelayedJob(db.Model):
+    id = db.Column(db.String, primary_key=True)
+
+    def __repr__(self):
+        return '<DelayedJob %r>' % self.id
 
 
 def generate_job_id(job_type, job_params):
@@ -60,10 +51,8 @@ def get_or_create(job_type, job_params):
     print('Getting or creating job!!!')
     id = generate_job_id(job_type, job_params)
     print('id: ', id)
-    job = DelayedJobModel(id=id)
+    job = DelayedJob(id=id)
     print('job: ', job)
-    session.add(job)
-    session.commit()
+    db.session.add(job)
+    db.session.commit()
     return job
-
-Base.metadata.create_all(engine, Base.metadata.tables.values(), checkfirst=True)

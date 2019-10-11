@@ -2,13 +2,22 @@
 Tests for the delayed job model
 """
 import unittest
-import app.models.delayed_job as DelayedJob
+import app.models.delayed_job_models as DelayedJob
 import json
 import hashlib
 import base64
+from app.models.db import db
+from app import create_app
+
+flask_app = create_app()
+db.init_app(flask_app)
 
 
 class MyTestCase(unittest.TestCase):
+
+    def setUp(self):
+        with flask_app.app_context():
+            db.create_all()
 
     def test_job_id_is_generated_correctly(self):
         job_type = DelayedJob.JobTypes.SIMILARITY
@@ -27,15 +36,17 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(id_must_be, id_got, msg='The job id was not generated correctly!')
 
     def test_a_job_is_created(self):
-        job_type = DelayedJob.JobTypes.SIMILARITY
-        params = {
-            'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
-            'threshold': '70'
-        }
 
-        job_must_be = DelayedJob.get_or_create(job_type, params)
-        job_id_must_be = job_must_be.id
-        print('job_id_must_be: ', job_id_must_be)
+        with flask_app.app_context():
+            job_type = DelayedJob.JobTypes.SIMILARITY
+            params = {
+                'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+                'threshold': '70'
+            }
+
+            job_must_be = DelayedJob.get_or_create(job_type, params)
+            job_id_must_be = job_must_be.id
+            print('job_id_must_be: ', job_id_must_be)
 
 
 if __name__ == '__main__':

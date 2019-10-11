@@ -1,5 +1,5 @@
 from flask_restplus import Namespace, Resource, fields
-from app.models import delayed_job as DelayedJob
+from app.models import delayed_job_models
 from app.apis.common.api_models import BASE_SUBMISSION_RESPONSE
 
 API = Namespace('similarity', description='Requests to submit a similarity job')
@@ -23,10 +23,10 @@ class SubmitSimilarityJob(Resource):
     """
         Resource that handles similarity search job submission requests
     """
-    job_type = DelayedJob.JobTypes.SIMILARITY
+    job_type = delayed_job_models.JobTypes.SIMILARITY
 
     @API.doc(body=SIMILARITY_JOB)
-    @API.marshal_with(BASE_SUBMISSION_RESPONSE) # TODO: simply respond the id, do not couple it with the status
+    @API.marshal_with(BASE_SUBMISSION_RESPONSE)
     def post(self): # pylint: disable=no-self-use
         """
         Submits a job to the queue.
