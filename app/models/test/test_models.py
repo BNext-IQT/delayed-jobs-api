@@ -59,6 +59,9 @@ class MyTestCase(unittest.TestCase):
             self.assertAlmostEqual(created_at_got, created_at_must_be, places=1,
                                    msg='The created time was not calculated correctly')
 
+            params_must_be = json.dumps(params)
+            print('params_must_be: ', params_must_be)
+
 
 if __name__ == '__main__':
     unittest.main()

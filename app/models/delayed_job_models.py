@@ -49,6 +49,7 @@ class DelayedJob(db.Model):
     finished_at = db.Column(db.DateTime)
     output_file_path = db.Column(db.Text)
     log = db.Column(db.Text)
+    raw_params = db.Column(db.Text)
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
