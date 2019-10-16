@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from app.models import delayed_job_models
 from app.apis.common.api_models import BASE_SUBMISSION_RESPONSE
 
-API = Namespace('similarity', description='Requests to submit a similarity job')
+API = Namespace('submit/similarity', description='Requests to submit a similarity job')
 
 SIMILARITY_JOB = API.model('SimilarityJob', {
     'structure': fields.String(description='The structure (SMILES) you want to search against',

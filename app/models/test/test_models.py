@@ -14,7 +14,7 @@ flask_app = create_app()
 db.init_app(flask_app)
 
 
-class MyTestCase(unittest.TestCase):
+class TestModels(unittest.TestCase):
 
     def setUp(self):
         with flask_app.app_context():
@@ -47,7 +47,6 @@ class MyTestCase(unittest.TestCase):
 
             job_must_be = delayed_job_models.get_or_create(job_type, params)
             job_id_must_be = job_must_be.id
-            print('job_id_must_be: ', job_id_must_be)
             job_got = delayed_job_models.DelayedJob.query.filter_by(id=job_id_must_be).first()
             self.assertEqual(job_type, job_got.type, msg='The job type was not saved correctly.')
             self.assertEqual(delayed_job_models.JobStatuses.CREATED, job_got.status,
