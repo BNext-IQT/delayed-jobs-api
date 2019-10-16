@@ -60,7 +60,29 @@ class MyTestCase(unittest.TestCase):
                                    msg='The created time was not calculated correctly')
 
             params_must_be = json.dumps(params)
-            print('params_must_be: ', params_must_be)
+            params_got = job_got.raw_params
+            self.assertEqual(params_got, params_must_be, msg='The parameters where not saved correctly')
+
+    def test_a_job_is_created_only_once(self):
+
+        with flask_app.app_context():
+            job_type = delayed_job_models.JobTypes.SIMILARITY
+            params = {
+                'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+                'threshold': '70'
+            }
+
+            # Create a job and set status as finished
+            job_0 = delayed_job_models.get_or_create(job_type, params)
+            status_must_be = delayed_job_models.JobStatuses.FINISHED
+            job_0.status = status_must_be
+
+            # Create a job with exactly the same params
+            job_1 = delayed_job_models.get_or_create(job_type, params)
+
+            # they must be the same
+            self.assertEqual(job_0.id, job_1.id, msg='A job with the same params was created twice!')
+            self.assertEqual(job_1.status, status_must_be, msg='A job with the same params was created twice!')
 
 
 if __name__ == '__main__':

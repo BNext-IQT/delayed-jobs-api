@@ -44,12 +44,13 @@ class DelayedJob(db.Model):
     status_comment = db.Column(db.String) # a comment about the status, for example 'Compressing file'
     progress = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    queued_at = db.Column(db.DateTime)
     started_at = db.Column(db.DateTime)
     finished_at = db.Column(db.DateTime)
     output_file_path = db.Column(db.Text)
     log = db.Column(db.Text)
     raw_params = db.Column(db.Text)
+    expires = db.Column(db.DateTime)
+    api_initial_url = db.Column(db.Text)
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
@@ -74,11 +75,14 @@ def generate_job_id(job_type, job_params):
 # TODO test this
 def get_or_create(job_type, job_params):
 
-    print('Getting or creating job!!!')
     id = generate_job_id(job_type, job_params)
-    print('id: ', id)
-    job = DelayedJob(id=id, type=job_type)
-    print('job: ', job)
+
+    existing_job = DelayedJob.query.filter_by(id=id).first()
+    if existing_job is not None:
+        return existing_job
+
+    job = DelayedJob(id=id, type=job_type, raw_params=json.dumps(job_params))
+
     db.session.add(job)
     db.session.commit()
     return job

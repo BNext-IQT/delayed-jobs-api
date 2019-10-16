@@ -1,4 +1,4 @@
 Flask==1.1.1
 flask-restplus==0.13.0
 pylint==2.4.2
-flask-sqlalchemy-2.4.1
+flask-sqlalchemy==2.4.1
