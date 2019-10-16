@@ -40,4 +40,8 @@ class TestStatus(unittest.TestCase):
                 type_got = resp_data[property]
                 self.assertEqual(type_must_be, type_got, msg=f'The returned job {property} is not correct.')
 
+    def test_get_non_existing_job_status(self):
 
+        client = self.client
+        response = client.get(f'/status/some_id')
+        self.assertEqual(response.status_code, 400, msg='A 404 not found error should have been produced')

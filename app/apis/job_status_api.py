@@ -1,5 +1,6 @@
 from flask_restplus import Namespace, Resource, fields
 from app.models import delayed_job_models
+from flask import abort
 
 API = Namespace('status', description='Requests related to Job Status')
 
@@ -36,4 +37,7 @@ class JobStatus(Resource):
         :return: a json response with the current job status
         """
         job = delayed_job_models.DelayedJob.query.filter_by(id=id).first()
-        return job.public_dict()
+        if job is None:
+            abort(400)
+        else:
+            return job.public_dict()
