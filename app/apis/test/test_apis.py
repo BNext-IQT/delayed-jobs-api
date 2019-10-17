@@ -55,4 +55,8 @@ class TestStatus(unittest.TestCase):
         with self.flask_app.app_context():
             job_must_be = delayed_job_models.get_or_create(job_type, params)
 
+            new_data = {
+                'status': 'UPDATED'
+            }
+
 

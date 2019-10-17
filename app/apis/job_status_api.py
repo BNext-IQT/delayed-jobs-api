@@ -7,8 +7,10 @@ API = Namespace('status', description='Requests related to Job Status')
 
 STATUS = API.model('Status', {
     'id': fields.String(required=True, description='The job identifier'),
-    'type': fields.String(required=True, description='The type of the job '),
-    'status': fields.String(required=True, description='The status of the job '),
+    'type': fields.String(required=True, description='The type of the job ',
+                          enum=[str(possible_type) for possible_type in delayed_job_models.JobTypes]),
+    'status': fields.String(required=True, description='The status of the job ',
+                            enum=[str(possible_status) for possible_status in delayed_job_models.JobStatuses]),
     'status_comment': fields.String(required=True, description='A comment on the status of the job'),
     'progress': fields.String(required=True, description='The progress percentage of the job'),
     'created_at': fields.String(required=True, description='The time at which the job was created'),
