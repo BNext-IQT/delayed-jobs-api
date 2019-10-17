@@ -3,9 +3,10 @@ Entry file for the delayed jobs app
 """
 from flask import Flask
 from flask_restplus import Api
-from app.models.db import db
+
 from app.apis.job_status_api import API as job_status_api
 from app.apis.submit_similarity_api import API as similarity_api
+from app.db import db
 
 
 def create_app():

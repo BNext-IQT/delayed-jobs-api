@@ -1,14 +1,15 @@
 """
 Tests for the delayed job model
 """
-import unittest
-from app.models import delayed_job_models
-import json
-import hashlib
 import base64
-from app.models.db import db
-from app import create_app
 import datetime
+import hashlib
+import json
+import unittest
+
+from app import create_app
+from app.apis.models import delayed_job_models
+from app.db import db
 
 flask_app = create_app()
 db.init_app(flask_app)

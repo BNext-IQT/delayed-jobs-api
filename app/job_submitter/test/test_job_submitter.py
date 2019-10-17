@@ -2,10 +2,11 @@
 This module tests jobs submission to the EBI queue
 """
 import unittest
-from app.models import delayed_job_models
-from app.job_submitter import job_submitter
-from app.models.db import db
+
 from app import create_app
+from app.apis.models import delayed_job_models
+from app.db import db
+from app.job_submitter import job_submitter
 
 flask_app = create_app()
 db.init_app(flask_app)

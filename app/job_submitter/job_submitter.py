@@ -1,7 +1,7 @@
 """
 This module submits jobs to the EBI queue
 """
-import app.models.delayed_job_models as Job
+import app.apis.models.delayed_job_models as Job
 
 
 def submit_job(job_type, job_params):

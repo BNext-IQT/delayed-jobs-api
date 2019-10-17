@@ -1,6 +1,7 @@
-from flask_restplus import Namespace, Resource, fields
-from app.models import delayed_job_models
 from flask import abort
+from flask_restplus import Namespace, Resource, fields
+
+from app.apis.models import delayed_job_models
 
 API = Namespace('status', description='Requests related to Job Status')
 

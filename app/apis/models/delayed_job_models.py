@@ -1,12 +1,13 @@
 """
     Module with the classes related to the job model
 """
-import json
-import hashlib
 import base64
-from enum import Enum
-from app.models.db import db
 import datetime
+import hashlib
+import json
+from enum import Enum
+
+from app.db import db
 
 
 class JobTypes(Enum):
