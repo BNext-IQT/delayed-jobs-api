@@ -52,11 +52,22 @@ class TestStatus(unittest.TestCase):
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
-        with self.flask_app.app_context():
-            job_must_be = delayed_job_models.get_or_create(job_type, params)
 
+        with self.flask_app.app_context():
+
+            job_must_be = delayed_job_models.get_or_create(job_type, params)
+            job_id = job_must_be.id
             new_data = {
-                'status': 'UPDATED'
+                'status': delayed_job_models.JobStatuses.RUNNING,
+                'status_comment': 'Querying from web services',
+                'progress': 50
             }
 
+            client = self.client
+            response = client.patch(f'/status/{job_id}', data=new_data)
+            print('status_code: ', response.status_code)
+            resp_data = json.loads(response.data.decode('utf-8'))
+            print('resp_data: ', resp_data)
+
+    # TODO: test what chages after changing status to running, reporting to es, etc
 

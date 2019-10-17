@@ -1,4 +1,4 @@
-from flask import abort
+from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
 
 from app.apis.models import delayed_job_models
@@ -50,15 +50,19 @@ class JobStatus(Resource):
             return job.public_dict()
 
     @API.marshal_with(MODIFIABLE_STATUS)
-    def put(self, id):
+    def patch(self, id):
         """
             Updates a job with the data provided
             :param id:
             :return:
         """
+        job = delayed_job_models.DelayedJob.query.filter_by(id=id).first()
+        if job is None:
+            abort(400)
+        else:
+            for key in request.values.keys():
+                new_value = request.values.get(key)
+                if new_value is not None:
+                    setattr(job, key, new_value)
 
-        print('UPDATING STATUS!!!')
-
-        return {
-            'id': 'someId'
-        }
+        return job.public_dict()
