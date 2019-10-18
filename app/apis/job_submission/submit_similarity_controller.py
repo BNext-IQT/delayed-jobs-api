@@ -1,6 +1,6 @@
 from flask_restplus import Namespace, Resource, fields
 
-from app.apis.shared_marshalls import BASE_SUBMISSION_RESPONSE
+from app.apis.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.apis.models import delayed_job_models
 
 API = Namespace('submit/similarity', description='Requests to submit a similarity job')

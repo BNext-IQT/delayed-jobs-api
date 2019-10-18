@@ -4,9 +4,9 @@ This module tests jobs submission to the EBI queue
 import unittest
 
 from app import create_app
+from app.apis.job_submission import job_submission_service
 from app.apis.models import delayed_job_models
 from app.db import db
-from app.job_submitter import job_submitter
 
 flask_app = create_app()
 db.init_app(flask_app)
@@ -32,4 +32,4 @@ class TestJobSubmitter(unittest.TestCase):
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }
-            job_submitter.submit_job(job_type, params)
+            job_submission_service.submit_job(job_type, params)

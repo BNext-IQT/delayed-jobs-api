@@ -60,6 +60,7 @@ class JobStatus(Resource):
         if job is None:
             abort(400)
         else:
+
             for key in request.values.keys():
                 new_value = request.values.get(key)
                 if new_value is not None:
