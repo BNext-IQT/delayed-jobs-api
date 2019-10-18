@@ -10,6 +10,8 @@ from enum import Enum
 from app.db import db
 
 
+DAYS_TO_LIVE = 7 # Days for which the results are kept
+
 class JobTypes(Enum):
     """
         Types of delayed jobs
@@ -59,7 +61,7 @@ class DelayedJob(db.Model):
     output_file_path = db.Column(db.Text)
     log = db.Column(db.Text)
     raw_params = db.Column(db.Text)
-    expires = db.Column(db.DateTime)
+    expires_at = db.Column(db.DateTime)
     api_initial_url = db.Column(db.Text)
     timezone = db.Column(db.String(length=60), default=str(datetime.timezone.utc))
 
@@ -73,7 +75,18 @@ class DelayedJob(db.Model):
         """
         return {key:str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_comment', 'progress',
                                                         'created_at', 'started_at', 'finished_at', 'output_file_path',
-                                                        'raw_params', 'expires', 'api_initial_url', 'timezone']}
+                                                        'raw_params', 'expires_at', 'api_initial_url', 'timezone']}
+
+    def update_run_status(self, new_value):
+        old_value = self.status
+        if old_value != new_value:
+            if new_value == str(JobStatuses.RUNNING):
+                self.started_at = datetime.datetime.utcnow()
+            elif new_value == str(JobStatuses.FINISHED):
+                self.finished_at = datetime.datetime.utcnow()
+                self.expires_at = datetime.datetime.utcnow() + datetime.timedelta(days=DAYS_TO_LIVE)
+
+            self.status = new_value
 
 def generate_job_id(job_type, job_params):
     """
@@ -116,9 +129,14 @@ def update_job_status(id, new_data):
 
     job = get_job_by_id(id)
     for key in new_data.keys():
+
         new_value = new_data.get(key)
+
         if new_value is not None:
-            setattr(job, key, new_value)
+            if key == 'status':
+                job.update_run_status(new_value)
+            else:
+                setattr(job, key, new_value)
 
     db.session.commit()
     return job

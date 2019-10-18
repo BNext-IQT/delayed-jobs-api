@@ -24,7 +24,7 @@ PUBLIC_STATUS = API.inherit('Status', MODIFIABLE_STATUS, {
     'started_at': fields.String(required=True, description='The time at which the job started to run'),
     'finished_at': fields.String(required=True, description='The time at which the job finished'),
     'raw_params': fields.String(required=True, description='The stringified version of the parameters'),
-    'expires': fields.String(required=True, description='The date at which the job results will expire'),
+    'expires_at': fields.String(required=True, description='The date at which the job results will expire'),
     'timezone': fields.String(required=True, description='The timezome where the job ran'),
 
 })
