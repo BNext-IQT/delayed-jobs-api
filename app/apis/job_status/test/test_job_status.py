@@ -65,9 +65,18 @@ class TestStatus(unittest.TestCase):
 
             client = self.client
             response = client.patch(f'/status/{job_id}', data=new_data)
-            print('status_code: ', response.status_code)
-            resp_data = json.loads(response.data.decode('utf-8'))
-            print('resp_data: ', resp_data)
+            self.assertEqual(response.status_code, 200, msg='The request should have not failed')
+
+            job_got = delayed_job_models.get_job_by_id(job_id)
+            # be sure to have a fresh version of the object
+            db.session.rollback()
+            db.session.expire(job_got)
+            db.session.refresh(job_got)
+
+            for key, value_must_be in new_data.items():
+                value_got = getattr(job_got, key)
+                self.assertEqual(value_got, value_must_be, msg=f'The {key} was not updated correctly!')
+                
 
     # TODO: test what chages after changing status to running, reporting to es, etc
 

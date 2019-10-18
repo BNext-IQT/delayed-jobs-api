@@ -43,6 +43,9 @@ class JobStatuses(Enum):
     def __str__(self):
         return self.name
 
+class JobNotFoundError(Exception):
+    """Base class for exceptions."""
+    pass
 
 class DelayedJob(db.Model):
     id = db.Column(db.String(length=60), primary_key=True)
@@ -101,3 +104,22 @@ def get_or_create(job_type, job_params):
     db.session.add(job)
     db.session.commit()
     return job
+
+def get_job_by_id(id):
+
+    job = DelayedJob.query.filter_by(id=id).first()
+    if job is None:
+        raise JobNotFoundError()
+    return job
+
+def update_job_status(id, new_data):
+
+    job = get_job_by_id(id)
+    for key in new_data.keys():
+        new_value = new_data.get(key)
+        if new_value is not None:
+            setattr(job, key, new_value)
+
+    db.session.commit()
+    return job
+

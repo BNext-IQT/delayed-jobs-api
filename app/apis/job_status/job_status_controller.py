@@ -2,6 +2,7 @@ from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
 
 from app.apis.models import delayed_job_models
+from app.apis.job_status import job_status_service
 
 API = Namespace('status', description='Requests related to Job Status')
 
@@ -43,11 +44,10 @@ class JobStatus(Resource):
         Returns the status of a job
         :return: a json response with the current job status
         """
-        job = delayed_job_models.DelayedJob.query.filter_by(id=id).first()
-        if job is None:
+        try:
+            return job_status_service.get_job_status(id)
+        except job_status_service.JobNotFoundError:
             abort(400)
-        else:
-            return job.public_dict()
 
     @API.marshal_with(MODIFIABLE_STATUS)
     def patch(self, id):
@@ -56,14 +56,12 @@ class JobStatus(Resource):
             :param id:
             :return:
         """
-        job = delayed_job_models.DelayedJob.query.filter_by(id=id).first()
-        if job is None:
+        new_data = {}  # this is to avoid using custom data structures i.e CombinedMultiDict
+        for key in request.values.keys():
+            new_value = request.values.get(key)
+            new_data[key] = new_value
+
+        try:
+            return job_status_service.update_job_status(id, new_data)
+        except job_status_service.JobNotFoundError:
             abort(400)
-        else:
-
-            for key in request.values.keys():
-                new_value = request.values.get(key)
-                if new_value is not None:
-                    setattr(job, key, new_value)
-
-        return job.public_dict()
