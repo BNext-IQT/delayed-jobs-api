@@ -33,7 +33,6 @@ PUBLIC_STATUS = API.inherit('Status', MODIFIABLE_STATUS, {
 
 @API.route('/<id>')
 @API.param('id', 'The job identifier')
-@API.param('token', 'The token given to the job. It is used to authorise the job when updating its status')
 @API.response(404, 'Job not found')
 class JobStatus(Resource):
     """
@@ -52,6 +51,7 @@ class JobStatus(Resource):
             abort(400)
 
     @API.marshal_with(MODIFIABLE_STATUS)
+    @API.doc(security='jobKey', body=MODIFIABLE_STATUS)
     @token_required_for_job_id
     def patch(self, id):
         """

@@ -6,6 +6,7 @@ import unittest
 
 from app import create_app
 from app.apis.models import delayed_job_models
+from app.apis.job_submission import job_submission_service
 from app.db import db
 import datetime
 
@@ -52,6 +53,33 @@ class TestStatus(unittest.TestCase):
         response = client.get(f'/status/some_id')
         self.assertEqual(response.status_code, 400, msg='A 404 not found error should have been produced')
 
+    def test_a_job_cannot_update_another_job_status(self):
+
+        job_type = delayed_job_models.JobTypes.SIMILARITY
+        params = {
+            'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+            'threshold': '70'
+        }
+
+        with self.flask_app.app_context():
+
+            job_must_be = delayed_job_models.get_or_create(job_type, params)
+            job_id = job_must_be.id
+            new_data = {
+                'status': delayed_job_models.JobStatuses.RUNNING,
+                'status_comment': 'Querying from web services',
+                'progress': 50
+            }
+
+            token = job_submission_service.generate_job_token('another_id')
+            headers = {
+                'X-JOB-KEY': token
+            }
+            client = self.client
+            response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
+            self.assertEqual(response.status_code, 401,
+                             msg='I should not be authorised to modify the status of another job')
+
     def test_update_job_status(self):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
@@ -70,10 +98,12 @@ class TestStatus(unittest.TestCase):
                 'progress': 50
             }
 
-            token = 'The token!!!'
+            token = job_submission_service.generate_job_token(job_id)
+            headers = {
+                'X-JOB-KEY': token
+            }
             client = self.client
-            response = client.patch(f'/status/{job_id}', data=new_data)
-            print('CLIENT: ', client)
+            response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
             self.assertEqual(response.status_code, 200, msg='The request should have not failed')
 
             job_got = delayed_job_models.get_job_by_id(job_id)
@@ -104,8 +134,13 @@ class TestStatus(unittest.TestCase):
                 'progress': 50
             }
 
+            token = job_submission_service.generate_job_token(job_id)
+            headers = {
+                'X-JOB-KEY': token
+            }
+
             client = self.client
-            response = client.patch(f'/status/{job_id}', data=new_data)
+            response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
             started_at_time_must_be = datetime.datetime.utcnow().timestamp()
             self.assertEqual(response.status_code, 200, msg='The request should have not failed')
 
@@ -134,8 +169,13 @@ class TestStatus(unittest.TestCase):
                 'progress': 100
             }
 
+            token = job_submission_service.generate_job_token(job_id)
+            headers = {
+                'X-JOB-KEY': token
+            }
+
             client = self.client
-            response = client.patch(f'/status/{job_id}', data=new_data)
+            response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
             finished_at_time_must_be = datetime.datetime.utcnow().timestamp()
             expiration_time_must_be = (datetime.datetime.utcnow() +
                                        datetime.timedelta(days=delayed_job_models.DAYS_TO_LIVE)).timestamp()

@@ -17,6 +17,14 @@ def create_app():
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SERVER_SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
+    authorizations = {
+        'jobKey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'X-Job-Key'
+        }
+    }
+
     with flask_app.app_context():
         db.init_app(flask_app)
 
@@ -25,7 +33,9 @@ def create_app():
             version='1.0',
             description='A microservice that runs delayed jobs for the ChEMBL interface. '
                         'For example generating a .csv file from elasticsearch',
-            app=flask_app)
+            app=flask_app,
+            authorizations=authorizations
+        )
 
         api.add_namespace(job_status_api)
         api.add_namespace(similarity_api)
