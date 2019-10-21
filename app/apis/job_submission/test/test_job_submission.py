@@ -3,7 +3,7 @@ This module tests jobs submission to the EBI queue
 """
 import unittest
 import jwt
-from app import create_app
+from app.config import RUN_CONFIG
 from app.apis.job_submission import job_submission_service
 from app.apis.models import delayed_job_models
 from app.db import db
@@ -39,8 +39,8 @@ class TestJobSubmitter(unittest.TestCase):
             }
             job_must_be = delayed_job_models.get_or_create(job_type, params)
             token_got = job_submission_service.generate_job_token(job_must_be.id)
-            key = create_app().config.get('SERVER_SECRET_KEY')
-            data_got = jwt.decode(token_got, key)
+            key = RUN_CONFIG.get('server_secret_key')
+            data_got = jwt.decode(token_got, key, algorithms=['HS256'])
             self.assertEqual(data_got.get('job_id'), job_must_be.id, msg='The token was not generated correctly!')
 
 

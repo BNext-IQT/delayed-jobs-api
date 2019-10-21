@@ -4,7 +4,8 @@ This module submits jobs to the EBI queue
 from app.apis.models import delayed_job_models
 import jwt
 import datetime
-from app import create_app
+from app.config import RUN_CONFIG
+
 
 
 JOB_TOKEN_HOURS_TO_LIVE = 24
@@ -27,7 +28,7 @@ def generate_job_token(job_id):
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=JOB_TOKEN_HOURS_TO_LIVE)
     }
 
-    key = create_app().config.get('SERVER_SECRET_KEY')  # Probably take directly from config instead of creating app
+    key = RUN_CONFIG.get('server_secret_key')
     token = jwt.encode(token_data, key).decode('UTF-8')
 
     return token

@@ -1,0 +1,4 @@
+server_secret_key: 'ServerKey!!!'
+sql_alchemy:
+  database_uri: 'sqlite:///:memory:'
+  track_modifications: False

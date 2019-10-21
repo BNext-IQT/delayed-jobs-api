@@ -7,14 +7,15 @@ from flask_restplus import Api
 from app.apis.job_status.job_status_controller import API as job_status_api
 from app.apis.job_submission.submit_similarity_controller import API as similarity_api
 from app.db import db
+from app.config import RUN_CONFIG
 
 
 def create_app():
 
     flask_app = Flask(__name__)
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    flask_app.config['SERVER_SECRET_KEY'] = 'ServerKey!'
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
+    flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
+    flask_app.config['SERVER_SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
     with flask_app.app_context():
         db.init_app(flask_app)
