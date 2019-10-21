@@ -14,6 +14,7 @@ def create_app():
     flask_app = Flask(__name__)
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    flask_app.config['SERVER_SECRET_KEY'] = 'ServerKey!'
 
     with flask_app.app_context():
         db.init_app(flask_app)
