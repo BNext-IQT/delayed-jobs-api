@@ -11,15 +11,21 @@ from app import create_app
 from app.apis.models import delayed_job_models
 from app.db import db
 
-flask_app = create_app()
-db.init_app(flask_app)
-
 
 class TestModels(unittest.TestCase):
 
     def setUp(self):
-        with flask_app.app_context():
+        self.flask_app = create_app()
+        self.client = self.flask_app.test_client()
+
+        with self.flask_app.app_context():
             db.create_all()
+
+    def tearDown(self):
+
+        with self.flask_app.app_context():
+            delayed_job_models.delete_all_jobs()
+
 
     def test_job_id_is_generated_correctly(self):
         job_type = delayed_job_models.JobTypes.SIMILARITY
@@ -39,7 +45,7 @@ class TestModels(unittest.TestCase):
 
     def test_a_job_is_created(self):
 
-        with flask_app.app_context():
+        with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.SIMILARITY
             params = {
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
@@ -65,7 +71,7 @@ class TestModels(unittest.TestCase):
 
     def test_a_job_is_created_only_once(self):
 
-        with flask_app.app_context():
+        with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.SIMILARITY
             params = {
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',

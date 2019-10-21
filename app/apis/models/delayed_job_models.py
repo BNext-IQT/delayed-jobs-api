@@ -141,3 +141,5 @@ def update_job_status(id, new_data):
     db.session.commit()
     return job
 
+def delete_all_jobs():
+    DelayedJob.query.filter_by().delete()

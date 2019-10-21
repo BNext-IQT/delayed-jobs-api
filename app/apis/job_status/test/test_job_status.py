@@ -19,6 +19,12 @@ class TestStatus(unittest.TestCase):
         with self.flask_app.app_context():
             db.create_all()
 
+    def tearDown(self):
+
+        with self.flask_app.app_context():
+            delayed_job_models.delete_all_jobs()
+
+
     def test_get_existing_job_status(self):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
@@ -64,8 +70,10 @@ class TestStatus(unittest.TestCase):
                 'progress': 50
             }
 
+            token = 'The token!!!'
             client = self.client
             response = client.patch(f'/status/{job_id}', data=new_data)
+            print('CLIENT: ', client)
             self.assertEqual(response.status_code, 200, msg='The request should have not failed')
 
             job_got = delayed_job_models.get_job_by_id(job_id)
