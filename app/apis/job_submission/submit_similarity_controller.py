@@ -28,7 +28,7 @@ class SubmitSimilarityJob(Resource):
 
     @API.doc(body=SIMILARITY_JOB)
     @API.marshal_with(BASE_SUBMISSION_RESPONSE)
-    def post(self): # pylint: disable=no-self-use
+    def post(self):  # pylint: disable=no-self-use
         """
         Submits a job to the queue.
         :return: a json response with the result of the submission
