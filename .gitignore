@@ -128,4 +128,4 @@ dmypy.json
 .idea/**
 
 # Current config file
-config.yml
+/config.yml

@@ -1,5 +1,5 @@
 run_env: DEV # DEV, TEST, STAGING or PROD
-server_secret_key: 'ServerKey!jljljl!!'
+server_secret_key: 'ServerKey!!!'
 sql_alchemy:
   database_uri: 'sqlite:///:memory:'
   track_modifications: False
