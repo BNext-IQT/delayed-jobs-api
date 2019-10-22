@@ -1,7 +1,6 @@
 from app.apis.models import delayed_job_models
 from app.config import RUN_CONFIG
-from elasticsearch import Elasticsearch
-es = Elasticsearch()
+from app.es_connection import es
 
 
 class JobNotFoundError(Exception):
@@ -41,6 +40,7 @@ def save_search_record_to_elasticsearch(calculated_statistics):
         **calculated_statistics,
         'run_env': RUN_CONFIG.get('run_env')
     }
+
     if RUN_CONFIG.get('elasticsearch').get('dry_run', False):
         print('---------------------------------------------------')
         print('Elasticsearch Dry Run')
@@ -50,5 +50,5 @@ def save_search_record_to_elasticsearch(calculated_statistics):
         print('---------------------------------------------------')
     else:
         print('SAVING TO ES')
-        res = es.search(index="test-index", body={"query": {"match_all": {}}})
+        res = es.search(index=es_index, body={"query": {"match_all": {}}})
 
