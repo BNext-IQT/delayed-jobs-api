@@ -1,6 +1,6 @@
 from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
-from app.apis.job_statistics import record_search_service
+from app.apis.job_statistics import record_statistics_service
 from app.authorisation.decorators import token_required_for_job_id
 from app.apis.models import delayed_job_models
 
@@ -11,7 +11,7 @@ SEARCH_RECORD = API.model('SearchRecord', {
     'file_size': fields.Integer(required=True, description='The final size of the results file in bytes', min=0),
 })
 
-FULL_STATISTICS = API.inherit('SearchRecord', SEARCH_RECORD, {
+FULL_STATISTICS = API.inherit('FullSearchRecord', SEARCH_RECORD, {
     'time_taken': fields.Integer(required=True, description='The time the job took to finish', min=0),
     'search_type': fields.String(required=True, description='The type of the job ',
                           enum=[str(possible_type) for possible_type in delayed_job_models.JobTypes]),
@@ -43,8 +43,8 @@ class SearchRecord(Resource):
             statistics[key] = new_value
 
         try:
-            return record_search_service.save_statistics_for_job(id, statistics)
-        except record_search_service.JobNotFoundError:
+            return record_statistics_service.save_statistics_for_job(id, statistics)
+        except record_statistics_service.JobNotFoundError:
             abort(404)
-        except record_search_service.JobNotFinishedError:
+        except record_statistics_service.JobNotFinishedError:
             abort(412)
