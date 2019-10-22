@@ -13,7 +13,7 @@ SEARCH_RECORD = API.model('SearchRecord', {
 
 FULL_STATISTICS = API.inherit('SearchRecord', SEARCH_RECORD, {
     'time_taken': fields.Integer(required=True, description='The time the job took to finish', min=0),
-    'type': fields.String(required=True, description='The type of the job ',
+    'search_type': fields.String(required=True, description='The type of the job ',
                           enum=[str(possible_type) for possible_type in delayed_job_models.JobTypes]),
     'request_date': fields.Float(required=True, description='The time (POSIX timestamp) at what the job started', min=0)
 })

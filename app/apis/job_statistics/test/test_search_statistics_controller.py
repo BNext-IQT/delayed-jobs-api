@@ -132,7 +132,7 @@ class TestStatus(unittest.TestCase):
                 self.assertEqual(time_taken_got, time_taken_must_be, msg='The time taken was not calculated correctly')
 
                 search_type_must_be = str(job_must_be.type)
-                search_type_got = data_got.get('type')
+                search_type_got = data_got.get('search_type')
                 self.assertEqual(search_type_must_be, search_type_got,
                                  msg='The search type is wrong!')
 

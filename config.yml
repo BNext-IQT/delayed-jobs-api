@@ -1,4 +1,7 @@
+run_env: DEV # DEV, TEST, STAGING or PROD
 server_secret_key: 'ServerKey!!!'
 sql_alchemy:
   database_uri: 'sqlite:///:memory:'
   track_modifications: False
+elasticsearch:
+  dry_run: True # If True, I will just print the data and not send anything to elasticsearch
