@@ -62,3 +62,32 @@ class TestStatus(unittest.TestCase):
 
             self.assertEqual(response.status_code, 404,
                              msg='I should not be able to save statistics for a job that does not exist')
+
+    def test_job_must_be_finished_to_save_statistics(self):
+
+        with self.flask_app.app_context():
+
+            job_type = delayed_job_models.JobTypes.SIMILARITY
+            params = {
+                'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+                'threshold': '70'
+            }
+
+            with self.flask_app.app_context():
+
+                job_must_be = delayed_job_models.get_or_create(job_type, params)
+
+                statistics = {
+                    'total_items': 100,
+                    'file_size': 100
+                }
+
+                token = job_submission_service.generate_job_token(job_must_be.id)
+                headers = {
+                    'X-JOB-KEY': token
+                }
+
+                client = self.client
+                response = client.post(f'record/search/{job_must_be.id}', data=statistics, headers=headers)
+                print('RESPONSE STATUS', response.status_code)
+                self.assertEqual(response.status_code, 412, msg='The job must be finished before saving statistics')

@@ -37,3 +37,5 @@ class SearchRecord(Resource):
             return record_search_service.save_statistics_for_job(id, statistics)
         except record_search_service.JobNotFoundError:
             abort(404)
+        except record_search_service.JobNotFinishedError:
+            abort(412)
