@@ -50,8 +50,8 @@ class TestStatus(unittest.TestCase):
     def test_get_non_existing_job_status(self):
 
         client = self.client
-        response = client.get(f'/status/some_id')
-        self.assertEqual(response.status_code, 400, msg='A 404 not found error should have been produced')
+        response = client.get('/status/some_id')
+        self.assertEqual(response.status_code, 404, msg='A 404 not found error should have been produced')
 
     def test_a_job_cannot_update_another_job_status(self):
 

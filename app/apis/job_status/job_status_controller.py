@@ -48,7 +48,7 @@ class JobStatus(Resource):
         try:
             return job_status_service.get_job_status(id)
         except job_status_service.JobNotFoundError:
-            abort(400)
+            abort(404)
 
     @API.marshal_with(MODIFIABLE_STATUS)
     @API.doc(security='jobKey', body=MODIFIABLE_STATUS)
@@ -67,4 +67,4 @@ class JobStatus(Resource):
         try:
             return job_status_service.update_job_status(id, new_data)
         except job_status_service.JobNotFoundError:
-            abort(400)
+            abort(404)
