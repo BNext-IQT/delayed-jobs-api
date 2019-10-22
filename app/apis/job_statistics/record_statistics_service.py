@@ -20,18 +20,26 @@ def save_statistics_for_job(id, statistics):
         if job.status != delayed_job_models.JobStatuses.FINISHED:
             raise JobNotFinishedError()
 
-        calculated_statistics = {
-            **statistics,
-            'is_new': False,
-            'time_taken': int((job.finished_at - job.started_at).total_seconds()),
-            'search_type': job.type,
-            'request_date': job.started_at.timestamp()
-        }
-        save_search_record_to_elasticsearch(calculated_statistics)
-
+        calculated_statistics = calculate_extra_and_save_statistics_to_elasticsearch(job, statistics)
         return calculated_statistics
+
     except delayed_job_models.JobNotFoundError:
         raise JobNotFoundError()
+
+
+def calculate_extra_and_save_statistics_to_elasticsearch(job, statistics):
+
+    calculated_statistics = {
+        **statistics,
+        'is_new': False,
+        'time_taken': int((job.finished_at - job.started_at).total_seconds()),
+        'search_type': job.type,
+        'request_date': job.started_at.timestamp()
+    }
+    save_search_record_to_elasticsearch(calculated_statistics)
+
+    return calculated_statistics
+
 
 def save_search_record_to_elasticsearch(calculated_statistics):
 
