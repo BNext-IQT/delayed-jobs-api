@@ -10,7 +10,6 @@ from app import create_app
 import os
 import yaml
 from app.authorisation import token_generator
-from flask import url_for
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -100,5 +99,15 @@ class TestJobSubmitter(unittest.TestCase):
             job_params_must_be = job_data.get('raw_params')
             self.assertEqual(job_params_got, job_params_must_be,
                              msg='The job params were not set correctly')
+
+            script_file_must_be = \
+                os.path.join(job_run_dir_must_be, job_submission_service.SCRIPT_FILENAMES.get(job_data.get('type')))
+
+            self.assertTrue(os.path.isfile(script_file_must_be),
+                            msg=f'The script file for the job ({script_file_must_be}) has not been created!')
+
+            self.assertTrue(os.access(script_file_must_be, os.X_OK),
+                            msg=f'The script file for the job ({script_file_must_be}) is not executable!')
+
 
 
