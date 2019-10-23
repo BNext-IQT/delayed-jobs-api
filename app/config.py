@@ -12,4 +12,11 @@ print('-------------------------------------------------------------------------
 print('CONFIG_FILE_PATH: ', CONFIG_FILE_PATH)
 print('------------------------------------------------------------------------------------------------')
 
+
+class RunEnvs(object):
+    DEV = 'DEV'
+    TEST = 'TEST'
+    STAGING = 'STAGING'
+    PROD = 'PROD'
+
 RUN_CONFIG = yaml.load(open(CONFIG_FILE_PATH, 'r'), Loader=yaml.FullLoader)

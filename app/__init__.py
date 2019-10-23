@@ -10,6 +10,7 @@ from app.apis.job_statistics.record_search_controller import API as record_searc
 from app.apis.job_statistics.record_download_controller import API as record_download_api
 from app.db import db
 from app.config import RUN_CONFIG
+from app.config import RunEnvs
 
 
 def create_app():
@@ -29,6 +30,10 @@ def create_app():
 
     with flask_app.app_context():
         db.init_app(flask_app)
+
+        create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
+        if create_tables:
+            db.create_all()
 
         api = Api(
             title='ChEMBL Interface Delayed Jobs',

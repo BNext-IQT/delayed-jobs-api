@@ -18,14 +18,10 @@ class TestModels(unittest.TestCase):
         self.flask_app = create_app()
         self.client = self.flask_app.test_client()
 
-        with self.flask_app.app_context():
-            db.create_all()
-
     def tearDown(self):
 
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
-
 
     def test_job_id_is_generated_correctly(self):
         job_type = delayed_job_models.JobTypes.SIMILARITY

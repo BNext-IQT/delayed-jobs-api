@@ -16,9 +16,6 @@ class TestStatus(unittest.TestCase):
         self.flask_app = create_app()
         self.client = self.flask_app.test_client()
 
-        with self.flask_app.app_context():
-            db.create_all()
-
     def tearDown(self):
 
         with self.flask_app.app_context():
@@ -93,8 +90,7 @@ class TestStatus(unittest.TestCase):
                 response = client.post(f'record/search/{job_must_be.id}', data=statistics, headers=headers)
                 self.assertEqual(response.status_code, 412, msg='The job must be finished before saving statistics')
 
-
-    def test_job_must_be_finished_to_save_statistics(self):
+    def test_saves_statistics_for_search_job(self):
 
         with self.flask_app.app_context():
 
