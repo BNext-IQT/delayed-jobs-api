@@ -10,6 +10,7 @@ from app import create_app
 import os
 import yaml
 from app.authorisation import token_generator
+from flask import url_for
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -66,11 +67,38 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertTrue(os.path.isfile(params_file_must_be),
                             msg=f'The run params file for the job ({params_file_must_be}) has not been created!')
 
-            params_got = yaml.load(open(params_file_must_be, 'r'), Loader=yaml.FullLoader)
+            params_file = open(params_file_must_be, 'r')
+            params_got = yaml.load(params_file, Loader=yaml.FullLoader)
+            params_file.close()
 
             token_must_be = token_generator.generate_job_token(job_id)
             token_got = params_got.get('job_token')
             self.assertEqual(token_must_be, token_got, msg='The token was not generated correctly')
 
-            print('status api url: ', self.flask_app.root_path)
+            # See how this works when deploying, one option could be to use the client?
+            status_update_url_must_be = f'http://127.0.0.1:5000/status/{job_id}'
+            status_update_url_got = params_got.get('status_update_endpoint').get('url')
+            self.assertEqual(status_update_url_must_be, status_update_url_got,
+                             msg='The status update url was not set correctly!')
+
+            status_update_method_must_be = 'PATCH'
+            status_update_method_got = params_got.get('status_update_endpoint').get('method')
+            self.assertEqual(status_update_method_must_be, status_update_method_got,
+                             msg='The status update method was not set correctly!')
+
+            statistics_url_must_be = f'http://127.0.0.1:5000/record/search/{job_id}'
+            statistics_url_got = params_got.get('statistics_endpoint').get('url')
+            self.assertEqual(statistics_url_must_be, statistics_url_got,
+                             msg='The statistics url was not set correctly!')
+
+            statistics_method_must_be = 'POST'
+            statistics_method_got = params_got.get('statistics_endpoint').get('method')
+            self.assertEqual(statistics_method_must_be, statistics_method_got,
+                             msg='The statistics update method was not set correctly!')
+
+            job_params_got = params_got.get('job_params')
+            job_params_must_be = job_data.get('raw_params')
+            self.assertEqual(job_params_got, job_params_must_be,
+                             msg='The job params were not set correctly')
+
 

@@ -33,13 +33,22 @@ def submit_job(job_type, job_params):
     job_token = token_generator.generate_job_token(job.id)
 
     run_params = run_params_template.format(
-        JOB_TOKEN=job_token
+        JOB_TOKEN=job_token,
+        STATUS_UPDATE_URL=f'http://127.0.0.1:5000/status/{job.id}',
+        STATUS_UPDATE_METHOD='PATCH',
+        STATISTICS_URL=f'http://127.0.0.1:5000/record/search/{job.id}',
+        STATISTICS_METHOD='POST',
+        JOB_PARAMS=f'{job.raw_params}'
     )
 
     run_params_path = os.path.join(job_run_dir, RUN_PARAMS_FILENAME)
 
+    # delete file if existed before, just in case
+    if os.path.exists(run_params_path):
+        os.remove(run_params_path)
+
     with open(run_params_path, "w") as out_file:
-        print(run_params, file=out_file)
+        out_file.write(run_params)
 
     return job.public_dict()
 

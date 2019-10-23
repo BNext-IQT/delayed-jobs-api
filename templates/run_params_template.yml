@@ -1,1 +1,8 @@
 job_token: {JOB_TOKEN}
+status_update_endpoint:
+  url: {STATUS_UPDATE_URL}
+  method: {STATUS_UPDATE_METHOD}
+statistics_endpoint:
+  url: {STATISTICS_URL}
+  method: {STATISTICS_METHOD}
+job_params: '{JOB_PARAMS}'
