@@ -6,8 +6,9 @@ import jwt
 from app.config import RUN_CONFIG
 from app.apis.job_submission import job_submission_service
 from app.apis.models import delayed_job_models
-from app.db import db
 from app import create_app
+import os
+import yaml
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -52,4 +53,21 @@ class TestJobSubmitter(unittest.TestCase):
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }
-            job_submission_service.submit_job(job_type, params)
+            job_data = job_submission_service.submit_job(job_type, params)
+            job_id = job_data.get('id')
+
+            job_run_dir_must_be = os.path.join(job_submission_service.JOBS_RUN_DIR, job_id)
+            self.assertTrue(os.path.isdir(job_run_dir_must_be),
+                            msg=f'The run dir for the job ({job_run_dir_must_be}) has not been created!')
+
+            params_file_must_be = os.path.join(job_run_dir_must_be, job_submission_service.RUN_PARAMS_FILENAME)
+
+            self.assertTrue(os.path.isfile(params_file_must_be),
+                            msg=f'The run params file for the job ({params_file_must_be}) has not been created!')
+
+            params_got = yaml.load(open(params_file_must_be, 'r'), Loader=yaml.FullLoader)
+
+            token_must_be = job_submission_service.generate_job_token(job_id)
+            token_got = params_got.get('job_token')
+            self.assertEqual(token_must_be, token_got, msg='The token was not generated correctly')
+

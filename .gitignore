@@ -129,3 +129,6 @@ dmypy.json
 
 # Current config file
 /config.yml
+
+# Jobs run dir
+jobs_run/**

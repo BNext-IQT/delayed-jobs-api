@@ -6,3 +6,4 @@ sql_alchemy:
   track_modifications: False
 elasticsearch:
   host: 'the elasticsearch host'
+jobs_run_dir: '/Users/dmendez/PycharmProjects/delayed-jobs'
