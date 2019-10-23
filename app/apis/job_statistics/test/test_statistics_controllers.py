@@ -5,7 +5,7 @@ import unittest
 from app import create_app
 from app.db import db
 from app.apis.models import delayed_job_models
-from app.apis.job_submission import job_submission_service
+from app.authorisation import token_generator
 import datetime
 import json
 
@@ -29,7 +29,7 @@ class TestStatus(unittest.TestCase):
                 'file_size': 100
             }
 
-            token = job_submission_service.generate_job_token('another_id')
+            token = token_generator.generate_job_token('another_id')
             headers = {
                 'X-JOB-KEY': token
             }
@@ -51,7 +51,7 @@ class TestStatus(unittest.TestCase):
                 'file_size': 100
             }
 
-            token = job_submission_service.generate_job_token('some_job_id')
+            token = token_generator.generate_job_token('some_job_id')
             headers = {
                 'X-JOB-KEY': token
             }
@@ -81,7 +81,7 @@ class TestStatus(unittest.TestCase):
                     'file_size': 100
                 }
 
-                token = job_submission_service.generate_job_token(job_must_be.id)
+                token = token_generator.generate_job_token(job_must_be.id)
                 headers = {
                     'X-JOB-KEY': token
                 }
@@ -115,7 +115,7 @@ class TestStatus(unittest.TestCase):
                     'file_size': 100
                 }
 
-                token = job_submission_service.generate_job_token(job_must_be.id)
+                token = token_generator.generate_job_token(job_must_be.id)
                 headers = {
                     'X-JOB-KEY': token
                 }

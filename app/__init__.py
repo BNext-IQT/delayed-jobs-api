@@ -18,7 +18,7 @@ def create_app():
     flask_app = Flask(__name__)
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
-    flask_app.config['SERVER_SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
+    flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
     authorizations = {
         'jobKey': {

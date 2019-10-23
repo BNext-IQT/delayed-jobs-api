@@ -9,6 +9,7 @@ from app.apis.models import delayed_job_models
 from app import create_app
 import os
 import yaml
+from app.authorisation import token_generator
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -36,7 +37,7 @@ class TestJobSubmitter(unittest.TestCase):
                 'threshold': '70'
             }
             job_must_be = delayed_job_models.get_or_create(job_type, params)
-            token_got = job_submission_service.generate_job_token(job_must_be.id)
+            token_got = token_generator.generate_job_token(job_must_be.id)
             key = RUN_CONFIG.get('server_secret_key')
             data_got = jwt.decode(token_got, key, algorithms=['HS256'])
             self.assertEqual(data_got.get('job_id'), job_must_be.id, msg='The token was not generated correctly!')
@@ -67,7 +68,9 @@ class TestJobSubmitter(unittest.TestCase):
 
             params_got = yaml.load(open(params_file_must_be, 'r'), Loader=yaml.FullLoader)
 
-            token_must_be = job_submission_service.generate_job_token(job_id)
+            token_must_be = token_generator.generate_job_token(job_id)
             token_got = params_got.get('job_token')
             self.assertEqual(token_must_be, token_got, msg='The token was not generated correctly')
+
+            print('status api url: ', self.flask_app.root_path)
 

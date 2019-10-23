@@ -3,10 +3,9 @@ Tests for the job apis
 """
 import json
 import unittest
-
+from app.authorisation import token_generator
 from app import create_app
 from app.apis.models import delayed_job_models
-from app.apis.job_submission import job_submission_service
 from app.db import db
 import datetime
 
@@ -68,7 +67,7 @@ class TestStatus(unittest.TestCase):
                 'progress': 50
             }
 
-            token = job_submission_service.generate_job_token('another_id')
+            token = token_generator.generate_job_token('another_id')
             headers = {
                 'X-JOB-KEY': token
             }
@@ -95,7 +94,7 @@ class TestStatus(unittest.TestCase):
                 'progress': 50
             }
 
-            token = job_submission_service.generate_job_token(job_id)
+            token = token_generator.generate_job_token(job_id)
             headers = {
                 'X-JOB-KEY': token
             }
@@ -131,7 +130,7 @@ class TestStatus(unittest.TestCase):
                 'progress': 50
             }
 
-            token = job_submission_service.generate_job_token(job_id)
+            token = token_generator.generate_job_token(job_id)
             headers = {
                 'X-JOB-KEY': token
             }
@@ -166,7 +165,7 @@ class TestStatus(unittest.TestCase):
                 'progress': 100
             }
 
-            token = job_submission_service.generate_job_token(job_id)
+            token = token_generator.generate_job_token(job_id)
             headers = {
                 'X-JOB-KEY': token
             }
