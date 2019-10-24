@@ -10,6 +10,7 @@ from app import create_app
 import os
 import yaml
 from app.authorisation import token_generator
+import shutil
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -25,6 +26,11 @@ class TestJobSubmitter(unittest.TestCase):
 
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
+            jobs_run_dir = job_submission_service.JOBS_RUN_DIR
+            try:
+                shutil.rmtree(jobs_run_dir)
+            except FileNotFoundError:
+                pass
 
     def test_job_token_is_generated(self):
         """
@@ -115,5 +121,17 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertTrue(os.access(script_file_must_be, os.X_OK),
                             msg=f'The script file for the job ({script_file_must_be}) is not executable!')
 
-
+    # pylint: disable=no-self-use
+    def test_job_can_be_run(self):
+        """
+        Test that a job can be run
+        """
+        with self.flask_app.app_context():
+            job_type = delayed_job_models.JobTypes.TEST
+            params = {
+                'instruction': 'RUN_NORMALLY',
+                'seconds': 1
+            }
+            print('TESTING JOB RUN')
+            job_data = job_submission_service.submit_job(job_type, params)
 
