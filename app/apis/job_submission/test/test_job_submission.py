@@ -74,6 +74,10 @@ class TestJobSubmitter(unittest.TestCase):
             token_got = params_got.get('job_token')
             self.assertEqual(token_must_be, token_got, msg='The token was not generated correctly')
 
+            job_id_must_be = job_id
+            job_id_got = params_got.get('job_id')
+            self.assertEqual(job_id_must_be, job_id_got, msg='The job id was not generated correctly')
+
             # See how this works when deploying, one option could be to use the client?
             status_update_url_must_be = f'http://127.0.0.1:5000/status/{job_id}'
             status_update_url_got = params_got.get('status_update_endpoint').get('url')

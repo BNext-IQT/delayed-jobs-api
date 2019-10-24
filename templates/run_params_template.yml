@@ -1,3 +1,4 @@
+job_id: {JOB_ID}
 job_token: {JOB_TOKEN}
 status_update_endpoint:
   url: {STATUS_UPDATE_URL}

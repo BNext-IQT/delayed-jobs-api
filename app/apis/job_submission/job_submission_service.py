@@ -46,6 +46,7 @@ def submit_job(job_type, job_params):
     job_token = token_generator.generate_job_token(job.id)
 
     run_params = run_params_template.format(
+        JOB_ID=job.id,
         JOB_TOKEN=job_token,
         STATUS_UPDATE_URL=f'http://127.0.0.1:5000/status/{job.id}',
         STATUS_UPDATE_METHOD='PATCH',
