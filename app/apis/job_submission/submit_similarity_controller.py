@@ -1,3 +1,4 @@
+from flask import request
 from flask_restplus import Namespace, Resource, fields
 from app.apis.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.apis.models import delayed_job_models
@@ -26,6 +27,7 @@ class SubmitSimilarityJob(Resource):
     """
     job_type = delayed_job_models.JobTypes.SIMILARITY
 
+    @API.expect(SIMILARITY_JOB)
     @API.doc(body=SIMILARITY_JOB)
     @API.marshal_with(BASE_SUBMISSION_RESPONSE)
     def post(self):  # pylint: disable=no-self-use
@@ -34,5 +36,10 @@ class SubmitSimilarityJob(Resource):
         :return: a json response with the result of the submission
         """
 
-        response = job_submission_service.submit_job(self.job_type, API.payload)
+        json_data = request.json
+        job_params = {
+            **json_data,
+            'search_type': str(self.job_type),
+        }
+        response = job_submission_service.submit_job(self.job_type, job_params)
         return response
