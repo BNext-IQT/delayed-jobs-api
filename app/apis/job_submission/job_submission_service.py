@@ -24,7 +24,7 @@ JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 RUN_PARAMS_FILENAME = 'run_params.yml'
 
 SCRIPT_FILENAMES = {
-    f'{delayed_job_models.JobTypes.SIMILARITY}': 'similarity.py'
+    f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py'
 }
 
 SCRIPT_FILES = {

@@ -26,6 +26,7 @@ class TestModels(unittest.TestCase):
     def test_job_id_is_generated_correctly(self):
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -44,6 +45,7 @@ class TestModels(unittest.TestCase):
         with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.SIMILARITY
             params = {
+                'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }
@@ -70,6 +72,7 @@ class TestModels(unittest.TestCase):
         with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.SIMILARITY
             params = {
+                'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }

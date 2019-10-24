@@ -26,6 +26,7 @@ class TestStatus(unittest.TestCase):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -53,6 +54,7 @@ class TestStatus(unittest.TestCase):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -80,6 +82,7 @@ class TestStatus(unittest.TestCase):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -117,6 +120,7 @@ class TestStatus(unittest.TestCase):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -153,6 +157,7 @@ class TestStatus(unittest.TestCase):
     def test_finished_at_and_expires_time_are_calculated_correctly(self):
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }

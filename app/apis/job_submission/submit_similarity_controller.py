@@ -1,7 +1,7 @@
 from flask_restplus import Namespace, Resource, fields
-
 from app.apis.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.apis.models import delayed_job_models
+from app.apis.job_submission import job_submission_service
 
 API = Namespace('submit/similarity', description='Requests to submit a similarity job')
 
@@ -34,8 +34,5 @@ class SubmitSimilarityJob(Resource):
         :return: a json response with the result of the submission
         """
 
-        # response = job_submitter.submit_job(self.job_type, API.payload)
-        return {
-            'id': 'id',
-            'status': 'The job is running!'
-        }
+        response = job_submission_service.submit_job(self.job_type, API.payload)
+        return response
