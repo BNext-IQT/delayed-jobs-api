@@ -52,11 +52,12 @@ class JobNotFoundError(Exception):
     pass
 
 
-class JobRun(db.Model):
+class JobExecution(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hostname = db.Column(db.String(length=500), nullable=False)
     command = db.Column(db.String(length=500), nullable=False)
     pid = db.Column(db.Integer, nullable=False)
+    run_dir = db.Column(db.Text)
     job_id = db.Column(db.Integer, db.ForeignKey('delayed_job.id'), nullable=False)
 
 
@@ -75,7 +76,7 @@ class DelayedJob(db.Model):
     expires_at = db.Column(db.DateTime)
     api_initial_url = db.Column(db.Text)
     timezone = db.Column(db.String(length=60), default=str(datetime.timezone.utc))
-    executions = db.relationship('JobRun', backref='delayed_job', lazy=True)
+    executions = db.relationship('JobExecution', backref='delayed_job', lazy=True)
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'

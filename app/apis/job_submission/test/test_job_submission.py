@@ -27,10 +27,10 @@ class TestJobSubmitter(unittest.TestCase):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
             jobs_run_dir = job_submission_service.JOBS_RUN_DIR
-            try:
-                shutil.rmtree(jobs_run_dir)
-            except FileNotFoundError:
-                pass
+            # try:
+            #     shutil.rmtree(jobs_run_dir)
+            # except FileNotFoundError:
+            #     pass
 
     def test_job_token_is_generated(self):
         """
@@ -120,6 +120,16 @@ class TestJobSubmitter(unittest.TestCase):
 
             self.assertTrue(os.access(script_file_must_be, os.X_OK),
                             msg=f'The script file for the job ({script_file_must_be}) is not executable!')
+
+            run_file_must_be = \
+                os.path.join(job_run_dir_must_be, job_submission_service.RUN_FILE_NAME)
+
+            self.assertTrue(os.path.isfile(run_file_must_be),
+                            msg=f'The run file for the job ({run_file_must_be}) has not been created!')
+
+            self.assertTrue(os.access(run_file_must_be, os.X_OK),
+                        msg=f'The script file for the job ({run_file_must_be}) is not executable!')
+
 
     # pylint: disable=no-self-use
     def test_job_can_be_run(self):

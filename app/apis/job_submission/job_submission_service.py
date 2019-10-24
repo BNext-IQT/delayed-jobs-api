@@ -22,6 +22,7 @@ print('-------------------------------------------------------------------------
 JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 
 RUN_PARAMS_FILENAME = 'run_params.yml'
+RUN_FILE_NAME = 'run.sh'
 
 SCRIPT_FILENAMES = {
     f'{delayed_job_models.JobTypes.TEST}': 'test_job.py',
@@ -72,16 +73,32 @@ def prepare_run_folder(job):
     if os.path.exists(run_params_path):
         os.remove(run_params_path)
 
-    with open(run_params_path, "w") as out_file:
+    with open(run_params_path, 'w') as out_file:
         out_file.write(run_params)
 
     job_script = SCRIPT_FILES.get(str(job.type))
-    run_script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES.get(str(job.type)))
-    shutil.copyfile(job_script, run_script_path)
+    script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES.get(str(job.type)))
+    shutil.copyfile(job_script, script_path)
 
     # make sure file is executable
-    st = os.stat(run_script_path)
-    os.chmod(run_script_path, st.st_mode | stat.S_IEXEC)
+    st = os.stat(script_path)
+    os.chmod(script_path, st.st_mode | stat.S_IEXEC)
+
+    run_job_template_file = open(os.path.join(Path().absolute(), 'templates', RUN_FILE_NAME))
+    run_job_template = run_job_template_file.read()
+    run_job_params = run_job_template.format(
+        SCRIPT_TO_EXECUTE=script_path,
+        PARAMS_FILE=run_params_path
+    )
+    run_job_template_file.close()
+    run_file_path = os.path.join(job_run_dir, RUN_FILE_NAME)
+
+    with open(run_file_path, 'w') as out_file:
+        out_file.write(run_job_params)
+
+    # make sure file is executable
+    st = os.stat(run_file_path)
+    os.chmod(run_file_path, st.st_mode | stat.S_IEXEC)
 
 
 def run_job(job):
