@@ -8,6 +8,8 @@ import os
 import stat
 from app.authorisation import token_generator
 import shutil
+import subprocess
+import socket
 
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir')
@@ -41,14 +43,24 @@ def submit_job(job_type, job_params):
     """Submit job to the queue"""
     job = delayed_job_models.get_or_create(job_type, job_params)
     prepare_run_folder(job)
-    run_job(job)
+    must_run_jobs = RUN_CONFIG.get('run_jobs', True)
+    if must_run_jobs:
+        run_job(job)
 
     return job.public_dict()
 
 
+def get_job_run_dir(job):
+    return os.path.join(JOBS_RUN_DIR, job.id)
+
+
+def get_job_run_file_path(job):
+    return os.path.join(get_job_run_dir(job), RUN_FILE_NAME)
+
+
 def prepare_run_folder(job):
 
-    job_run_dir = os.path.join(JOBS_RUN_DIR, job.id)
+    job_run_dir = get_job_run_dir(job)
     os.makedirs(job_run_dir, exist_ok=True)
 
     template_run_params_path = os.path.join(Path().absolute(), 'templates', 'run_params_template.yml')
@@ -87,11 +99,12 @@ def prepare_run_folder(job):
     run_job_template_file = open(os.path.join(Path().absolute(), 'templates', RUN_FILE_NAME))
     run_job_template = run_job_template_file.read()
     run_job_params = run_job_template.format(
+        RUN_DIR=job_run_dir,
         SCRIPT_TO_EXECUTE=script_path,
         PARAMS_FILE=run_params_path
     )
     run_job_template_file.close()
-    run_file_path = os.path.join(job_run_dir, RUN_FILE_NAME)
+    run_file_path = get_job_run_file_path(job)
 
     with open(run_file_path, 'w') as out_file:
         out_file.write(run_job_params)
@@ -102,5 +115,21 @@ def prepare_run_folder(job):
 
 
 def run_job(job):
+
     print('GOING TO RUN: ', job.id)
+    run_command = f'{get_job_run_file_path(job)}'
+    print('run_command: ', run_command)
+
+    run_output = subprocess.Popen([run_command, '&'])
+
+    job_execution = delayed_job_models.JobExecution(
+        hostname=socket.gethostname(),
+        command=run_command,
+        pid=run_output.pid,
+        run_dir=get_job_run_dir(job)
+    )
+
+    delayed_job_models.add_job_execution_to_job(job, job_execution)
+
+    print('pid: ', run_output.pid)
 

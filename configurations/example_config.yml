@@ -8,3 +8,4 @@ elasticsearch:
   host: 'the elasticsearch host'
 jobs_run_dir: 'Where the job runs'
 jobs_scripts_dir: 'Where the job scripts are'
+run_jobs: False # If False, do not actually run any job, useful for testing. Assumed to be true if missing.

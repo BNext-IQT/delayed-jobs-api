@@ -10,7 +10,6 @@ from app import create_app
 import os
 import yaml
 from app.authorisation import token_generator
-import shutil
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -142,6 +141,18 @@ class TestJobSubmitter(unittest.TestCase):
                 'instruction': 'RUN_NORMALLY',
                 'seconds': 1
             }
-            print('TESTING JOB RUN')
+
             job_data = job_submission_service.submit_job(job_type, params)
+            job = delayed_job_models.get_job_by_id(job_data.get('id'))
+            job_submission_service.run_job(job)
+
+            job_execution_got = job.executions[0]
+            pid_got = job_execution_got.pid
+
+            try:
+                os.kill(pid_got, 0)
+            except OSError:
+                self.fail(msg='Job is not running!')
+
+
 

@@ -9,7 +9,7 @@ from enum import Enum
 from app.db import db
 
 
-DAYS_TO_LIVE = 7 # Days for which the results are kept
+DAYS_TO_LIVE = 7  # Days for which the results are kept
 
 
 class JobTypes(Enum):
@@ -101,6 +101,7 @@ class DelayedJob(db.Model):
 
             self.status = new_value
 
+
 def generate_job_id(job_type, job_params):
     """
     Generates a job id from a sha 256 hash of the string version of the job params in base 64
@@ -131,12 +132,14 @@ def get_or_create(job_type, job_params):
     db.session.commit()
     return job
 
+
 def get_job_by_id(id):
 
     job = DelayedJob.query.filter_by(id=id).first()
     if job is None:
         raise JobNotFoundError()
     return job
+
 
 def update_job_status(id, new_data):
 
@@ -154,5 +157,14 @@ def update_job_status(id, new_data):
     db.session.commit()
     return job
 
+
+def add_job_execution_to_job(job, execution):
+
+    job.executions.append(execution)
+    db.session.add(execution)
+    db.session.commit()
+
+
 def delete_all_jobs():
+
     DelayedJob.query.filter_by().delete()
