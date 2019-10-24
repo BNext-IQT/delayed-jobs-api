@@ -39,6 +39,14 @@ SCRIPT_FILES = {
 def submit_job(job_type, job_params):
     """Submit job to the queue"""
     job = delayed_job_models.get_or_create(job_type, job_params)
+    prepare_run_folder(job)
+    run_job(job)
+
+    return job.public_dict()
+
+
+def prepare_run_folder(job):
+
     job_run_dir = os.path.join(JOBS_RUN_DIR, job.id)
     os.makedirs(job_run_dir, exist_ok=True)
 
@@ -75,7 +83,7 @@ def submit_job(job_type, job_params):
     st = os.stat(run_script_path)
     os.chmod(run_script_path, st.st_mode | stat.S_IEXEC)
 
-    return job.public_dict()
 
-# def run_job
+def run_job(job):
+    print('GOING TO RUN: ', job.id)
 
