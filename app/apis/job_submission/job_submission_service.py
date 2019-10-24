@@ -24,10 +24,13 @@ JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 RUN_PARAMS_FILENAME = 'run_params.yml'
 
 SCRIPT_FILENAMES = {
+    f'{delayed_job_models.JobTypes.TEST}': 'test_job.py',
     f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py'
 }
 
 SCRIPT_FILES = {
+    f'{delayed_job_models.JobTypes.TEST}':
+        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.TEST))),
     f'{delayed_job_models.JobTypes.SIMILARITY}':
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SIMILARITY))),
 }
@@ -73,4 +76,6 @@ def submit_job(job_type, job_params):
     os.chmod(run_script_path, st.st_mode | stat.S_IEXEC)
 
     return job.public_dict()
+
+# def run_job
 

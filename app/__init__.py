@@ -5,6 +5,7 @@ from flask import Flask
 from flask_restplus import Api
 
 from app.apis.job_status.job_status_controller import API as job_status_api
+from app.apis.job_submission.submit_test_job_controller import API as submit_test_job_api
 from app.apis.job_submission.submit_similarity_controller import API as similarity_api
 from app.apis.job_statistics.record_search_controller import API as record_search_api
 from app.apis.job_statistics.record_download_controller import API as record_download_api
@@ -45,6 +46,7 @@ def create_app():
         )
 
         api.add_namespace(job_status_api)
+        api.add_namespace(submit_test_job_api)
         api.add_namespace(similarity_api)
         api.add_namespace(record_search_api)
         api.add_namespace(record_download_api)

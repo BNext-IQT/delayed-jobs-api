@@ -4,7 +4,7 @@ from app.apis.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.apis.models import delayed_job_models
 from app.apis.job_submission import job_submission_service
 
-API = Namespace('submit/similarity', description='Requests to submit a similarity job')
+API = Namespace('submit/similarity', description='Namespace to submit a similarity job')
 
 SIMILARITY_JOB = API.model('SimilarityJob', {
     'structure': fields.String(description='The structure (SMILES) you want to search against',

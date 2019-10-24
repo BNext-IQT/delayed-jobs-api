@@ -12,10 +12,12 @@ from app.db import db
 
 DAYS_TO_LIVE = 7 # Days for which the results are kept
 
+
 class JobTypes(Enum):
     """
         Types of delayed jobs
     """
+    TEST = 'TEST'
     SIMILARITY = 'SIMILARITY'
     SUBSTRUCTURE = 'SUBSTRUCTURE'
     CONNECTIVITY = 'CONNECTIVITY'
