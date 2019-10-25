@@ -116,10 +116,8 @@ def prepare_run_folder(job):
 
 def run_job(job):
 
-    print('GOING TO RUN: ', job.id)
+    print('RUNNING JOB: ', job.id)
     run_command = f'{get_job_run_file_path(job)}'
-    print('run_command: ', run_command)
-
     run_output = subprocess.Popen([run_command, '&'])
 
     job_execution = delayed_job_models.JobExecution(
@@ -130,6 +128,4 @@ def run_job(job):
     )
 
     delayed_job_models.add_job_execution_to_job(job, job_execution)
-
-    print('pid: ', run_output.pid)
 

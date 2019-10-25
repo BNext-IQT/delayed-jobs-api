@@ -36,5 +36,6 @@ class SubmitTestJob(Resource):
         Submits a job to the queue.
         :return: a json response with the result of the submission
         """
+        print('submit test', request.json)
         response = job_submission_service.submit_job(self.job_type, request.json)
         return response

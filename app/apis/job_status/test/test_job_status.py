@@ -115,7 +115,6 @@ class TestStatus(unittest.TestCase):
                 value_got = getattr(job_got, key)
                 self.assertEqual(value_got, value_must_be, msg=f'The {key} was not updated correctly!')
 
-
     def test_started_at_time_is_calculated_correctly(self):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
