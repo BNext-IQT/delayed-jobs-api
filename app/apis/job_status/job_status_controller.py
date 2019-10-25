@@ -11,6 +11,7 @@ MODIFIABLE_STATUS = API.model('ModifiableStatus', {
     'status': fields.String(required=True, description='The status of the job ',
                             enum=[str(possible_status) for possible_status in delayed_job_models.JobStatuses]),
     'status_comment': fields.String(required=True, description='A comment on the status of the job'),
+    'log': fields.String(required=True, description='The log of messages from the job'),
     'progress': fields.String(required=True, description='The progress percentage of the job'),
     'output_file_path': fields.String(required=True, description='The path where the result file is located'),
     'api_initial_url': fields.String(required=True, description='The initial URL of the API calls'),
