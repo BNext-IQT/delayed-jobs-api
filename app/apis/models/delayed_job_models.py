@@ -141,6 +141,12 @@ def get_job_by_id(id):
     return job
 
 
+def get_job_by_params(job_type, job_params):
+
+    id = generate_job_id(job_type, job_params)
+    return get_job_by_id(id)
+
+
 def update_job_status(id, new_data):
 
     job = get_job_by_id(id)

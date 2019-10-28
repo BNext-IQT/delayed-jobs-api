@@ -5,6 +5,10 @@ import os
 
 def run_test(server_base_url):
 
+    print('------------------------------------------------------------------------------------------------')
+    print('Going to test a successful job run')
+    print('------------------------------------------------------------------------------------------------')
+
     submit_url = f'{server_base_url}/submit/test_job/'
     print('submit_url: ', submit_url)
     seconds = 6

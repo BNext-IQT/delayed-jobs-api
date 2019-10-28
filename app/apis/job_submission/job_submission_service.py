@@ -41,11 +41,15 @@ SCRIPT_FILES = {
 
 def submit_job(job_type, job_params):
     """Submit job to the queue"""
-    job = delayed_job_models.get_or_create(job_type, job_params)
-    prepare_run_folder(job)
-    must_run_jobs = RUN_CONFIG.get('run_jobs', True)
-    if must_run_jobs:
-        run_job(job)
+
+    try:
+        job = delayed_job_models.get_job_by_params(job_type, job_params)
+    except delayed_job_models.JobNotFoundError:
+        job = delayed_job_models.get_or_create(job_type, job_params)
+        prepare_run_folder(job)
+        must_run_jobs = RUN_CONFIG.get('run_jobs', True)
+        if must_run_jobs:
+            run_job(job)
 
     return job.public_dict()
 

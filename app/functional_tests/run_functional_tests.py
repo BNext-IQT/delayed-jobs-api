@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import test_successful_job_run
+import test_job_cache
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('server_base_path', help='server base path to run the tests against',
@@ -10,6 +11,7 @@ args = parser.parse_args()
 def run():
 
     test_successful_job_run.run_test(args.server_base_path)
+    test_job_cache.run_test(args.server_base_path)
 
 
 if __name__ == "__main__":
