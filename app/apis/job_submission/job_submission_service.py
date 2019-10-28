@@ -44,12 +44,13 @@ def submit_job(job_type, job_params):
 
     try:
         job = delayed_job_models.get_job_by_params(job_type, job_params)
+
+        if job.status == delayed_job_models.JobStatuses.ERROR:
+            prepare_job_and_run(job)
+            
     except delayed_job_models.JobNotFoundError:
         job = delayed_job_models.get_or_create(job_type, job_params)
-        prepare_run_folder(job)
-        must_run_jobs = RUN_CONFIG.get('run_jobs', True)
-        if must_run_jobs:
-            run_job(job)
+        prepare_job_and_run(job)
 
     return job.public_dict()
 
@@ -60,6 +61,13 @@ def get_job_run_dir(job):
 
 def get_job_run_file_path(job):
     return os.path.join(get_job_run_dir(job), RUN_FILE_NAME)
+
+
+def prepare_job_and_run(job):
+    prepare_run_folder(job)
+    must_run_jobs = RUN_CONFIG.get('run_jobs', True)
+    if must_run_jobs:
+        run_job(job)
 
 
 def prepare_run_folder(job):

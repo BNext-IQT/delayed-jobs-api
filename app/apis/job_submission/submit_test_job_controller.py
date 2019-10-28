@@ -10,7 +10,7 @@ TEST_JOB = API.model('TestJob', {
     'instruction': fields.String(description='How do you want the job to behave',
                                  required=True,
                                  example='RUN_NORMALLY',
-                                 enum=['RUN_NORMALLY']
+                                 enum=['RUN_NORMALLY', 'FAIL']
                                  ),
     'seconds': fields.Integer(description='The amount of seconds that the job will run for',
                               required=True,

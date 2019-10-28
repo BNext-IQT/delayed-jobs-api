@@ -2,6 +2,7 @@
 import test_successful_job_run
 import test_job_cache
 import test_parallel_job_submission
+import test_failing_job
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('server_base_path', help='server base path to run the tests against',
@@ -11,10 +12,8 @@ args = parser.parse_args()
 
 def run():
 
-    test_successful_job_run.run_test(args.server_base_path)
-    test_job_cache.run_test(args.server_base_path)
-    test_parallel_job_submission.run_test(args.server_base_path)
-
+    for test_module in [test_successful_job_run, test_job_cache, test_parallel_job_submission, test_failing_job]:
+        test_module.run_test(args.server_base_path)
 
 if __name__ == "__main__":
     run()

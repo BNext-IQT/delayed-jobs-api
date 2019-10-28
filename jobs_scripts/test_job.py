@@ -40,6 +40,7 @@ def run():
 
     job_params = json.loads(RUN_PARAMS.get('job_params'))
     duration = job_params.get('seconds')
+    instruction = job_params.get('instruction')
 
     update_job_status(Statuses.RUNNING)
     log('Execution Started')
@@ -48,6 +49,11 @@ def run():
         time.sleep(1)
         progress = int((i / duration) * 100)
         update_job_progress(progress)
+
+    if instruction == 'FAIL':
+        update_job_status(Statuses.ERROR)
+        log('I failed')
+        return
 
     output_file_name = 'job_result.txt'
     with open(output_file_name, 'w') as out_file:
