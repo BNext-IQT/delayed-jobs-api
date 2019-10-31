@@ -51,6 +51,13 @@ def submit_job(job_type, job_params):
             if job.get_executions_count() < (MAX_RETRIES + 1):
                 prepare_job_and_run(job)
 
+        # This will not be necessary if we get FIRE
+        job_status = job.status
+        output_file_path = job.output_file_path
+        results_file_was_lost = (output_file_path is not None) and (not os.path.exists(output_file_path))
+        if (job_status == delayed_job_models.JobStatuses.FINISHED) and results_file_was_lost:
+            prepare_job_and_run(job)
+
     except delayed_job_models.JobNotFoundError:
         job = delayed_job_models.get_or_create(job_type, job_params)
         prepare_job_and_run(job)

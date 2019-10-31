@@ -9,6 +9,7 @@ import requests
 from enum import Enum
 import json
 from pathlib import Path
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('run_params_file', help='The path of the file with the run params')
@@ -59,6 +60,11 @@ def run():
     with open(output_file_name, 'w') as out_file:
         out_file.write('Results Ready!')
         update_job_output_path(str(Path(output_file_name).resolve()))
+
+    if instruction == 'DELETE_OUTPUT_FILE':
+        full_output_path = str(Path(output_file_name).resolve())
+        print('DELETING OUTPUT FILE: ', full_output_path)
+        os.remove(full_output_path)
 
     update_job_status(Statuses.FINISHED)
     log('Everything OK!')
