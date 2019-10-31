@@ -101,6 +101,9 @@ class DelayedJob(db.Model):
 
             self.status = new_value
 
+    def get_executions_count(self):
+        return len(self.executions)
+
 
 def generate_job_id(job_type, job_params):
     """

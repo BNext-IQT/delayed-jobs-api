@@ -38,6 +38,8 @@ SCRIPT_FILES = {
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SIMILARITY))),
 }
 
+MAX_RETRIES = 6
+
 
 def submit_job(job_type, job_params):
     """Submit job to the queue"""
@@ -46,8 +48,9 @@ def submit_job(job_type, job_params):
         job = delayed_job_models.get_job_by_params(job_type, job_params)
 
         if job.status == delayed_job_models.JobStatuses.ERROR:
-            prepare_job_and_run(job)
-            
+            if job.get_executions_count() < (MAX_RETRIES + 1):
+                prepare_job_and_run(job)
+
     except delayed_job_models.JobNotFoundError:
         job = delayed_job_models.get_or_create(job_type, job_params)
         prepare_job_and_run(job)
