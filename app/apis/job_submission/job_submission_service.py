@@ -138,7 +138,6 @@ def prepare_run_folder(job):
 
 def run_job(job):
 
-    print('RUNNING JOB: ', job.id)
     run_command = f'{get_job_run_file_path(job)}'
     run_output = subprocess.Popen([run_command, '&'])
 

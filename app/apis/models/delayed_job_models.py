@@ -65,7 +65,7 @@ class DelayedJob(db.Model):
     id = db.Column(db.String(length=60), primary_key=True)
     type = db.Column(db.Enum(JobTypes))
     status = db.Column(db.Enum(JobStatuses), default=JobStatuses.CREATED)
-    status_comment = db.Column(db.String) # a comment about the status, for example 'Compressing file'
+    status_comment = db.Column(db.String)  # a comment about the status, for example 'Compressing file'
     progress = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     started_at = db.Column(db.DateTime)
@@ -174,6 +174,18 @@ def add_job_execution_to_job(job, execution):
     db.session.commit()
 
 
+def save_job(job):
+
+    db.session.add(job)
+    db.session.commit()
+
+
 def delete_all_jobs():
 
     DelayedJob.query.filter_by().delete()
+
+
+def delete_all_expired_jobs():
+
+    now = datetime.datetime.utcnow()
+    DelayedJob.query.filter(DelayedJob.expires_at < now).delete()

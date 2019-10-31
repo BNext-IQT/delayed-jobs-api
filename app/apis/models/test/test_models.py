@@ -9,7 +9,6 @@ import unittest
 
 from app import create_app
 from app.apis.models import delayed_job_models
-from app.db import db
 
 
 class TestModels(unittest.TestCase):
