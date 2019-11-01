@@ -7,6 +7,7 @@ import hashlib
 import json
 from enum import Enum
 from app.db import db
+import shutil
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept
@@ -70,13 +71,14 @@ class DelayedJob(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     started_at = db.Column(db.DateTime)
     finished_at = db.Column(db.DateTime)
+    run_dir_path = db.Column(db.Text)
     output_file_path = db.Column(db.Text)
     log = db.Column(db.Text)
     raw_params = db.Column(db.Text)
     expires_at = db.Column(db.DateTime)
     api_initial_url = db.Column(db.Text)
     timezone = db.Column(db.String(length=60), default=str(datetime.timezone.utc))
-    executions = db.relationship('JobExecution', backref='delayed_job', lazy=True)
+    executions = db.relationship('JobExecution', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
@@ -180,6 +182,12 @@ def save_job(job):
     db.session.commit()
 
 
+def delete_job(job):
+
+    db.session.delete(job)
+    db.session.commit()
+
+
 def delete_all_jobs():
 
     DelayedJob.query.filter_by().delete()
@@ -188,4 +196,9 @@ def delete_all_jobs():
 def delete_all_expired_jobs():
 
     now = datetime.datetime.utcnow()
-    DelayedJob.query.filter(DelayedJob.expires_at < now).delete()
+    jobs_to_delete = DelayedJob.query.filter(DelayedJob.expires_at < now)
+    for job in jobs_to_delete:
+        run_dir_path = job.run_dir_path
+        delete_job(job)
+        shutil.rmtree(run_dir_path, ignore_errors=True)
+

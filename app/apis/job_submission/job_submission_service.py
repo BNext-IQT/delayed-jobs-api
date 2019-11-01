@@ -83,6 +83,9 @@ def prepare_job_and_run(job):
 def prepare_run_folder(job):
 
     job_run_dir = get_job_run_dir(job)
+    job.run_dir_path = job_run_dir
+    delayed_job_models.save_job(job)
+
     os.makedirs(job_run_dir, exist_ok=True)
 
     template_run_params_path = os.path.join(Path().absolute(), 'templates', 'run_params_template.yml')

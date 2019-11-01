@@ -44,7 +44,7 @@ class TestModels(unittest.TestCase):
         # simulate it finished
 
         job_run_dir = os.path.join(self.ABS_RUN_DIR_PATH, job.id)
-        print('job_run_dir: ', job_run_dir)
+        job.run_dir_path = job_run_dir
         os.makedirs(job_run_dir, exist_ok=True)
 
         job_execution = delayed_job_models.JobExecution(
@@ -73,15 +73,18 @@ class TestModels(unittest.TestCase):
 
             delayed_job_models.delete_all_expired_jobs()
             current_time = datetime.datetime.utcnow()
+            num_dirs_to_keep = 0
             for job in delayed_job_models.DelayedJob.query.all():
                 expires_at_got = job.expires_at
                 should_have_been_deleted = expires_at_got < current_time
                 self.assertFalse(should_have_been_deleted,
                                  msg='The expired jobs were not deleted correctly')
 
-                run_dir = job.output_file_path
-                print('run_dir: ', run_dir)
+                run_dir = job.run_dir_path
+                self.assertTrue(os.path.exists(run_dir),
+                                 msg="The job run dir was deleted, it didn't expire!")
 
-        # TODO: test deletion of run dir
+                num_dirs_to_keep += 1
 
-
+            num_dirs_got = len(os.listdir(self.ABS_RUN_DIR_PATH))
+            self.assertEqual(num_dirs_got, num_dirs_to_keep, msg='Some expired run dirs were not deleted!')
