@@ -197,8 +197,12 @@ def delete_all_expired_jobs():
 
     now = datetime.datetime.utcnow()
     jobs_to_delete = DelayedJob.query.filter(DelayedJob.expires_at < now)
+    num_deleted = 0
     for job in jobs_to_delete:
         run_dir_path = job.run_dir_path
         delete_job(job)
         shutil.rmtree(run_dir_path, ignore_errors=True)
+        num_deleted += 1
+
+    return num_deleted
 

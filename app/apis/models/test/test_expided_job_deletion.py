@@ -71,7 +71,7 @@ class TestModels(unittest.TestCase):
                 self.simulate_finished_job(time)
                 self.simulate_finished_job(time)
 
-            delayed_job_models.delete_all_expired_jobs()
+            num_deleted_got = delayed_job_models.delete_all_expired_jobs()
             current_time = datetime.datetime.utcnow()
             num_dirs_to_keep = 0
             for job in delayed_job_models.DelayedJob.query.all():
@@ -88,3 +88,7 @@ class TestModels(unittest.TestCase):
 
             num_dirs_got = len(os.listdir(self.ABS_RUN_DIR_PATH))
             self.assertEqual(num_dirs_got, num_dirs_to_keep, msg='Some expired run dirs were not deleted!')
+
+            num_deleted_must_be = 2
+            self.assertEqual(num_deleted_must_be, num_deleted_got,
+                             msg='The number of deleted jobs was not calculated correctly')
