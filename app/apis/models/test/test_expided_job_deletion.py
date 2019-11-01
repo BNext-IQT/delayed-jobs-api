@@ -79,6 +79,9 @@ class TestModels(unittest.TestCase):
                 self.assertFalse(should_have_been_deleted,
                                  msg='The expired jobs were not deleted correctly')
 
+                run_dir = job.output_file_path
+                print('run_dir: ', run_dir)
+
         # TODO: test deletion of run dir
 
 
