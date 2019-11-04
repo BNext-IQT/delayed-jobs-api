@@ -69,16 +69,3 @@ class JobStatus(Resource):
             return job_status_service.update_job_status(id, new_data)
         except job_status_service.JobNotFoundError:
             abort(404)
-
-
-@API.route('/')
-class JobStatusList(Resource):
-    """
-        Resource that handles job admin requests
-    """
-    def get(self):
-        """
-            Returns the status of all the jobs currently in the system
-            :return: a json response with the list of all the jobs in the system
-        """
-        return {'msg': 'all jobs!'}

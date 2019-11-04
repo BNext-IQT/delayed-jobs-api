@@ -28,3 +28,26 @@ def token_required_for_job_id(f):
 
     return decorated
 
+
+def admin_token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        username = kwargs.get('username')
+        token = request.headers.get('X-Admin-Key')
+        key = RUN_CONFIG.get('server_secret_key')
+
+        if token is None:
+            return jsonify({'message': 'Token is missing'}), 403
+
+        try:
+            token_data = jwt.decode(token, key, algorithms=['HS256'])
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+
+        if username == RUN_CONFIG.get('admin_username'):
+            return jsonify({'message': f'You are not authorised for this operation'}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated

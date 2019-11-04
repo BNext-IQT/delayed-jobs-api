@@ -22,6 +22,7 @@ def generate_job_token(job_id):
 def generate_admin_token():
 
     token_data = {
+        'username': RUN_CONFIG.get('admin_username'),
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=ADMIN_TOKEN_HOURS_TO_LIVE)
     }
 

@@ -27,6 +27,11 @@ def create_app():
             'type': 'apiKey',
             'in': 'header',
             'name': 'X-Job-Key'
+        },
+        'adminKey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'X-Admin-Key'
         }
     }
 
