@@ -21,7 +21,6 @@ class TestStatus(unittest.TestCase):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
 
-
     def test_get_existing_job_status(self):
 
         job_type = delayed_job_models.JobTypes.SIMILARITY

@@ -31,7 +31,7 @@ class AdminLogin(Resource):
                 return jsonify({'token': admin_token})
 
         return make_response('Could not verify username and password', 401,
-                             {'WWW-Authenticate': 'Basic real="Login Required'})
+                             {'WWW-Authenticate': 'Basic realm="Login Required'})
 
 
 @API.route('/delete_expired')

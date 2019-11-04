@@ -25,11 +25,14 @@ JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 
 RUN_PARAMS_FILENAME = 'run_params.yml'
 RUN_FILE_NAME = 'run.sh'
+COMMON_PACKAGE_NAME = 'common'
 
 SCRIPT_FILENAMES = {
     f'{delayed_job_models.JobTypes.TEST}': 'test_job.py',
     f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py'
 }
+
+UTILS_PACKAGE_PATH = os.path.join(JOBS_SCRIPTS_DIR, COMMON_PACKAGE_NAME)
 
 SCRIPT_FILES = {
     f'{delayed_job_models.JobTypes.TEST}':
@@ -116,6 +119,8 @@ def prepare_run_folder(job):
     job_script = SCRIPT_FILES.get(str(job.type))
     script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES.get(str(job.type)))
     shutil.copyfile(job_script, script_path)
+
+    shutil.copytree(UTILS_PACKAGE_PATH, os.path.join(job_run_dir, COMMON_PACKAGE_NAME))
 
     # make sure file is executable
     st = os.stat(script_path)

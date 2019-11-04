@@ -7,6 +7,9 @@ parser.add_argument('run_params_file', help='The path of the file with the run p
 parser.add_argument('-v', '--verbose', help='Make output verbose', action="store_true")
 args = parser.parse_args()
 
+RUN_PARAMS = {}
+LOG = ''
+
 
 def run(run_params_file, be_verbose):
     print('RUNNING...')
