@@ -82,7 +82,7 @@ class TestModels(unittest.TestCase):
 
                 run_dir = job.run_dir_path
                 self.assertTrue(os.path.exists(run_dir),
-                                 msg="The job run dir was deleted, it didn't expire!")
+                                msg="The job run dir was deleted, it didn't expire!")
 
                 num_dirs_to_keep += 1
 

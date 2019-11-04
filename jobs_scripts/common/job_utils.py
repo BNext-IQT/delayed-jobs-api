@@ -58,6 +58,21 @@ class ServerConnection:
         }
         self.send_status_update(appended_status)
 
+    def update_api_initial_url(self, api_initial_url):
+        """
+        Update's the job's api initial url
+        :param api_initial_url: the initial url from where the job is loading its results
+        """
+        if self.verbose:
+            print('--------------------------------------------------------------------------------------')
+            print('update_job_output_path: ', api_initial_url)
+            print('--------------------------------------------------------------------------------------')
+
+        appended_status = {
+            'api_initial_url': api_initial_url
+        }
+        self.send_status_update(appended_status)
+
     def update_job_output_path(self, file_path):
         """
         Update's the job output file path
