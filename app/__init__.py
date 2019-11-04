@@ -4,6 +4,7 @@ Entry file for the delayed jobs app
 from flask import Flask
 from flask_restplus import Api
 
+from app.apis.admin_auth.admin_auth_controller import API as job_admin_api
 from app.apis.job_status.job_status_controller import API as job_status_api
 from app.apis.job_submission.submit_test_job_controller import API as submit_test_job_api
 from app.apis.job_submission.submit_similarity_controller import API as similarity_api
@@ -45,11 +46,9 @@ def create_app():
             authorizations=authorizations
         )
 
-        api.add_namespace(job_status_api)
-        api.add_namespace(submit_test_job_api)
-        api.add_namespace(similarity_api)
-        api.add_namespace(record_search_api)
-        api.add_namespace(record_download_api)
+        for namespace in [job_admin_api, job_status_api, submit_test_job_api, similarity_api, record_search_api,
+                          record_download_api]:
+            api.add_namespace(namespace)
 
         return flask_app
 
