@@ -14,7 +14,6 @@ MODIFIABLE_STATUS = API.model('ModifiableStatus', {
     'status_comment': fields.String(required=True, description='A comment on the status of the job'),
     'log': fields.String(required=True, description='The log of messages from the job'),
     'progress': fields.String(required=True, description='The progress percentage of the job'),
-    'output_file_path': fields.String(required=True, description='The path where the result file is located'),
     'api_initial_url': fields.String(required=True, description='The initial URL of the API calls'),
 })
 
@@ -77,9 +76,8 @@ RESULT_FILE_OPERATION = API.model('Result File Operation', {
 })
 
 FILE_TO_UPLOAD = reqparse.RequestParser()
-FILE_TO_UPLOAD.add_argument('results_file',
+FILE_TO_UPLOAD.add_argument('file',
                             type=werkzeug.datastructures.FileStorage,
-                            location='files',
                             required=True,
                             help='Results file of the job')
 
@@ -93,14 +91,15 @@ class JobResultsFileUpload(Resource):
     """
     @API.marshal_with(RESULT_FILE_OPERATION)
     @API.expect(FILE_TO_UPLOAD)
+    @token_required_for_job_id
     def post(self, id):
         """
         Handles the upload of a results file for a job
         :param id: job id
         :return:
         """
-        print('FILE RECEIVED!')
-        print('RECEIVING FILE!', request.files['results_file'])
-        return {
-            'result': 'file received!'
-        }
+        received_file = request.files['file']
+        try:
+            return job_status_service.save_uploaded_file(id, received_file)
+        except job_status_service.JobNotFoundError:
+            abort(404)

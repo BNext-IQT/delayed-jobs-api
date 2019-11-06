@@ -85,7 +85,12 @@ def get_job_run_file_path(job):
     return os.path.join(get_job_run_dir(job), RUN_FILE_NAME)
 
 
+def get_job_output_dir_path(job):
+    return os.path.join(JOBS_OUTPUT_DIR, job.id)
+
+
 def prepare_job_and_run(job):
+    job.output_dir_path = get_job_output_dir_path(job)
     prepare_run_folder(job)
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
     if must_run_jobs:

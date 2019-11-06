@@ -8,6 +8,10 @@ from app import create_app
 from app.apis.models import delayed_job_models
 from app.db import db
 import datetime
+from pathlib import Path
+import io
+import os
+import shutil
 
 
 class TestStatus(unittest.TestCase):
@@ -38,7 +42,7 @@ class TestStatus(unittest.TestCase):
             resp_data = json.loads(response.data.decode('utf-8'))
 
             for property in ['type', 'status', 'status_comment', 'progress', 'created_at', 'started_at', 'finished_at',
-                             'output_file_path', 'raw_params', 'expires_at', 'api_initial_url', 'timezone']:
+                             'raw_params', 'expires_at', 'api_initial_url', 'timezone']:
                 type_must_be = str(getattr(job_must_be, property))
                 type_got = resp_data[property]
                 self.assertEqual(type_must_be, type_got, msg=f'The returned job {property} is not correct.')
@@ -194,6 +198,82 @@ class TestStatus(unittest.TestCase):
             expires_time_got = job_got.expires_at.timestamp()
             self.assertAlmostEqual(expiration_time_must_be, expires_time_got, places=1,
                                    msg='The expiration time was not calculated correctly!')
+
+    def test_cannot_upload_file_to_non_existing_job(self):
+
+        client = self.client
+        response = client.post('/status/some_id/file', data={'results_file': (io.BytesIO(b"test"), 'test.txt')},
+                               content_type='multipart/form-data')
+        self.assertEqual(response.status_code, 404, msg='A 404 not found error should have been produced')
+
+    def test_a_job_cannot_upload_files_for_another_job(self):
+
+        job_type = delayed_job_models.JobTypes.SIMILARITY
+        params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+            'threshold': '70'
+        }
+
+        with self.flask_app.app_context():
+
+            job_must_be = delayed_job_models.get_or_create(job_type, params)
+            client = self.client
+
+            token = token_generator.generate_job_token('another_id')
+            headers = {
+                'X-JOB-KEY': token
+            }
+
+            response = client.post(f'/status/{job_must_be.id}/results_file',
+                                   data={'file': (io.BytesIO(b"test"), 'test.txt')},
+                                   content_type='multipart/form-data',
+                                   headers=headers)
+
+            self.assertEqual(response.status_code, 401,
+                             msg='I should not be authorised to upload the file for another job')
+
+    def test_a_job_results_file_is_uploaded(self):
+
+        job_type = delayed_job_models.JobTypes.SIMILARITY
+        params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+            'threshold': '70'
+        }
+
+        with self.flask_app.app_context():
+            job_must_be = delayed_job_models.get_or_create(job_type, params)
+            tmp_dir = os.path.join(str(Path().absolute()), 'tmp')
+            output_dir_path = os.path.join(tmp_dir, job_must_be.id)
+            os.makedirs(output_dir_path, exist_ok=True)
+            job_must_be.output_dir_path = output_dir_path
+            delayed_job_models.save_job(job_must_be)
+
+            client = self.client
+
+            token = token_generator.generate_job_token(job_must_be.id)
+            headers = {
+                'X-JOB-KEY': token
+            }
+
+            file_text = 'test'
+            response = client.post(f'/status/{job_must_be.id}/results_file',
+                                   data={'file': (io.BytesIO(f'{file_text}'.encode()), 'test.txt')},
+                                   content_type='multipart/form-data',
+                                   headers=headers)
+
+            self.assertEqual(response.status_code, 200, msg='It was not possible to upload a job results file')
+            # be sure to have a fresh version of the object
+            db.session.rollback()
+            db.session.expire(job_must_be)
+            db.session.refresh(job_must_be)
+
+            output_file_path_must_be = job_must_be.output_file_path
+            with open(output_file_path_must_be, 'r') as file_got:
+                self.assertEqual(file_got.read(), file_text, msg='Output file was not saved correctly')
+
+            shutil.rmtree(tmp_dir)
 
 
     # TODO: test what chages after changing status to running, reporting to es, etc

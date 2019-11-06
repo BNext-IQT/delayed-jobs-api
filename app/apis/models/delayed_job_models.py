@@ -72,6 +72,7 @@ class DelayedJob(db.Model):
     started_at = db.Column(db.DateTime)
     finished_at = db.Column(db.DateTime)
     run_dir_path = db.Column(db.Text)
+    output_dir_path = db.Column(db.Text)
     output_file_path = db.Column(db.Text)
     log = db.Column(db.Text)
     raw_params = db.Column(db.Text)
