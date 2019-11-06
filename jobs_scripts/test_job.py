@@ -53,7 +53,7 @@ def run():
         print('DELETING OUTPUT FILE: ', full_output_path)
         os.remove(full_output_path)
 
-        server_connection.update_job_status(job_utils.Statuses.FINISHED)
+    server_connection.update_job_status(job_utils.Statuses.FINISHED)
     server_connection.log('Everything OK!')
 
 if __name__ == "__main__":

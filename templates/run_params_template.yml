@@ -7,4 +7,3 @@ statistics_endpoint:
   url: {STATISTICS_URL}
   method: {STATISTICS_METHOD}
 job_params: '{JOB_PARAMS}'
-output_folder: '{OUTPUT_FOLDER}'

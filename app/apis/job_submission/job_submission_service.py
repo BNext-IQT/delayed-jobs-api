@@ -105,7 +105,6 @@ def prepare_run_folder(job):
     run_params_template = template_file.read()
     template_file.close()
     job_token = token_generator.generate_job_token(job.id)
-    job_output_folder = os.path.join(JOBS_OUTPUT_DIR, job.id)
 
     run_params = run_params_template.format(
         JOB_ID=job.id,
@@ -115,7 +114,6 @@ def prepare_run_folder(job):
         STATISTICS_URL=f'http://127.0.0.1:5000/record/search/{job.id}',
         STATISTICS_METHOD='POST',
         JOB_PARAMS=f'{job.raw_params}',
-        OUTPUT_FOLDER=job_output_folder
     )
 
     run_params_path = os.path.join(job_run_dir, RUN_PARAMS_FILENAME)

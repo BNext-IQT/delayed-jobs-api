@@ -86,11 +86,6 @@ class TestJobSubmitter(unittest.TestCase):
             job_id_got = params_got.get('job_id')
             self.assertEqual(job_id_must_be, job_id_got, msg='The job id was not generated correctly')
 
-            output_folder_must_be = os.path.join(job_submission_service.JOBS_OUTPUT_DIR, job_id)
-            output_folder_got = params_got.get('output_folder')
-            self.assertEqual(output_folder_must_be, output_folder_got,
-                             msg='The job output folder was not generated correctly')
-
             status_update_url_must_be = f'http://127.0.0.1:5000/status/{job_id}'
             status_update_url_got = params_got.get('status_update_endpoint').get('url')
             self.assertEqual(status_update_url_must_be, status_update_url_got,

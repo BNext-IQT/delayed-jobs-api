@@ -1,9 +1,10 @@
 from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
-
 from app.apis.models import delayed_job_models
 from app.apis.job_status import job_status_service
 from app.authorisation.decorators import token_required_for_job_id
+import werkzeug
+from flask_restplus import reqparse
 
 API = Namespace('status', description='Requests related to Job Status')
 
@@ -69,3 +70,37 @@ class JobStatus(Resource):
             return job_status_service.update_job_status(id, new_data)
         except job_status_service.JobNotFoundError:
             abort(404)
+
+
+RESULT_FILE_OPERATION = API.model('Result File Operation', {
+    'result': fields.String(description='The result of the operation')
+})
+
+FILE_TO_UPLOAD = reqparse.RequestParser()
+FILE_TO_UPLOAD.add_argument('results_file',
+                            type=werkzeug.datastructures.FileStorage,
+                            location='files',
+                            required=True,
+                            help='Results file of the job')
+
+
+@API.route('/<id>/results_file')
+@API.param('id', 'The job identifier')
+@API.response(404, 'Job not found')
+class JobResultsFileUpload(Resource):
+    """
+    Resource to handle the upload of a results file for a job
+    """
+    @API.marshal_with(RESULT_FILE_OPERATION)
+    @API.expect(FILE_TO_UPLOAD)
+    def post(self, id):
+        """
+        Handles the upload of a results file for a job
+        :param id: job id
+        :return:
+        """
+        print('FILE RECEIVED!')
+        print('RECEIVING FILE!', request.files['results_file'])
+        return {
+            'result': 'file received!'
+        }
