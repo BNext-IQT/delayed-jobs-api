@@ -26,17 +26,19 @@ class ServerConnection:
     """
     current_log = ''
 
-    def __init__(self, server_base_url, job_token, verbose=False):
+    def __init__(self, server_base_url, job_token, verbose=False, dry_run=False):
         """
         Constructor of the class, allows to create a connection object with the parameters provided
         :param server_base_url: base url of the server receiving the reports
         :param job_token: token to authorise the update of the job status
         :param verbose: tells me if you want me to print thinks as I do them.
+        :param dry_run: if true, do not send anything to the server
         """
 
         self.server_base_url = server_base_url
         self.job_token = job_token
         self.verbose = verbose
+        self.dry_run = dry_run
 
     def log(self, msg):
         """
@@ -144,7 +146,10 @@ class ServerConnection:
             print('headers: ', headers)
             print('payload: ', payload)
 
-        r = requests.patch(url, payload, headers=headers)
+        if self.dry_run:
+            print('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
+        else:
+            r = requests.patch(url, payload, headers=headers)
 
         if verbose:
             print('Server response: ', r.status_code)
