@@ -15,10 +15,19 @@ import socket
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir')
 if JOBS_RUN_DIR is None:
     JOBS_RUN_DIR = str(Path().absolute()) + '/jobs_run'
-    os.makedirs(JOBS_RUN_DIR, exist_ok=True)
+os.makedirs(JOBS_RUN_DIR, exist_ok=True)
+
+JOBS_OUTPUT_DIR = RUN_CONFIG.get('jobs_output_dir')
+if JOBS_OUTPUT_DIR is None:
+    JOBS_OUTPUT_DIR = str(Path().absolute()) + '/jobs_output'
+os.makedirs(JOBS_OUTPUT_DIR, exist_ok=True)
 
 print('------------------------------------------------------------------------------')
 print('JOBS_RUN_DIR: ', JOBS_RUN_DIR)
+print('------------------------------------------------------------------------------')
+
+print('------------------------------------------------------------------------------')
+print('JOBS_OUTPUT_DIR: ', JOBS_OUTPUT_DIR)
 print('------------------------------------------------------------------------------')
 
 JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'

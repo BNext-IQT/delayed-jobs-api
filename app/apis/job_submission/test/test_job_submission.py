@@ -10,8 +10,7 @@ from app import create_app
 import os
 import yaml
 from app.authorisation import token_generator
-import time
-from app.db import db
+import shutil
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -28,10 +27,10 @@ class TestJobSubmitter(unittest.TestCase):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
             jobs_run_dir = job_submission_service.JOBS_RUN_DIR
-            # try:
-            #     shutil.rmtree(jobs_run_dir)
-            # except FileNotFoundError:
-            #     pass
+            try:
+                shutil.rmtree(jobs_run_dir)
+            except FileNotFoundError:
+                pass
 
     def test_job_token_is_generated(self):
         """
@@ -87,7 +86,8 @@ class TestJobSubmitter(unittest.TestCase):
             job_id_got = params_got.get('job_id')
             self.assertEqual(job_id_must_be, job_id_got, msg='The job id was not generated correctly')
 
-            # See how this works when deploying, one option could be to use the client?
+            # output_folder_must_be =
+
             status_update_url_must_be = f'http://127.0.0.1:5000/status/{job_id}'
             status_update_url_got = params_got.get('status_update_endpoint').get('url')
             self.assertEqual(status_update_url_must_be, status_update_url_got,
