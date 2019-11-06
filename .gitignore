@@ -133,3 +133,4 @@ dmypy.json
 # Jobs run dir and output
 jobs_run/**
 jobs_output/**
+app/static/
