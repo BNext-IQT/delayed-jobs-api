@@ -5,7 +5,6 @@ import json
 from common import job_utils
 import requests
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('run_params_file', help='The path of the file with the run params')
 parser.add_argument('-v', '--verbose', help='Make output verbose', action="store_true")
@@ -13,25 +12,27 @@ parser.add_argument('-n', '--dry-run', help='Make output verbose', action='store
 args = parser.parse_args()
 
 RUN_PARAMS = {}
-WEB_SERVICES_BASE_URL = 'https://www.ebi.ac.uk/chembl/api/data'
-LIMIT_PER_PAGE = 1000
+EBI_BASE_URL = 'https://www.ebi.ac.uk'
+WEB_SERVICES_BASE_URL = f'{EBI_BASE_URL}/chembl/api/data'
+LIMIT_PER_PAGE = 1
 
-# TODO: define error class, use it when there is an error from web services to report it.
+
+class SearchError(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+
+SIMILARITY = 'SIMILARITY'
+SUBSTRUCTURE = 'SUBSTRUCTURE'
+CONNECTIVITY = 'CONNECTIVITY'
 
 
 def run():
-
     global RUN_PARAMS
     RUN_PARAMS = yaml.load(open(args.run_params_file, 'r'), Loader=yaml.FullLoader)
     job_params = json.loads(RUN_PARAMS.get('job_params'))
 
-    server_base_url = RUN_PARAMS.get('status_update_endpoint').get('url')
-    job_token = RUN_PARAMS.get('job_token')
-
-    server_connection = job_utils.ServerConnection(server_base_url=server_base_url,
-                                                   job_token=job_token,
-                                                   verbose=args.verbose,
-                                                   dry_run=args.dry_run)
+    server_connection = job_utils.ServerConnection(run_params_file=args.run_params_file, verbose=args.verbose)
 
     server_connection.update_job_status(job_utils.Statuses.RUNNING)
     server_connection.log('Execution Started')
@@ -40,7 +41,7 @@ def run():
 
     api_initial_url = ''
     search_type = job_params.get('search_type')
-    if search_type == 'SIMILARITY':
+    if search_type == SIMILARITY:
         search_term = job_params.get('structure')
         threshold = job_params.get('threshold')
         api_initial_url = f'{WEB_SERVICES_BASE_URL}/similarity/{search_term}/{threshold}.json' \
@@ -58,31 +59,43 @@ def run():
         server_connection.log(f'Loading page: {search_url}')
 
         r = requests.get(search_url)
+        status_code = r.status_code
         response = r.json()
-        print('response: ', response)
-        append_to_results_from_response_page(response, results, search_type)
 
-        more_results_to_load = False
+        server_connection.log(f'status_code: {status_code}')
+        if status_code != 200:
+            server_connection.update_job_status(job_utils.Statuses.ERROR)
+            return
+        try:
+            append_to_results_from_response_page(response, results, search_type)
+        except SearchError as e:
+            server_connection.log(f'Error: {repr(e)}')
+            return
+
+        meta = response.get('page_meta')
+        next_url = meta.get('next')
+        more_results_to_load = next_url is not None
+        if more_results_to_load:
+            search_url = f'{EBI_BASE_URL}{next_url}'
+
+    with open('results.json', 'w') as out_file:
+        out_file.write(json.dumps(results))
+
+        # TODO: UPLOAD FILE!
 
 
-def print_if_verbose(*args):
-
+def print_if_verbose(*print_args):
     if args.verbose:
-        print(args)
+        print(print_args)
 
 
 def append_to_results_from_response_page(response, results, search_type):
-
-    print('append_to_results_from_response_page')
-    error_message = response.get('error_message', 'Error with sim search!')
-    print('error_message: ', error_message)
+    error_message = response.get('error_message')
 
     if error_message is not None:
-        raise search_manager.SSSearchError(error_message)
+        raise SearchError(error_message)
 
-    return
-
-    if search_type == SSSearchJob.SIMILARITY:
+    if search_type == SIMILARITY:
 
         for r in response['molecules']:
             results.append({
@@ -90,7 +103,7 @@ def append_to_results_from_response_page(response, results, search_type):
                 'similarity': float(r['similarity'])
             })
 
-    elif search_type == SSSearchJob.SUBSTRUCTURE or search_type == SSSearchJob.CONNECTIVITY:
+    elif search_type == SUBSTRUCTURE or search_type == CONNECTIVITY:
 
         for r in response['molecules']:
             results.append(r)
