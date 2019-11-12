@@ -13,7 +13,8 @@ args = parser.parse_args()
 
 def run():
 
-    for test_module in [test_successful_job_run]:
+    for test_module in [test_successful_job_run, test_job_cache, test_parallel_job_submission, test_failing_job,
+                        test_output_file_lost]:
         test_module.run_test(args.server_base_path)
 
 if __name__ == "__main__":

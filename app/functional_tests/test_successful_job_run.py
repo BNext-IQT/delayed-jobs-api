@@ -50,8 +50,10 @@ def run_test(server_base_url):
     assert job_status == 'FINISHED', 'Job should have finished already!'
 
     output_file_url = status_response.get('output_file_url')
-    print(f'output_file_url: {output_file_url}')
-    # assert os.path.isfile(output_file_path), 'The output file was not created!'
+    full_output_file_url = f'{server_base_url}{output_file_url}'
+    print(f'full_output_file_url: {full_output_file_url}')
+    file_request = requests.get(full_output_file_url)
+    assert file_request.status_code == 200, 'The results file could not be downloaded!!'
 
 
 
