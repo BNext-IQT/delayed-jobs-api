@@ -26,7 +26,7 @@ class ServerConnection:
     """
     current_log = ''
 
-    def __init__(self, job_status_url, job_token, verbose=False, dry_run=False):
+    def __init__(self, job_status_url, file_upload_url, job_token, verbose=False, dry_run=False):
         """
         Constructor of the class, allows to create a connection object with the parameters provided
         :param job_status_url: base url of the server receiving the reports
@@ -36,6 +36,7 @@ class ServerConnection:
         """
 
         self.job_status_url = job_status_url
+        self.file_upload_url = file_upload_url
         self.job_token = job_token
         self.verbose = verbose
         self.dry_run = dry_run
@@ -78,9 +79,8 @@ class ServerConnection:
         :param file_path: the file path where the output is
         """
         files = {'file': open(file_path, 'rb')}
-        print('UPLOAD FILEEEEEEEE')
 
-        url = self.job_status_url
+        url = self.file_upload_url
         job_token = self.job_token
         headers = {
             'X-Job-Key': job_token
