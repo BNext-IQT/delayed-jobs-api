@@ -74,6 +74,7 @@ class DelayedJob(db.Model):
     run_dir_path = db.Column(db.Text)
     output_dir_path = db.Column(db.Text)
     output_file_path = db.Column(db.Text)
+    output_file_url = db.Column(db.Text)
     log = db.Column(db.Text)
     raw_params = db.Column(db.Text)
     expires_at = db.Column(db.DateTime)
@@ -90,7 +91,7 @@ class DelayedJob(db.Model):
         :return:
         """
         return {key:str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_comment', 'progress',
-                                                        'created_at', 'started_at', 'finished_at', 'output_file_path',
+                                                        'created_at', 'started_at', 'finished_at', 'output_file_url',
                                                         'raw_params', 'expires_at', 'api_initial_url', 'timezone']}
 
     def update_run_status(self, new_value):

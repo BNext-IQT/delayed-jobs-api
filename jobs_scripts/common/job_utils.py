@@ -26,16 +26,16 @@ class ServerConnection:
     """
     current_log = ''
 
-    def __init__(self, server_base_url, job_token, verbose=False, dry_run=False):
+    def __init__(self, job_status_url, job_token, verbose=False, dry_run=False):
         """
         Constructor of the class, allows to create a connection object with the parameters provided
-        :param server_base_url: base url of the server receiving the reports
+        :param job_status_url: base url of the server receiving the reports
         :param job_token: token to authorise the update of the job status
         :param verbose: tells me if you want me to print thinks as I do them.
         :param dry_run: if true, do not send anything to the server
         """
 
-        self.server_base_url = server_base_url
+        self.job_status_url = job_status_url
         self.job_token = job_token
         self.verbose = verbose
         self.dry_run = dry_run
@@ -51,9 +51,7 @@ class ServerConnection:
         full_msg = f'{username}@{hostname} [{datetime.datetime.utcnow()}]: {msg}\n'
 
         self.current_log += full_msg
-
-        if self.verbose:
-            print(full_msg)
+        self.print_if_verbose(full_msg)
 
         appended_status = {
             'log': self.current_log
@@ -65,30 +63,41 @@ class ServerConnection:
         Update's the job's api initial url
         :param api_initial_url: the initial url from where the job is loading its results
         """
-        if self.verbose:
-            print('--------------------------------------------------------------------------------------')
-            print('update_job_output_path: ', api_initial_url)
-            print('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('update_api_initial_url: ', api_initial_url)
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
 
         appended_status = {
             'api_initial_url': api_initial_url
         }
         self.send_status_update(appended_status)
 
-    def update_job_output_path(self, file_path):
+    def upload_job_results_file(self, file_path):
         """
-        Update's the job output file path
+        Uploads the results file to the server
         :param file_path: the file path where the output is
         """
-        if self.verbose:
-            print('--------------------------------------------------------------------------------------')
-            print('update_job_output_path: ', file_path)
-            print('--------------------------------------------------------------------------------------')
+        files = {'file': open(file_path, 'rb')}
+        print('UPLOAD FILEEEEEEEE')
 
-        appended_status = {
-            'output_file_path': file_path
+        url = self.job_status_url
+        job_token = self.job_token
+        headers = {
+            'X-Job-Key': job_token
         }
-        self.send_status_update(appended_status)
+
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('update_api_initial_url')
+        self.print_if_verbose('url: ', url)
+        self.print_if_verbose('headers: ', headers)
+        self.print_if_verbose('file_path: ', file_path)
+
+        if self.dry_run:
+            self.print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
+        else:
+            r = requests.post(url, files=files, headers=headers)
+            self.print_if_verbose('Server response: ', r.status_code)
+            self.print_if_verbose('-----------------------------------------------------------------------------------')
 
     def update_job_progress(self, progress_percentage):
         """
@@ -97,10 +106,9 @@ class ServerConnection:
         :param verbose: if you want me to print a verbose output
         :return:
         """
-        if self.verbose:
-            print('--------------------------------------------------------------------------------------')
-            print('Setting progress percentage to', progress_percentage)
-            print('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('Setting progress percentage to', progress_percentage)
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
 
         appended_status = {
             'progress': progress_percentage
@@ -114,10 +122,9 @@ class ServerConnection:
         :param status_comment: a comment on the status. E.g. 'Loading ids'
         :return:
         """
-        if self.verbose:
-            print('--------------------------------------------------------------------------------------')
-            print('Setting status to', str(new_status))
-            print('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('Setting status to', str(new_status))
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
 
         appended_status = {
             'status': new_status,
@@ -126,31 +133,32 @@ class ServerConnection:
 
         self.send_status_update(appended_status)
 
-    def send_status_update(self, appended_status, verbose=False):
+    def send_status_update(self, appended_status):
         """
         Sends the new status to the server via PATCH
         :param appended_status: dict with the new status to send
         :param verbose: if you want me to print a verbose output
         """
-        url = self.server_base_url
+        url = self.job_status_url
         job_token = self.job_token
         headers = {
             'X-Job-Key': job_token
         }
         payload = appended_status
 
-        if verbose:
-            print('--------------------------------------------------------------------------------------')
-            print('Sending status update')
-            print('url: ', url)
-            print('headers: ', headers)
-            print('payload: ', payload)
+        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        self.print_if_verbose('Sending status update')
+        self.print_if_verbose('url: ', url)
+        self.print_if_verbose('headers: ', headers)
+        self.print_if_verbose('payload: ', payload)
 
         if self.dry_run:
-            print('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
+            self.print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
         else:
             r = requests.patch(url, payload, headers=headers)
+            self.print_if_verbose('Server response: ', r.status_code)
+            self.print_if_verbose('-----------------------------------------------------------------------------------')
 
-        if verbose:
-            print('Server response: ', r.status_code)
-            print('--------------------------------------------------------------------------------------')
+    def print_if_verbose(self, *args):
+        if self.verbose:
+            print(args)

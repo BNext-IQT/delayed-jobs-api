@@ -49,9 +49,9 @@ def run_test(server_base_url):
     print(f'job_status: {job_status}')
     assert job_status == 'FINISHED', 'Job should have finished already!'
 
-    output_file_path = status_response.get('output_file_path')
-    print(f'output_file_path: {output_file_path}')
-    assert os.path.isfile(output_file_path), 'The output file was not created!'
+    output_file_url = status_response.get('output_file_url')
+    print(f'output_file_url: {output_file_url}')
+    # assert os.path.isfile(output_file_path), 'The output file was not created!'
 
 
 

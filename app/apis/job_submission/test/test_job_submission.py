@@ -101,6 +101,11 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertEqual(statistics_url_must_be, statistics_url_got,
                              msg='The statistics url was not set correctly!')
 
+            file_upload_url_must_be = f'http://127.0.0.1:5000/status/{job_id}/results_file'
+            file_upload_url_got = params_got.get('file_upload_endpoint').get('url')
+            self.assertEqual(file_upload_url_must_be, file_upload_url_got,
+                             msg='The file upload url was not generated correctly')
+
             statistics_method_must_be = 'POST'
             statistics_method_got = params_got.get('statistics_endpoint').get('method')
             self.assertEqual(statistics_method_must_be, statistics_method_got,

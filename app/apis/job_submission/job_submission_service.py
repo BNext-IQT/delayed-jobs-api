@@ -118,6 +118,8 @@ def prepare_run_folder(job):
         STATUS_UPDATE_METHOD='PATCH',
         STATISTICS_URL=f'http://127.0.0.1:5000/record/search/{job.id}',
         STATISTICS_METHOD='POST',
+        FILE_UPLOAD_URL=f'http://127.0.0.1:5000/status/{job.id}/results_file',
+        FILE_UPLOAD_METHOD='POST',
         JOB_PARAMS=f'{job.raw_params}',
     )
 

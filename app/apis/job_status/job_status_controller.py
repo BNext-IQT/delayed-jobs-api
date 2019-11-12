@@ -27,7 +27,8 @@ PUBLIC_STATUS = API.inherit('Status', MODIFIABLE_STATUS, {
     'finished_at': fields.String(required=True, description='The time at which the job finished'),
     'raw_params': fields.String(required=True, description='The stringified version of the parameters'),
     'expires_at': fields.String(required=True, description='The date at which the job results will expire'),
-    'timezone': fields.String(required=True, description='The timezome where the job ran'),
+    'timezone': fields.String(required=True, description='The timezone where the job ran'),
+    'output_file_url': fields.String(required=True, description='The relative url for downloading the job result file'),
 
 })
 

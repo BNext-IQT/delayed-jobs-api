@@ -23,10 +23,10 @@ def run():
     duration = job_params.get('seconds')
     instruction = job_params.get('instruction')
 
-    server_base_url = RUN_PARAMS.get('status_update_endpoint').get('url')
+    job_status_url = RUN_PARAMS.get('status_update_endpoint').get('url')
     job_token = RUN_PARAMS.get('job_token')
 
-    server_connection = job_utils.ServerConnection(server_base_url=server_base_url,
+    server_connection = job_utils.ServerConnection(job_status_url=job_status_url,
                                                    job_token=job_token,
                                                    verbose=args.verbose)
 
@@ -46,12 +46,9 @@ def run():
     output_file_name = 'job_result.txt'
     with open(output_file_name, 'w') as out_file:
         out_file.write('Results Ready!')
-        server_connection.update_job_output_path(str(Path(output_file_name).resolve()))
-
-    if instruction == 'DELETE_OUTPUT_FILE':
-        full_output_path = str(Path(output_file_name).resolve())
-        print('DELETING OUTPUT FILE: ', full_output_path)
-        os.remove(full_output_path)
+        if instruction != 'DELETE_OUTPUT_FILE':
+            print('uploading output file')
+            server_connection.upload_job_results_file(str(Path(output_file_name).resolve()))
 
     server_connection.update_job_status(job_utils.Statuses.FINISHED)
     server_connection.log('Everything OK!')

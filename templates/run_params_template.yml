@@ -6,4 +6,7 @@ status_update_endpoint:
 statistics_endpoint:
   url: {STATISTICS_URL}
   method: {STATISTICS_METHOD}
+file_upload_endpoint:
+  url: {FILE_UPLOAD_URL}
+  method: {FILE_UPLOAD_METHOD}
 job_params: '{JOB_PARAMS}'
