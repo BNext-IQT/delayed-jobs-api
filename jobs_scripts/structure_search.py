@@ -18,6 +18,7 @@ LIMIT_PER_PAGE = 1000
 
 # TODO: define error class, use it when there is an error from web services to report it.
 
+
 def run():
 
     global RUN_PARAMS
@@ -35,8 +36,7 @@ def run():
     server_connection.update_job_status(job_utils.Statuses.RUNNING)
     server_connection.log('Execution Started')
 
-    if args.verbose:
-        print('job_params: ', json.dumps(job_params, indent=4))
+    print_if_verbose('job_params: ', json.dumps(job_params, indent=4))
 
     api_initial_url = ''
     search_type = job_params.get('search_type')
@@ -46,8 +46,7 @@ def run():
         api_initial_url = f'{WEB_SERVICES_BASE_URL}/similarity/{search_term}/{threshold}.json' \
                           f'?limit={LIMIT_PER_PAGE}&only=molecule_chembl_id,similarity'
 
-    if args.verbose:
-        print('api_initial_url: ', api_initial_url)
+    print_if_verbose('api_initial_url: ', api_initial_url)
 
     server_connection.update_api_initial_url(api_initial_url)
 
@@ -64,6 +63,12 @@ def run():
         append_to_results_from_response_page(response, results, search_type)
 
         more_results_to_load = False
+
+
+def print_if_verbose(*args):
+
+    if args.verbose:
+        print(args)
 
 
 def append_to_results_from_response_page(response, results, search_type):

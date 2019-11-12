@@ -23,14 +23,7 @@ def run():
     duration = job_params.get('seconds')
     instruction = job_params.get('instruction')
 
-    job_status_url = RUN_PARAMS.get('status_update_endpoint').get('url')
-    file_upload_url = RUN_PARAMS.get('file_upload_endpoint').get('url')
-    job_token = RUN_PARAMS.get('job_token')
-
-    server_connection = job_utils.ServerConnection(job_status_url=job_status_url,
-                                                   file_upload_url=file_upload_url,
-                                                   job_token=job_token,
-                                                   verbose=args.verbose)
+    server_connection = job_utils.ServerConnection(run_params_file=args.run_params_file, verbose=args.verbose)
 
     server_connection.update_job_status(job_utils.Statuses.RUNNING)
     server_connection.log('Execution Started')

@@ -3,6 +3,7 @@ import getpass
 import socket
 import requests
 from enum import Enum
+import yaml
 
 
 class Statuses(Enum):
@@ -26,7 +27,7 @@ class ServerConnection:
     """
     current_log = ''
 
-    def __init__(self, job_status_url, file_upload_url, job_token, verbose=False, dry_run=False):
+    def __init__(self, run_params_file, verbose=False, dry_run=False):
         """
         Constructor of the class, allows to create a connection object with the parameters provided
         :param job_status_url: base url of the server receiving the reports
@@ -35,9 +36,10 @@ class ServerConnection:
         :param dry_run: if true, do not send anything to the server
         """
 
-        self.job_status_url = job_status_url
-        self.file_upload_url = file_upload_url
-        self.job_token = job_token
+        run_params = yaml.load(open(run_params_file, 'r'), Loader=yaml.FullLoader)
+        self.job_status_url = run_params.get('status_update_endpoint').get('url')
+        self.file_upload_url = run_params.get('file_upload_endpoint').get('url')
+        self.job_token = run_params.get('job_token')
         self.verbose = verbose
         self.dry_run = dry_run
 
