@@ -38,7 +38,9 @@ COMMON_PACKAGE_NAME = 'common'
 
 SCRIPT_FILENAMES = {
     f'{delayed_job_models.JobTypes.TEST}': 'test_job.py',
-    f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py'
+    f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py',
+    f'{delayed_job_models.JobTypes.SUBSTRUCTURE}': 'structure_search.py',
+    f'{delayed_job_models.JobTypes.CONNECTIVITY}': 'structure_search.py'
 }
 
 UTILS_PACKAGE_PATH = os.path.join(JOBS_SCRIPTS_DIR, COMMON_PACKAGE_NAME)
@@ -48,6 +50,8 @@ SCRIPT_FILES = {
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.TEST))),
     f'{delayed_job_models.JobTypes.SIMILARITY}':
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SIMILARITY))),
+    f'{delayed_job_models.JobTypes.SUBSTRUCTURE}':
+        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SUBSTRUCTURE))),
 }
 
 MAX_RETRIES = 6
@@ -135,8 +139,8 @@ def prepare_run_folder(job):
     with open(run_params_path, 'w') as out_file:
         out_file.write(run_params)
 
-    job_script = SCRIPT_FILES.get(str(job.type))
-    script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES.get(str(job.type)))
+    job_script = SCRIPT_FILES[str(job.type)]
+    script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES[str(job.type)])
     shutil.copyfile(job_script, script_path)
 
     shutil.copytree(UTILS_PACKAGE_PATH, os.path.join(job_run_dir, COMMON_PACKAGE_NAME))
