@@ -4,14 +4,15 @@ Entry file for the delayed jobs app
 from flask import Flask
 from flask_restplus import Api
 
-from app.namespaces.admin_auth.admin_auth_controller import API as job_admin_api
-from app.namespaces.job_status.job_status_controller import API as job_status_api
-from app.namespaces.job_submission.submit_test_job_controller import API as submit_test_job_api
-from app.namespaces.job_submission.submit_similarity_controller import API as similarity_api
-from app.namespaces.job_submission.submit_substructure_controller import API as substructure_api
-from app.namespaces.job_submission.submit_connectivity_controller import API as connectivity_api
-from app.namespaces.job_statistics.record_search_controller import API as record_search_api
-from app.namespaces.job_statistics.record_download_controller import API as record_download_api
+from app.namespaces.admin_auth.admin_auth_controller import API as job_admin_namespace
+from app.namespaces.job_status.job_status_controller import API as job_status_namespace
+from app.namespaces.job_submission.submit_test_job_controller import API as submit_test_job_namespace
+from app.namespaces.job_submission.submit_similarity_controller import API as submit_similarity_search_namespace
+from app.namespaces.job_submission.submit_substructure_controller import API as submit_substructure_search_namespace
+from app.namespaces.job_submission.submit_connectivity_controller import API as submit_connectivity_search_namespace
+from app.namespaces.job_submission.submit_blast_controller import API as submit_blast_search_namespace
+from app.namespaces.job_statistics.record_search_controller import API as record_search_namespace
+from app.namespaces.job_statistics.record_download_controller import API as record_download_namespace
 from app.db import db
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
@@ -53,8 +54,8 @@ def create_app():
             authorizations=authorizations
         )
 
-        for namespace in [job_admin_api, job_status_api, submit_test_job_api, similarity_api, substructure_api,
-                          connectivity_api, record_search_api, record_download_api]:
+        for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace, submit_similarity_search_namespace, submit_substructure_search_namespace,
+                          submit_connectivity_search_namespace, submit_blast_search_namespace, record_search_namespace, record_download_namespace]:
             api.add_namespace(namespace)
 
         return flask_app

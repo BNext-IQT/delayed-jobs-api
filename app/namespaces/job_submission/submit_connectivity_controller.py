@@ -16,7 +16,7 @@ SUBMISSION_RESPONSE = API.inherit('SubmissionResponse', BASE_SUBMISSION_RESPONSE
 
 
 @API.route('/')
-class SubmitSimilarityJob(Resource):
+class SubmitConnectivityJob(Resource):
     """
         Resource that handles connectivity search job submission requests
     """
