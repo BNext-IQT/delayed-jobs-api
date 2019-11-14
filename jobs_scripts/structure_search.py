@@ -4,6 +4,7 @@ import yaml
 import json
 from common import job_utils
 import requests
+from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument('run_params_file', help='The path of the file with the run params')
@@ -14,7 +15,7 @@ args = parser.parse_args()
 RUN_PARAMS = {}
 EBI_BASE_URL = 'https://www.ebi.ac.uk'
 WEB_SERVICES_BASE_URL = f'{EBI_BASE_URL}/chembl/api/data'
-LIMIT_PER_PAGE = 1
+LIMIT_PER_PAGE = 5
 
 
 class SearchError(Exception):
@@ -53,6 +54,7 @@ def run():
 
     results = []
     search_url = api_initial_url
+    num_loaded_items = 0
     more_results_to_load = True
     while more_results_to_load:
 
@@ -67,21 +69,29 @@ def run():
             server_connection.update_job_status(job_utils.Statuses.ERROR)
             return
         try:
-            append_to_results_from_response_page(response, results, search_type)
+            num_loaded_items += append_to_results_from_response_page(response, results, search_type)
         except SearchError as e:
             server_connection.log(f'Error: {repr(e)}')
             return
 
         meta = response.get('page_meta')
+
+        total_count = meta.get('total_count')
+        progress_percentage = int((num_loaded_items / total_count) * 100)
+        server_connection.update_job_progress(progress_percentage)
+
         next_url = meta.get('next')
         more_results_to_load = next_url is not None
         if more_results_to_load:
             search_url = f'{EBI_BASE_URL}{next_url}'
 
-    with open('results.json', 'w') as out_file:
+    results_file_name = 'results.json'
+    with open(results_file_name, 'w') as out_file:
         out_file.write(json.dumps(results))
 
-        # TODO: UPLOAD FILE!
+    server_connection.upload_job_results_file(str(Path(results_file_name).resolve()))
+    server_connection.update_job_status(job_utils.Statuses.FINISHED)
+    server_connection.log('Job finished correctly!')
 
 
 def print_if_verbose(*print_args):
@@ -90,6 +100,7 @@ def print_if_verbose(*print_args):
 
 
 def append_to_results_from_response_page(response, results, search_type):
+
     error_message = response.get('error_message')
 
     if error_message is not None:
@@ -107,6 +118,8 @@ def append_to_results_from_response_page(response, results, search_type):
 
         for r in response['molecules']:
             results.append(r)
+
+    return len(response['molecules'])
 
 
 if __name__ == "__main__":

@@ -4,7 +4,6 @@ import time
 import yaml
 import json
 from pathlib import Path
-import os
 from common import job_utils
 
 parser = argparse.ArgumentParser()
