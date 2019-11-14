@@ -1,7 +1,7 @@
 from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
-from app.apis.models import delayed_job_models
-from app.apis.job_status import job_status_service
+from app.namespaces.models import delayed_job_models
+from app.namespaces.job_status import job_status_service
 from app.authorisation.decorators import token_required_for_job_id
 import werkzeug
 from flask_restplus import reqparse

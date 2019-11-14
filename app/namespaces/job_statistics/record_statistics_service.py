@@ -1,4 +1,4 @@
-from app.apis.models import delayed_job_models
+from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.es_connection import es
 

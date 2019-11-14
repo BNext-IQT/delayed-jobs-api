@@ -4,8 +4,8 @@ This module tests jobs submission to the EBI queue
 import unittest
 import jwt
 from app.config import RUN_CONFIG
-from app.apis.job_submission import job_submission_service
-from app.apis.models import delayed_job_models
+from app.namespaces.job_submission import job_submission_service
+from app.namespaces.models import delayed_job_models
 from app import create_app
 import os
 import yaml

@@ -8,7 +8,7 @@ import json
 import unittest
 
 from app import create_app
-from app.apis.models import delayed_job_models
+from app.namespaces.models import delayed_job_models
 
 
 class TestModels(unittest.TestCase):

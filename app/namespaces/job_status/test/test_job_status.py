@@ -1,11 +1,11 @@
 """
-Tests for the job apis
+Tests for the job.namespaces
 """
 import json
 import unittest
 from app.authorisation import token_generator
 from app import create_app
-from app.apis.models import delayed_job_models
+from app.namespaces.models import delayed_job_models
 from app.db import db
 import datetime
 from pathlib import Path

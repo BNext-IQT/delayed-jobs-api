@@ -1,4 +1,4 @@
-from app.apis.models import delayed_job_models
+from app.namespaces.models import delayed_job_models
 import os
 from flask import url_for
 

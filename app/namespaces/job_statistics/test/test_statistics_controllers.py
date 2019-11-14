@@ -4,7 +4,7 @@ Tests for the search statistics API
 import unittest
 from app import create_app
 from app.db import db
-from app.apis.models import delayed_job_models
+from app.namespaces.models import delayed_job_models
 from app.authorisation import token_generator
 import datetime
 import json

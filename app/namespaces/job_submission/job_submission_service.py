@@ -1,7 +1,7 @@
 """
 This module submits jobs to the EBI queue
 """
-from app.apis.models import delayed_job_models
+from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
 from pathlib import Path
 import os

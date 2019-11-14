@@ -1,8 +1,8 @@
 from flask import request
 from flask_restplus import Namespace, Resource, fields
-from app.apis.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
-from app.apis.models import delayed_job_models
-from app.apis.job_submission import job_submission_service
+from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
+from app.namespaces.models import delayed_job_models
+from app.namespaces.job_submission import job_submission_service
 
 API = Namespace('submit/test_job', description='Namespace to submit a test job')
 

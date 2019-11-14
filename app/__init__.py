@@ -4,12 +4,12 @@ Entry file for the delayed jobs app
 from flask import Flask
 from flask_restplus import Api
 
-from app.apis.admin_auth.admin_auth_controller import API as job_admin_api
-from app.apis.job_status.job_status_controller import API as job_status_api
-from app.apis.job_submission.submit_test_job_controller import API as submit_test_job_api
-from app.apis.job_submission.submit_similarity_controller import API as similarity_api
-from app.apis.job_statistics.record_search_controller import API as record_search_api
-from app.apis.job_statistics.record_download_controller import API as record_download_api
+from app.namespaces.admin_auth.admin_auth_controller import API as job_admin_api
+from app.namespaces.job_status.job_status_controller import API as job_status_api
+from app.namespaces.job_submission.submit_test_job_controller import API as submit_test_job_api
+from app.namespaces.job_submission.submit_similarity_controller import API as similarity_api
+from app.namespaces.job_statistics.record_search_controller import API as record_search_api
+from app.namespaces.job_statistics.record_download_controller import API as record_download_api
 from app.db import db
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
