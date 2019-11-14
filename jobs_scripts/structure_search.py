@@ -48,9 +48,12 @@ def run():
         threshold = job_params.get('threshold')
         api_initial_url = f'{WEB_SERVICES_BASE_URL}/similarity/{search_term}/{threshold}.json' \
                           f'?limit={LIMIT_PER_PAGE}&only=molecule_chembl_id,similarity'
-    else:
+    elif search_type == SUBSTRUCTURE:
         api_initial_url = f'{WEB_SERVICES_BASE_URL}/substructure/{search_term}.json' \
                           f'?limit={LIMIT_PER_PAGE}&only=molecule_chembl_id'
+    elif search_type == CONNECTIVITY:
+        api_initial_url = f'{WEB_SERVICES_BASE_URL}/molecule.json?limit={LIMIT_PER_PAGE}' \
+                          f'&only=molecule_chembl_id&molecule_structures__canonical_smiles__flexmatch={search_term}'
 
     print_if_verbose('api_initial_url: ', api_initial_url)
     server_connection.update_api_initial_url(api_initial_url)

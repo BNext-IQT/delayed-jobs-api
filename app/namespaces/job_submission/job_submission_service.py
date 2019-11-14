@@ -52,6 +52,8 @@ SCRIPT_FILES = {
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SIMILARITY))),
     f'{delayed_job_models.JobTypes.SUBSTRUCTURE}':
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SUBSTRUCTURE))),
+    f'{delayed_job_models.JobTypes.CONNECTIVITY}':
+        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.CONNECTIVITY))),
 }
 
 MAX_RETRIES = 6

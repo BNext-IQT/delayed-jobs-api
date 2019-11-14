@@ -9,6 +9,7 @@ from app.namespaces.job_status.job_status_controller import API as job_status_ap
 from app.namespaces.job_submission.submit_test_job_controller import API as submit_test_job_api
 from app.namespaces.job_submission.submit_similarity_controller import API as similarity_api
 from app.namespaces.job_submission.submit_substructure_controller import API as substructure_api
+from app.namespaces.job_submission.submit_connectivity_controller import API as connectivity_api
 from app.namespaces.job_statistics.record_search_controller import API as record_search_api
 from app.namespaces.job_statistics.record_download_controller import API as record_download_api
 from app.db import db
@@ -53,7 +54,7 @@ def create_app():
         )
 
         for namespace in [job_admin_api, job_status_api, submit_test_job_api, similarity_api, substructure_api,
-                          record_search_api, record_download_api]:
+                          connectivity_api, record_search_api, record_download_api]:
             api.add_namespace(namespace)
 
         return flask_app
