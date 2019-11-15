@@ -34,7 +34,6 @@ def run():
     job_params = json.loads(RUN_PARAMS.get('job_params'))
 
     server_connection = job_utils.ServerConnection(run_params_file=args.run_params_file, verbose=args.verbose)
-
     server_connection.update_job_status(job_utils.Statuses.RUNNING)
     server_connection.log('Execution Started')
 

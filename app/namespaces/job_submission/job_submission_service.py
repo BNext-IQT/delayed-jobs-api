@@ -40,7 +40,8 @@ SCRIPT_FILENAMES = {
     f'{delayed_job_models.JobTypes.TEST}': 'test_job.py',
     f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py',
     f'{delayed_job_models.JobTypes.SUBSTRUCTURE}': 'structure_search.py',
-    f'{delayed_job_models.JobTypes.CONNECTIVITY}': 'structure_search.py'
+    f'{delayed_job_models.JobTypes.CONNECTIVITY}': 'structure_search.py',
+    f'{delayed_job_models.JobTypes.BLAST}': 'blast_search.py'
 }
 
 UTILS_PACKAGE_PATH = os.path.join(JOBS_SCRIPTS_DIR, COMMON_PACKAGE_NAME)
@@ -54,6 +55,8 @@ SCRIPT_FILES = {
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SUBSTRUCTURE))),
     f'{delayed_job_models.JobTypes.CONNECTIVITY}':
         os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.CONNECTIVITY))),
+    f'{delayed_job_models.JobTypes.BLAST}':
+        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.BLAST))),
 }
 
 MAX_RETRIES = 6
