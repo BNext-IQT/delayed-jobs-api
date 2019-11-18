@@ -76,7 +76,9 @@ def run():
         try:
             num_loaded_items += append_to_results_from_response_page(response, results, search_type)
         except SearchError as e:
-            server_connection.log(f'Error: {repr(e)}')
+            error_msg = repr(e)
+            server_connection.log(f'Error: {error_msg}')
+            server_connection.update_job_status(job_utils.Statuses.ERROR, error_msg)
             return
 
         meta = response.get('page_meta')
