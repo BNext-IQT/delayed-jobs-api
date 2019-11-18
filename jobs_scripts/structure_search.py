@@ -103,7 +103,7 @@ def run():
 
 def print_if_verbose(*print_args):
     if args.verbose:
-        print(print_args)
+        print(*print_args)
 
 
 def append_to_results_from_response_page(response, results, search_type):

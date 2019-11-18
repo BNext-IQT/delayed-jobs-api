@@ -96,7 +96,7 @@ class DelayedJob(db.Model):
 
     def update_run_status(self, new_value):
         old_value = self.status
-        if old_value != new_value:
+        if str(old_value) != str(new_value):
             if new_value == str(JobStatuses.RUNNING):
                 self.started_at = datetime.datetime.utcnow()
             elif new_value == str(JobStatuses.FINISHED):
