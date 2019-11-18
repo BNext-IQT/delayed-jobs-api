@@ -13,12 +13,16 @@ from app.namespaces.job_submission.submit_connectivity_controller import API as 
 from app.namespaces.job_submission.submit_blast_controller import API as submit_blast_search_namespace
 from app.namespaces.job_statistics.record_search_controller import API as record_search_namespace
 from app.namespaces.job_statistics.record_download_controller import API as record_download_namespace
-from app.db import db
+from app.db import DB
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
 
 
 def create_app():
+    """
+    Creates the flask app
+    :return: Delayed jobs flask app
+    """
 
     flask_app = Flask(__name__)
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
@@ -39,11 +43,11 @@ def create_app():
     }
 
     with flask_app.app_context():
-        db.init_app(flask_app)
+        DB.init_app(flask_app)
 
         create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
         if create_tables:
-            db.create_all()
+            DB.create_all()
 
         api = Api(
             title='ChEMBL Interface Delayed Jobs',
@@ -54,8 +58,10 @@ def create_app():
             authorizations=authorizations
         )
 
-        for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace, submit_similarity_search_namespace, submit_substructure_search_namespace,
-                          submit_connectivity_search_namespace, submit_blast_search_namespace, record_search_namespace, record_download_namespace]:
+        for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace,
+                          submit_similarity_search_namespace, submit_substructure_search_namespace,
+                          submit_connectivity_search_namespace, submit_blast_search_namespace, record_search_namespace,
+                          record_download_namespace]:
             api.add_namespace(namespace)
 
         return flask_app

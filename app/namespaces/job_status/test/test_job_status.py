@@ -1,21 +1,25 @@
 """
-Tests for the job.namespaces
+Tests for the status namespace
 """
 import json
+import shutil
 import unittest
+import io
+import os
+import datetime
+from pathlib import Path
+
 from app.authorisation import token_generator
 from app import create_app
 from app.namespaces.models import delayed_job_models
-from app.db import db
-import datetime
-from pathlib import Path
-import io
-import os
-import shutil
+from app.db import DB
 
 
+# pylint: disable=E1101
 class TestStatus(unittest.TestCase):
-
+    """
+    Class that tests the status namespace
+    """
     def setUp(self):
         self.flask_app = create_app()
         self.client = self.flask_app.test_client()
@@ -26,6 +30,9 @@ class TestStatus(unittest.TestCase):
             delayed_job_models.delete_all_jobs()
 
     def test_get_existing_job_status(self):
+        """
+        Tests that the status of an existing job is returned correctly.
+        """
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
@@ -41,19 +48,25 @@ class TestStatus(unittest.TestCase):
             response = client.get(f'/status/{job_id}')
             resp_data = json.loads(response.data.decode('utf-8'))
 
-            for property in ['type', 'status', 'status_comment', 'progress', 'created_at', 'started_at', 'finished_at',
-                             'raw_params', 'expires_at', 'api_initial_url', 'timezone']:
-                type_must_be = str(getattr(job_must_be, property))
-                type_got = resp_data[property]
-                self.assertEqual(type_must_be, type_got, msg=f'The returned job {property} is not correct.')
+            for prop in ['type', 'status', 'status_comment', 'progress', 'created_at', 'started_at', 'finished_at',
+                         'raw_params', 'expires_at', 'api_initial_url', 'timezone']:
+                type_must_be = str(getattr(job_must_be, prop))
+                type_got = resp_data[prop]
+                self.assertEqual(type_must_be, type_got, msg=f'The returned job {prop} is not correct.')
 
     def test_get_non_existing_job_status(self):
+        """
+        Tests that when the status of a non existing job a 404 error is produced.
+        """
 
         client = self.client
         response = client.get('/status/some_id')
         self.assertEqual(response.status_code, 404, msg='A 404 not found error should have been produced')
 
     def test_a_job_cannot_update_another_job_status(self):
+        """
+        Tests that a job can not use its token to update another job's status
+        """
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
@@ -63,7 +76,6 @@ class TestStatus(unittest.TestCase):
         }
 
         with self.flask_app.app_context():
-
             job_must_be = delayed_job_models.get_or_create(job_type, params)
             job_id = job_must_be.id
             new_data = {
@@ -82,6 +94,9 @@ class TestStatus(unittest.TestCase):
                              msg='I should not be authorised to modify the status of another job')
 
     def test_update_job_status(self):
+        """
+        Tests that a job can update its status
+        """
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
@@ -91,7 +106,6 @@ class TestStatus(unittest.TestCase):
         }
 
         with self.flask_app.app_context():
-
             job_must_be = delayed_job_models.get_or_create(job_type, params)
             job_id = job_must_be.id
             new_data = {
@@ -110,15 +124,18 @@ class TestStatus(unittest.TestCase):
 
             job_got = delayed_job_models.get_job_by_id(job_id)
             # be sure to have a fresh version of the object
-            db.session.rollback()
-            db.session.expire(job_got)
-            db.session.refresh(job_got)
+            DB.session.rollback()
+            DB.session.expire(job_got)
+            DB.session.refresh(job_got)
 
             for key, value_must_be in new_data.items():
                 value_got = getattr(job_got, key)
                 self.assertEqual(value_got, value_must_be, msg=f'The {key} was not updated correctly!')
 
     def test_started_at_time_is_calculated_correctly(self):
+        """
+        Tests that when the status is changed to running, the started_at time is calculated
+        """
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
@@ -148,15 +165,19 @@ class TestStatus(unittest.TestCase):
 
             job_got = delayed_job_models.get_job_by_id(job_id)
             # be sure to have a fresh version of the object
-            db.session.rollback()
-            db.session.expire(job_got)
-            db.session.refresh(job_got)
+            DB.session.rollback()
+            DB.session.expire(job_got)
+            DB.session.refresh(job_got)
 
             started_at_time_got = job_got.started_at.timestamp()
             self.assertAlmostEqual(started_at_time_must_be, started_at_time_got, places=1,
                                    msg='The started at time was not calculated correctly!')
 
     def test_finished_at_and_expires_time_are_calculated_correctly(self):
+        """
+        Tests that when a job status is set to FINISHED, the finished_at time, and expires_at time are calculated
+        correctly
+        """
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
             'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
@@ -187,9 +208,9 @@ class TestStatus(unittest.TestCase):
 
             job_got = delayed_job_models.get_job_by_id(job_id)
             # be sure to have a fresh version of the object
-            db.session.rollback()
-            db.session.expire(job_got)
-            db.session.refresh(job_got)
+            DB.session.rollback()
+            DB.session.expire(job_got)
+            DB.session.refresh(job_got)
 
             finished_at_time_got = job_got.finished_at.timestamp()
             self.assertAlmostEqual(finished_at_time_must_be, finished_at_time_got, places=1,
@@ -200,6 +221,9 @@ class TestStatus(unittest.TestCase):
                                    msg='The expiration time was not calculated correctly!')
 
     def test_cannot_upload_file_to_non_existing_job(self):
+        """
+        Tests that a file cannot be uploaded to a non existing job.
+        """
 
         client = self.client
         response = client.post('/status/some_id/file', data={'results_file': (io.BytesIO(b"test"), 'test.txt')},
@@ -207,6 +231,9 @@ class TestStatus(unittest.TestCase):
         self.assertEqual(response.status_code, 404, msg='A 404 not found error should have been produced')
 
     def test_a_job_cannot_upload_files_for_another_job(self):
+        """
+        Tests that a job cannot upload files for another job
+        """
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
@@ -216,7 +243,6 @@ class TestStatus(unittest.TestCase):
         }
 
         with self.flask_app.app_context():
-
             job_must_be = delayed_job_models.get_or_create(job_type, params)
             client = self.client
 
@@ -234,6 +260,9 @@ class TestStatus(unittest.TestCase):
                              msg='I should not be authorised to upload the file for another job')
 
     def test_a_job_results_file_is_uploaded(self):
+        """
+        Tests that a job can upload it's results file correctly.
+        """
 
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
@@ -265,9 +294,9 @@ class TestStatus(unittest.TestCase):
 
             self.assertEqual(response.status_code, 200, msg='It was not possible to upload a job results file')
             # be sure to have a fresh version of the object
-            db.session.rollback()
-            db.session.expire(job_must_be)
-            db.session.refresh(job_must_be)
+            DB.session.rollback()
+            DB.session.expire(job_must_be)
+            DB.session.refresh(job_must_be)
 
             output_file_path_must_be = job_must_be.output_file_path
             with open(output_file_path_must_be, 'r') as file_got:
@@ -275,6 +304,5 @@ class TestStatus(unittest.TestCase):
 
             shutil.rmtree(tmp_dir)
 
-
-    # TODO: test what chages after changing status to running, reporting to es, etc
-
+            # pylint: disable=W0511
+            # TODO: reporting to es, etc

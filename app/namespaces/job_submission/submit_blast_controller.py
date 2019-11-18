@@ -1,3 +1,6 @@
+"""
+Module that describes and handles the requests concerned with the blast search submission
+"""
 from flask import request
 from flask_restplus import Namespace, Resource, fields
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
@@ -14,7 +17,7 @@ BLAST_JOB = API.model('BLASTJob', {
     'alignments': fields.Integer(description='Maximum number of match alignments reported in the result output.',
                                  example=50, enum=[5, 10, 20, 50, 100, 150, 200, 500, 750, 1000], min=5, max=1000),
     'scores': fields.Integer(description='Maximum number of match score summaries reported in the result output.',
-                                 example=50, enum=[5, 10, 20, 50, 100, 150, 200, 500, 750, 1000], min=5, max=1000),
+                             example=50, enum=[5, 10, 20, 50, 100, 150, 200, 500, 750, 1000], min=5, max=1000),
     'exp': fields.String(description='Limits the number of scores and alignments reported based on the expectation '
                                      'value. This is the maximum number of times the match is expected to occur by '
                                      'chance.', example='10', enum=['1e-200', '1e-100', '1e-50', '1e-10', '1e-5',
@@ -50,7 +53,7 @@ BLAST_JOB = API.model('BLASTJob', {
     'compstats': fields.String(description='se composition-based statistics.',
                                example='F', enum=['F', 'D', '1', '2', '3']),
     'align': fields.Integer(description='Formatting for the alignments',
-                               example=0, min=0, max=12),
+                            example=0, min=0, max=12),
     'sequence': fields.String(description='The query sequence can be entered directly into this form. The sequence '
                                           'can be in GCG, FASTA, EMBL (Nucleotide only), GenBank, PIR, NBRF, PHYLIP '
                                           'or UniProtKB/Swiss-Prot (Protein only) format. A partially formatted '
@@ -58,19 +61,19 @@ BLAST_JOB = API.model('BLASTJob', {
                                           'help certain applications understand the input. Note that directly using '
                                           'data from word processors may yield unpredictable results as hidden/control '
                                           'characters may be present.',
-                               example='>sp|P35858|ALS_HUMAN Insulin-like growth factor-binding protein complex acid '
-                                       'labile subunit OS=Homo sapiens GN=IGFALS PE=1 SV=1\n'
-                                       'MALRKGGLALALLLLSWVALGPRSLEGADPGTPGEAEGPACPAACVCSYDDDADELSVFC\n'
-                                       'SSRNLTRLPDGVPGGTQALWLDGNNLSSVPPAAFQNLSSLGFLNLQGGQLGSLEPQALLG\n'
-                                       'LENLCHLHLERNQLRSLALGTFAHTPALASLGLSNNRLSRLEDGLFEGLGSLWDLNLGWN\n'
-                                       'SLAVLPDAAFRGLGSLRELVLAGNRLAYLQPALFSGLAELRELDLSRNALRAIKANVFVQ\n'
-                                       'LPRLQKLYLDRNLIAAVAPGAFLGLKALRWLDLSHNRVAGLLEDTFPGLLGLRVLRLSHN\n'
-                                       'AIASLRPRTFKDLHFLEELQLGHNRIRQLAERSFEGLGQLEVLTLDHNQLQEVKAGAFLG\n'
-                                       'LTNVAVMNLSGNCLRNLPEQVFRGLGKLHSLHLEGSCLGRIRPHTFTGLSGLRRLFLKDN\n'
-                                       'GLVGIEEQSLWGLAELLELDLTSNQLTHLPHRLFQGLGKLEYLLLSRNRLAELPADALGP\n'
-                                       'LQRAFWLDVSHNRLEALPNSLLAPLGRLRYLSLRNNSLRTFTPQPPGLERLWLEGNPWDC\n'
-                                       'GCPLKALRDFALQNPSAVPRFVQAICEGDDCQPPAYTYNNITCASPPEVVGLDLRDLSEA\n'
-                                       'HFAPC'),
+                              example='>sp|P35858|ALS_HUMAN Insulin-like growth factor-binding protein complex acid '
+                                      'labile subunit OS=Homo sapiens GN=IGFALS PE=1 SV=1\n'
+                                      'MALRKGGLALALLLLSWVALGPRSLEGADPGTPGEAEGPACPAACVCSYDDDADELSVFC\n'
+                                      'SSRNLTRLPDGVPGGTQALWLDGNNLSSVPPAAFQNLSSLGFLNLQGGQLGSLEPQALLG\n'
+                                      'LENLCHLHLERNQLRSLALGTFAHTPALASLGLSNNRLSRLEDGLFEGLGSLWDLNLGWN\n'
+                                      'SLAVLPDAAFRGLGSLRELVLAGNRLAYLQPALFSGLAELRELDLSRNALRAIKANVFVQ\n'
+                                      'LPRLQKLYLDRNLIAAVAPGAFLGLKALRWLDLSHNRVAGLLEDTFPGLLGLRVLRLSHN\n'
+                                      'AIASLRPRTFKDLHFLEELQLGHNRIRQLAERSFEGLGQLEVLTLDHNQLQEVKAGAFLG\n'
+                                      'LTNVAVMNLSGNCLRNLPEQVFRGLGKLHSLHLEGSCLGRIRPHTFTGLSGLRRLFLKDN\n'
+                                      'GLVGIEEQSLWGLAELLELDLTSNQLTHLPHRLFQGLGKLEYLLLSRNRLAELPADALGP\n'
+                                      'LQRAFWLDVSHNRLEALPNSLLAPLGRLRYLSLRNNSLRTFTPQPPGLERLWLEGNPWDC\n'
+                                      'GCPLKALRDFALQNPSAVPRFVQAICEGDDCQPPAYTYNNITCASPPEVVGLDLRDLSEA\n'
+                                      'HFAPC'),
 })
 
 SUBMISSION_RESPONSE = API.inherit('SubmissionResponse', BASE_SUBMISSION_RESPONSE)

@@ -12,6 +12,9 @@ from app.namespaces.models import delayed_job_models
 
 
 class TestModels(unittest.TestCase):
+    """
+    Class to test CRUD operation in the delayed job models
+    """
 
     def setUp(self):
         self.flask_app = create_app()
@@ -23,6 +26,9 @@ class TestModels(unittest.TestCase):
             delayed_job_models.delete_all_jobs()
 
     def test_job_id_is_generated_correctly(self):
+        """
+        Tests that a job id is generated correctly from hashing its parameters.
+        """
         job_type = delayed_job_models.JobTypes.SIMILARITY
         params = {
             'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
@@ -40,6 +46,9 @@ class TestModels(unittest.TestCase):
         self.assertEqual(id_must_be, id_got, msg='The job id was not generated correctly!')
 
     def test_a_job_is_created(self):
+        """
+        Tests that a job is created correctly
+        """
 
         with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.SIMILARITY
@@ -67,6 +76,9 @@ class TestModels(unittest.TestCase):
             self.assertEqual(params_got, params_must_be, msg='The parameters where not saved correctly')
 
     def test_a_job_is_created_only_once(self):
+        """
+        Tests that there can only exist one job instance with given a set of parameters.
+        """
 
         with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.SIMILARITY

@@ -1,9 +1,14 @@
+"""
+Module that describes and handles the requests concerned with recording the search events
+"""
 from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
+
 from app.namespaces.job_statistics import record_statistics_service
 from app.authorisation.decorators import token_required_for_job_id
 from app.namespaces.models import delayed_job_models
 
+# pylint: disable=redefined-builtin,invalid-name,no-self-use
 API = Namespace('record/search', description='Requests to record statistics of a search')
 
 SEARCH_RECORD = API.model('SearchRecord', {
@@ -14,7 +19,7 @@ SEARCH_RECORD = API.model('SearchRecord', {
 FULL_STATISTICS = API.inherit('FullSearchRecord', SEARCH_RECORD, {
     'time_taken': fields.Integer(required=True, description='The time the job took to finish', min=0),
     'search_type': fields.String(required=True, description='The type of the job ',
-                          enum=[str(possible_type) for possible_type in delayed_job_models.JobTypes]),
+                                 enum=[str(possible_type) for possible_type in delayed_job_models.JobTypes]),
     'request_date': fields.Float(required=True, description='The time (POSIX timestamp) at what the job started', min=0)
 })
 

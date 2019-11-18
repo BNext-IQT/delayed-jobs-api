@@ -5,14 +5,16 @@ import base64
 import datetime
 import hashlib
 import json
-from enum import Enum
-from app.db import db
 import shutil
+
+from enum import Enum
+from app.db import DB
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept
 
 
+# pylint: disable=no-member,too-few-public-methods
 class JobTypes(Enum):
     """
         Types of delayed jobs
@@ -50,37 +52,42 @@ class JobStatuses(Enum):
 
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
-    pass
 
 
-class JobExecution(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    hostname = db.Column(db.String(length=500), nullable=False)
-    command = db.Column(db.String(length=500), nullable=False)
-    pid = db.Column(db.Integer, nullable=False)
-    run_dir = db.Column(db.Text)
-    job_id = db.Column(db.Integer, db.ForeignKey('delayed_job.id'), nullable=False)
+class JobExecution(DB.Model):
+    """
+        Class that represents in the database an execution of a job, a job can have multiple executions.
+    """
+    id = DB.Column(DB.Integer, primary_key=True)
+    hostname = DB.Column(DB.String(length=500), nullable=False)
+    command = DB.Column(DB.String(length=500), nullable=False)
+    pid = DB.Column(DB.Integer, nullable=False)
+    run_dir = DB.Column(DB.Text)
+    job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
-class DelayedJob(db.Model):
-    id = db.Column(db.String(length=60), primary_key=True)
-    type = db.Column(db.Enum(JobTypes))
-    status = db.Column(db.Enum(JobStatuses), default=JobStatuses.CREATED)
-    status_comment = db.Column(db.String)  # a comment about the status, for example 'Compressing file'
-    progress = db.Column(db.Integer, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    started_at = db.Column(db.DateTime)
-    finished_at = db.Column(db.DateTime)
-    run_dir_path = db.Column(db.Text)
-    output_dir_path = db.Column(db.Text)
-    output_file_path = db.Column(db.Text)
-    output_file_url = db.Column(db.Text)
-    log = db.Column(db.Text)
-    raw_params = db.Column(db.Text)
-    expires_at = db.Column(db.DateTime)
-    api_initial_url = db.Column(db.Text)
-    timezone = db.Column(db.String(length=60), default=str(datetime.timezone.utc))
-    executions = db.relationship('JobExecution', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
+class DelayedJob(DB.Model):
+    """
+    Class that represents a delayed job in the database.
+    """
+    id = DB.Column(DB.String(length=60), primary_key=True)
+    type = DB.Column(DB.Enum(JobTypes))
+    status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
+    status_comment = DB.Column(DB.String)  # a comment about the status, for example 'Compressing file'
+    progress = DB.Column(DB.Integer, default=0)
+    created_at = DB.Column(DB.DateTime, default=datetime.datetime.utcnow)
+    started_at = DB.Column(DB.DateTime)
+    finished_at = DB.Column(DB.DateTime)
+    run_dir_path = DB.Column(DB.Text)
+    output_dir_path = DB.Column(DB.Text)
+    output_file_path = DB.Column(DB.Text)
+    output_file_url = DB.Column(DB.Text)
+    log = DB.Column(DB.Text)
+    raw_params = DB.Column(DB.Text)
+    expires_at = DB.Column(DB.DateTime)
+    api_initial_url = DB.Column(DB.Text)
+    timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
+    executions = DB.relationship('JobExecution', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
@@ -90,11 +97,16 @@ class DelayedJob(db.Model):
         Returns a dictionary representation of the object with all the fields that are safe to be public
         :return:
         """
-        return {key:str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_comment', 'progress',
-                                                        'created_at', 'started_at', 'finished_at', 'output_file_url',
-                                                        'raw_params', 'expires_at', 'api_initial_url', 'timezone']}
+        return {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_comment', 'progress',
+                                                         'created_at', 'started_at', 'finished_at', 'output_file_url',
+                                                         'raw_params', 'expires_at', 'api_initial_url', 'timezone']}
 
     def update_run_status(self, new_value):
+        """
+        Updates the run status of the job, if status switches to running, it calculates started_at. If the status
+        switches to running, it calculates finished_at, and expires_at
+        :param new_value: new run status
+        """
         old_value = self.status
         if str(old_value) != str(new_value):
             if new_value == str(JobStatuses.RUNNING):
@@ -106,6 +118,9 @@ class DelayedJob(db.Model):
             self.status = new_value
 
     def get_executions_count(self):
+        """
+        :return: how many times a job has been executed
+        """
         return len(self.executions)
 
 
@@ -126,37 +141,54 @@ def generate_job_id(job_type, job_params):
 
 
 def get_or_create(job_type, job_params):
+    """
+    Based on the type and the parameters given, returns a job if it exists, if not it creates it and returns it.
+    :param job_type: type of job to get or create
+    :param job_params: parameters of the job
+    :return: the job corresponding to those parameters.
+    """
+    job_id = generate_job_id(job_type, job_params)
 
-    id = generate_job_id(job_type, job_params)
-
-    existing_job = DelayedJob.query.filter_by(id=id).first()
+    existing_job = DelayedJob.query.filter_by(id=job_id).first()
     if existing_job is not None:
         return existing_job
 
-    job = DelayedJob(id=id, type=job_type, raw_params=json.dumps(job_params))
+    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params))
 
-    db.session.add(job)
-    db.session.commit()
+    DB.session.add(job)
+    DB.session.commit()
     return job
 
 
-def get_job_by_id(id):
-
-    job = DelayedJob.query.filter_by(id=id).first()
+def get_job_by_id(job_id):
+    """
+    :param job_id: id of the job
+    :return: job given an id, raises JobNotFoundError if it does not exist
+    """
+    job = DelayedJob.query.filter_by(id=job_id).first()
     if job is None:
         raise JobNotFoundError()
     return job
 
 
 def get_job_by_params(job_type, job_params):
+    """
+    :param job_type: type of the job
+    :param job_params: parameters of the job
+    :return: job given a type and params, raises JobNotFoundError if it does not exist
+    """
+    job_id = generate_job_id(job_type, job_params)
+    return get_job_by_id(job_id)
 
-    id = generate_job_id(job_type, job_params)
-    return get_job_by_id(id)
 
-
-def update_job_status(id, new_data):
-
-    job = get_job_by_id(id)
+def update_job_status(job_id, new_data):
+    """
+    Updates the job with new data passed in a dict
+    :param job_id: id of the job to modify
+    :param new_data: a dictionary with the new data for the job
+    :return: the job that was modified
+    """
+    job = get_job_by_id(job_id)
     for key in new_data.keys():
 
         new_value = new_data.get(key)
@@ -167,36 +199,51 @@ def update_job_status(id, new_data):
             else:
                 setattr(job, key, new_value)
 
-    db.session.commit()
+    DB.session.commit()
     return job
 
 
 def add_job_execution_to_job(job, execution):
-
+    """
+    Adds a job execution to a job and saves it
+    :param job: job object
+    :param execution: execution object
+    """
     job.executions.append(execution)
-    db.session.add(execution)
-    db.session.commit()
+    DB.session.add(execution)
+    DB.session.commit()
 
 
 def save_job(job):
-
-    db.session.add(job)
-    db.session.commit()
+    """
+    Saves a job to the database, making sure to commit its current status.
+    :param job: job to save.
+    """
+    DB.session.add(job)
+    DB.session.commit()
 
 
 def delete_job(job):
-
-    db.session.delete(job)
-    db.session.commit()
+    """
+    Deletes a job from the database, making sure to commit the changes.
+    :param job: job to delete.
+    """
+    DB.session.delete(job)
+    DB.session.commit()
 
 
 def delete_all_jobs():
-
+    """
+    Deletes all jobs in the database.
+    """
     DelayedJob.query.filter_by().delete()
 
 
 def delete_all_expired_jobs():
-
+    """
+    Deletes all the jobs that have expired
+    :return: the number of jobs that were deleted.
+    """
     now = datetime.datetime.utcnow()
     jobs_to_delete = DelayedJob.query.filter(DelayedJob.expires_at < now)
     num_deleted = 0
@@ -207,4 +254,3 @@ def delete_all_expired_jobs():
         num_deleted += 1
 
     return num_deleted
-

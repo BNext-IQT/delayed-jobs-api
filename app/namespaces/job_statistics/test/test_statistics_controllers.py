@@ -2,27 +2,33 @@
 Tests for the search statistics API
 """
 import unittest
-from app import create_app
-from app.db import db
-from app.namespaces.models import delayed_job_models
-from app.authorisation import token_generator
 import datetime
 import json
 
+from app import create_app
+from app.db import DB
+from app.namespaces.models import delayed_job_models
+from app.authorisation import token_generator
 
+
+# pylint: disable=too-many-locals,no-member
 class TestStatus(unittest.TestCase):
-
+    """
+    jljl
+    """
     def setUp(self):
         self.flask_app = create_app()
         self.client = self.flask_app.test_client()
 
     def tearDown(self):
-
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
 
     def test_cannot_save_statistics_with_invalid_token(self):
+        """
 
+        :return:
+        """
         with self.flask_app.app_context():
             statistics = {
                 'total_items': 100,
@@ -63,9 +69,11 @@ class TestStatus(unittest.TestCase):
                              msg='I should not be able to save statistics for a job that does not exist')
 
     def test_job_must_be_finished_to_save_statistics(self):
-
+        """
+        hkhkhkhk
+        :return:
+        """
         with self.flask_app.app_context():
-
             job_type = delayed_job_models.JobTypes.SIMILARITY
             params = {
                 'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
@@ -74,7 +82,6 @@ class TestStatus(unittest.TestCase):
             }
 
             with self.flask_app.app_context():
-
                 job_must_be = delayed_job_models.get_or_create(job_type, params)
 
                 statistics = {
@@ -92,9 +99,11 @@ class TestStatus(unittest.TestCase):
                 self.assertEqual(response.status_code, 412, msg='The job must be finished before saving statistics')
 
     def test_saves_statistics_for_search_job(self):
-
+        """
+        hkhjk
+        :return:
+        """
         with self.flask_app.app_context():
-
             job_type = delayed_job_models.JobTypes.SIMILARITY
             params = {
                 'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
@@ -103,14 +112,13 @@ class TestStatus(unittest.TestCase):
             }
 
             with self.flask_app.app_context():
-
                 time_taken_must_be = 10
                 job_must_be = delayed_job_models.get_or_create(job_type, params)
                 job_must_be.started_at = datetime.datetime.utcnow()
                 job_must_be.finished_at = job_must_be.started_at + datetime.timedelta(seconds=time_taken_must_be)
 
                 job_must_be.status = delayed_job_models.JobStatuses.FINISHED
-                db.session.commit()
+                DB.session.commit()
 
                 statistics = {
                     'total_items': 100,
@@ -137,4 +145,4 @@ class TestStatus(unittest.TestCase):
                 request_date_must_be = job_must_be.created_at.timestamp()
                 request_date_got = data_got.get('request_date')
                 self.assertAlmostEqual(request_date_must_be, request_date_got, places=1,
-                                 msg='The request date was not calculated correctly')
+                                       msg='The request date was not calculated correctly')

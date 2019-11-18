@@ -1,9 +1,19 @@
-import requests
+"""
+Tests that a failing job is restarted up to n times when it is submitted again
+"""
 import time
 import datetime
 
+import requests
 
+
+# pylint: disable=R0914
+# pylint: disable=R0915
 def run_test(server_base_url):
+    """
+    Submits a job that will always fail and tests that it is restarted when submitted again. But only up to n times
+    :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
+    """
 
     print('------------------------------------------------------------------------------------------------')
     print('Going to test the a job that always fails')
@@ -80,5 +90,3 @@ def run_test(server_base_url):
     print(f'started_at_1: {started_at_1}')
 
     assert started_at_0 == started_at_1, 'The job must have not started again, the max retries limit was reached.'
-
-

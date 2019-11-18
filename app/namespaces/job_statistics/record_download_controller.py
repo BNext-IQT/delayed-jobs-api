@@ -1,8 +1,13 @@
+"""
+Module that describes and handles the requests concerned with recording the downloads
+"""
 from flask import abort, request
 from flask_restplus import Namespace, Resource, fields
+
 from app.namespaces.job_statistics import record_statistics_service
 from app.authorisation.decorators import token_required_for_job_id
 
+# pylint: disable=no-self-use,redefined-builtin,invalid-name
 API = Namespace('record/download', description='Requests to record statistics of a download')
 
 DOWNLOAD_RECORD = API.model('DownloadRecord', {
@@ -16,6 +21,7 @@ FULL_STATISTICS = API.inherit('FullDownloadRecord', DOWNLOAD_RECORD, {
     'time_taken': fields.Integer(required=True, description='The time the job took to finish', min=0),
     'request_date': fields.Float(required=True, description='The time (POSIX timestamp) at what the job started', min=0)
 })
+
 
 @API.route('/<id>')
 @API.param('id', 'The job identifier')

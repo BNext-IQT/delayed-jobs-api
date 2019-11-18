@@ -1,5 +1,9 @@
-from flask import abort, request, make_response, jsonify
+"""
+Module that describes and handles the requests concerned with performing admin tasks
+"""
+from flask import request, make_response, jsonify
 from flask_restplus import Namespace, Resource, fields
+
 from app.authorisation import token_generator
 from app.config import verify_secret
 from app.config import RUN_CONFIG
@@ -13,6 +17,7 @@ OPERATION_RESULT = API.model('OperationResult', {
 })
 
 
+# pylint: disable=no-self-use,broad-except
 @API.route('/login')
 class AdminLogin(Resource):
     """
@@ -56,8 +61,8 @@ class DeleteExpired(Resource):
                 'result': f'Successfully deleted {num_deleted} expired jobs.'
             }
 
-        except Exception as e:
+        except Exception as exception:
 
             return {
-                'result': f'There was an error: {str(e)}'
+                'result': f'There was an error: {str(exception)}'
             }

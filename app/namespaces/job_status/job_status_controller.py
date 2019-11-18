@@ -1,10 +1,14 @@
+"""
+Module that describes and handles the requests concerned with the job status
+"""
+# pylint: disable=W0622,C0103, R0201
 from flask import abort, request
-from flask_restplus import Namespace, Resource, fields
+from flask_restplus import Namespace, Resource, fields, reqparse
+import werkzeug
+
 from app.namespaces.models import delayed_job_models
 from app.namespaces.job_status import job_status_service
 from app.authorisation.decorators import token_required_for_job_id
-import werkzeug
-from flask_restplus import reqparse
 
 API = Namespace('status', description='Requests related to Job Status')
 

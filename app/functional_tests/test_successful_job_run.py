@@ -1,9 +1,16 @@
-import requests
+"""
+Module that runs a normal simple job and expects it to run correctly.
+"""
 import time
-import os
+
+import requests
 
 
 def run_test(server_base_url):
+    """
+    Tests that a job can run normally.
+    :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
+    """
 
     print('------------------------------------------------------------------------------------------------')
     print('Going to test a successful job run')
@@ -54,8 +61,3 @@ def run_test(server_base_url):
     print(f'full_output_file_url: {full_output_file_url}')
     file_request = requests.get(full_output_file_url)
     assert file_request.status_code == 200, 'The results file could not be downloaded!!'
-
-
-
-
-

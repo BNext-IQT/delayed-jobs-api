@@ -1,8 +1,12 @@
+"""
+Module with utilities functions to connect to the server while running the job
+"""
 import datetime
 import getpass
 import socket
-import requests
 from enum import Enum
+
+import requests
 import yaml
 
 
@@ -97,8 +101,8 @@ class ServerConnection:
         if self.dry_run:
             self.print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
         else:
-            r = requests.post(url, files=files, headers=headers)
-            self.print_if_verbose('Server response: ', r.status_code)
+            request = requests.post(url, files=files, headers=headers)
+            self.print_if_verbose('Server response: ', request.status_code)
             self.print_if_verbose('-----------------------------------------------------------------------------------')
 
     def update_job_progress(self, progress_percentage):
@@ -157,10 +161,14 @@ class ServerConnection:
         if self.dry_run:
             self.print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
         else:
-            r = requests.patch(url, payload, headers=headers)
-            self.print_if_verbose('Server response: ', r.status_code)
+            request = requests.patch(url, payload, headers=headers)
+            self.print_if_verbose('Server response: ', request.status_code)
             self.print_if_verbose('-----------------------------------------------------------------------------------')
 
     def print_if_verbose(self, *args):
+        """
+        Calls the print function if verbose setting is True
+        :param args: arguments for print
+        """
         if self.verbose:
             print(args)

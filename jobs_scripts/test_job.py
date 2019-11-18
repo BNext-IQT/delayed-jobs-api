@@ -1,28 +1,34 @@
 #!/usr/bin/env python3
+"""
+Script that runs a job to test the system
+"""
+import json
 import argparse
 import time
-import yaml
-import json
 from pathlib import Path
+
+import yaml
+
 from common import job_utils
 
-parser = argparse.ArgumentParser()
-parser.add_argument('run_params_file', help='The path of the file with the run params')
-parser.add_argument('-v', '--verbose', help='Make output verbose', action='store_true')
-args = parser.parse_args()
-
-RUN_PARAMS = {}
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument('run_params_file', help='The path of the file with the run params')
+PARSER.add_argument('-v', '--verbose', help='Make output verbose', action='store_true')
+ARGS = PARSER.parse_args()
 
 
 def run():
-    global RUN_PARAMS
-    RUN_PARAMS = yaml.load(open(args.run_params_file, 'r'), Loader=yaml.FullLoader)
+    """
+    Runs the job
+    """
 
-    job_params = json.loads(RUN_PARAMS.get('job_params'))
+    run_params = yaml.load(open(ARGS.run_params_file, 'r'), Loader=yaml.FullLoader)
+
+    job_params = json.loads(run_params.get('job_params'))
     duration = job_params.get('seconds')
     instruction = job_params.get('instruction')
 
-    server_connection = job_utils.ServerConnection(run_params_file=args.run_params_file, verbose=args.verbose)
+    server_connection = job_utils.ServerConnection(run_params_file=ARGS.run_params_file, verbose=ARGS.verbose)
 
     server_connection.update_job_status(job_utils.Statuses.RUNNING)
     server_connection.log('Execution Started')

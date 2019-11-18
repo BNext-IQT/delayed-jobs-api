@@ -2,15 +2,17 @@
 This module tests jobs submission to the EBI queue
 """
 import unittest
+import os
+import shutil
+
 import jwt
+import yaml
+
 from app.config import RUN_CONFIG
 from app.namespaces.job_submission import job_submission_service
 from app.namespaces.models import delayed_job_models
 from app import create_app
-import os
-import yaml
 from app.authorisation import token_generator
-import shutil
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -49,8 +51,8 @@ class TestJobSubmitter(unittest.TestCase):
             data_got = jwt.decode(token_got, key, algorithms=['HS256'])
             self.assertEqual(data_got.get('job_id'), job_must_be.id, msg='The token was not generated correctly!')
 
-
     # pylint: disable=no-self-use
+    # pylint: disable=too-many-locals
     def test_job_can_be_submitted(self):
         """
         Test that a job can be submitted
@@ -132,9 +134,4 @@ class TestJobSubmitter(unittest.TestCase):
                             msg=f'The run file for the job ({run_file_must_be}) has not been created!')
 
             self.assertTrue(os.access(run_file_must_be, os.X_OK),
-                        msg=f'The script file for the job ({run_file_must_be}) is not executable!')
-
-
-
-
-
+                            msg=f'The script file for the job ({run_file_must_be}) is not executable!')

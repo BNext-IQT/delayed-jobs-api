@@ -8,11 +8,15 @@ import shutil
 import datetime
 import random
 import string
+
 from app import create_app
 from app.namespaces.models import delayed_job_models
 
 
 class TestModels(unittest.TestCase):
+    """
+    Class to test the deletion of expired jobs
+    """
 
     TEST_RUN_DIR_NAME = 'test_run_dir'
     ABS_RUN_DIR_PATH = str(Path(TEST_RUN_DIR_NAME).resolve())
@@ -31,6 +35,10 @@ class TestModels(unittest.TestCase):
         shutil.rmtree(self.ABS_RUN_DIR_PATH)
 
     def simulate_finished_job(self, expires_at):
+        """
+        Creates a database a job that is finished. It will expire at the date passed as parameter.
+        :param expires_at: Expiration date that you want for the job
+        """
 
         # create a job
         job_type = delayed_job_models.JobTypes.SIMILARITY
@@ -61,6 +69,9 @@ class TestModels(unittest.TestCase):
         return job
 
     def test_deletes_expired_jobs(self):
+        """
+        Test that it deletes expired jobs correctly.
+        """
 
         with self.flask_app.app_context():
 

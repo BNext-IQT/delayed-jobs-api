@@ -1,9 +1,19 @@
-import requests
+"""
+    Module that runs tests for job caching
+"""
 import time
 import datetime
 
+import requests
 
+
+# pylint: disable=R0914
 def run_test(server_base_url):
+    """
+    Test that when a job that is submitted is has exactly the same parameters of a previously run job, the job is not
+    run again. It just returns the existing job.
+    :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
+    """
 
     print('------------------------------------------------------------------------------------------------')
     print('Going to test the job caching')

@@ -1,22 +1,29 @@
+"""
+Module that describes and handles the requests concerned with recording statistics
+"""
 from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
-from app.es_connection import es
+from app.es_connection import ES
 
 
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
-    pass
 
 
 class JobNotFinishedError(Exception):
     """Base class for exceptions."""
-    pass
 
 
-def save_statistics_for_job(id, statistics):
+def save_statistics_for_job(job_id, statistics):
+    """
+    Saves statistics (Remember to rethink this)
+    :param job_id:
+    :param statistics:
+    :return:
+    """
 
     try:
-        job = delayed_job_models.get_job_by_id(id)
+        job = delayed_job_models.get_job_by_id(job_id)
         if job.status != delayed_job_models.JobStatuses.FINISHED:
             raise JobNotFinishedError()
 
@@ -28,6 +35,12 @@ def save_statistics_for_job(id, statistics):
 
 
 def calculate_extra_and_save_statistics_to_elasticsearch(job, statistics):
+    """
+
+    :param job:
+    :param statistics:
+    :return:
+    """
 
     calculated_statistics = {
         **statistics,
@@ -42,6 +55,11 @@ def calculate_extra_and_save_statistics_to_elasticsearch(job, statistics):
 
 
 def save_search_record_to_elasticsearch(calculated_statistics):
+    """
+
+    :param calculated_statistics:
+    :return:
+    """
 
     es_index = 'chembl_glados_es_search_record'
     es_doc = {
@@ -58,5 +76,4 @@ def save_search_record_to_elasticsearch(calculated_statistics):
         print('---------------------------------------------------')
     else:
         print('SAVING TO ES')
-        res = es.search(index=es_index, body={"query": {"match_all": {}}})
-
+        ES.search(index=es_index, body={"query": {"match_all": {}}})

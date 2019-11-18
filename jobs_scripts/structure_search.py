@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
+"""
+Script that runs structure searches using the ChEMBL web services
+"""
 import argparse
-import yaml
 import json
-from common import job_utils
-import requests
 from pathlib import Path
+import requests
 
-parser = argparse.ArgumentParser()
-parser.add_argument('run_params_file', help='The path of the file with the run params')
-parser.add_argument('-v', '--verbose', help='Make output verbose', action="store_true")
-parser.add_argument('-n', '--dry-run', help='Make output verbose', action='store_true', dest='dry_run')
-args = parser.parse_args()
+import yaml
 
-RUN_PARAMS = {}
+from common import job_utils
+
+# pylint: disable=too-many-locals
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument('run_params_file', help='The path of the file with the run params')
+PARSER.add_argument('-v', '--verbose', help='Make output verbose', action="store_true")
+PARSER.add_argument('-n', '--dry-run', help='Make output verbose', action='store_true', dest='dry_run')
+ARGS = PARSER.parse_args()
+
+
 EBI_BASE_URL = 'https://www.ebi.ac.uk'
 WEB_SERVICES_BASE_URL = f'{EBI_BASE_URL}/chembl/api/data'
 LIMIT_PER_PAGE = 5
@@ -20,7 +26,6 @@ LIMIT_PER_PAGE = 5
 
 class SearchError(Exception):
     """Base class for exceptions in this module."""
-    pass
 
 
 SIMILARITY = 'SIMILARITY'
@@ -29,11 +34,14 @@ CONNECTIVITY = 'CONNECTIVITY'
 
 
 def run():
-    global RUN_PARAMS
-    RUN_PARAMS = yaml.load(open(args.run_params_file, 'r'), Loader=yaml.FullLoader)
-    job_params = json.loads(RUN_PARAMS.get('job_params'))
+    """
+    Runs the job
+    """
 
-    server_connection = job_utils.ServerConnection(run_params_file=args.run_params_file, verbose=args.verbose)
+    run_params = yaml.load(open(ARGS.run_params_file, 'r'), Loader=yaml.FullLoader)
+    job_params = json.loads(run_params.get('job_params'))
+
+    server_connection = job_utils.ServerConnection(run_params_file=ARGS.run_params_file, verbose=ARGS.verbose)
     server_connection.update_job_status(job_utils.Statuses.RUNNING)
     server_connection.log('Execution Started')
 
@@ -65,9 +73,9 @@ def run():
 
         server_connection.log(f'Loading page: {search_url}')
 
-        r = requests.get(search_url)
-        status_code = r.status_code
-        response = r.json()
+        request = requests.get(search_url)
+        status_code = request.status_code
+        response = request.json()
 
         server_connection.log(f'status_code: {status_code}')
         if status_code != 200:
@@ -75,8 +83,8 @@ def run():
             return
         try:
             num_loaded_items += append_to_results_from_response_page(response, results, search_type)
-        except SearchError as e:
-            error_msg = repr(e)
+        except SearchError as error:
+            error_msg = repr(error)
             server_connection.log(f'Error: {error_msg}')
             server_connection.update_job_status(job_utils.Statuses.ERROR, error_msg)
             return
@@ -102,11 +110,21 @@ def run():
 
 
 def print_if_verbose(*print_args):
-    if args.verbose:
+    """
+    Calls the print function if verbose setting is True
+    :param args: arguments for print
+    """
+    if ARGS.verbose:
         print(*print_args)
 
 
 def append_to_results_from_response_page(response, results, search_type):
+    """
+    Appends to the results list new results from the response obtainer
+    :param response: response dict from server
+    :param results: results list that accumulates the results
+    :param search_type: SIMILARITY, SUBSTRUCTURE, CONNECTIVITY
+    """
 
     error_message = response.get('error_message')
 
@@ -115,16 +133,16 @@ def append_to_results_from_response_page(response, results, search_type):
 
     if search_type == SIMILARITY:
 
-        for r in response['molecules']:
+        for result in response['molecules']:
             results.append({
-                'molecule_chembl_id': r['molecule_chembl_id'],
-                'similarity': float(r['similarity'])
+                'molecule_chembl_id': result['molecule_chembl_id'],
+                'similarity': float(result['similarity'])
             })
 
-    elif search_type == SUBSTRUCTURE or search_type == CONNECTIVITY:
+    elif search_type in [SUBSTRUCTURE, CONNECTIVITY]:
 
-        for r in response['molecules']:
-            results.append(r)
+        for result in response['molecules']:
+            results.append(result)
 
     return len(response['molecules'])
 

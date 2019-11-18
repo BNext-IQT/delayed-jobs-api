@@ -1,9 +1,18 @@
-import requests
+"""
+    Module that runs tests for parallel job submission
+"""
 import time
 import datetime
 
+import requests
+
 
 def run_test(server_base_url):
+    """
+    Submits a job, and while it is running it submits another job with exactly the same parameters. No new job should be
+    started, it should return the id for the job that is already running without restarting it.
+    :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
+    """
 
     print('------------------------------------------------------------------------------------------------')
     print('Going to test the when a job is submitted while the same job is already running')

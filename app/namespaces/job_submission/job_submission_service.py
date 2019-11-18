@@ -1,16 +1,16 @@
 """
 This module submits jobs to the EBI queue
 """
-from app.namespaces.models import delayed_job_models
-from app.config import RUN_CONFIG
 from pathlib import Path
 import os
 import stat
-from app.authorisation import token_generator
 import shutil
 import subprocess
 import socket
 
+from app.namespaces.models import delayed_job_models
+from app.config import RUN_CONFIG
+from app.authorisation import token_generator
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir')
 if JOBS_RUN_DIR is None:
@@ -63,7 +63,11 @@ MAX_RETRIES = 6
 
 
 def submit_job(job_type, job_params):
-    """Submit job to the queue"""
+    """
+    Submits job to the queue, and runs it in background
+    :param job_type: type of job to submit
+    :param job_params: dict with the job parameters
+    """
 
     try:
         job = delayed_job_models.get_job_by_params(job_type, job_params)
@@ -87,18 +91,34 @@ def submit_job(job_type, job_params):
 
 
 def get_job_run_dir(job):
+    """
+    :param job: DelayedJob object
+    :return: run dir of the job
+    """
     return os.path.join(JOBS_RUN_DIR, job.id)
 
 
 def get_job_run_file_path(job):
+    """
+    :param job: DelayedJob object
+    :return: local path of the job results file
+    """
     return os.path.join(get_job_run_dir(job), RUN_FILE_NAME)
 
 
 def get_job_output_dir_path(job):
+    """
+    :param job: DelayedJob object
+    :return: local path to place the results file of a job
+    """
     return os.path.join(JOBS_OUTPUT_DIR, job.id)
 
 
 def prepare_job_and_run(job):
+    """
+    prepares the run directory of the job, then executes the job script as a suprpocess
+    :param job: DelayedJob object
+    """
     job.output_dir_path = get_job_output_dir_path(job)
     prepare_run_folder(job)
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
@@ -106,7 +126,12 @@ def prepare_job_and_run(job):
         run_job(job)
 
 
+# pylint: disable=too-many-locals
 def prepare_run_folder(job):
+    """
+    Prepares the folder where the job will run
+    :param job: DelayedJob object
+    """
 
     job_run_dir = get_job_run_dir(job)
 
@@ -151,8 +176,8 @@ def prepare_run_folder(job):
     shutil.copytree(UTILS_PACKAGE_PATH, os.path.join(job_run_dir, COMMON_PACKAGE_NAME))
 
     # make sure file is executable
-    st = os.stat(script_path)
-    os.chmod(script_path, st.st_mode | stat.S_IEXEC)
+    file_stats = os.stat(script_path)
+    os.chmod(script_path, file_stats.st_mode | stat.S_IEXEC)
 
     run_job_template_file = open(os.path.join(Path().absolute(), 'templates', RUN_FILE_NAME))
     run_job_template = run_job_template_file.read()
@@ -168,11 +193,15 @@ def prepare_run_folder(job):
         out_file.write(run_job_params)
 
     # make sure file is executable
-    st = os.stat(run_file_path)
-    os.chmod(run_file_path, st.st_mode | stat.S_IEXEC)
+    file_stats = os.stat(run_file_path)
+    os.chmod(run_file_path, file_stats.st_mode | stat.S_IEXEC)
 
 
 def run_job(job):
+    """
+    Runs the job in background by executing the run script
+    :param job: DelayedJob object
+    """
 
     run_command = f'{get_job_run_file_path(job)}'
     run_output = subprocess.Popen([run_command, '&'])
@@ -185,4 +214,3 @@ def run_job(job):
     )
 
     delayed_job_models.add_job_execution_to_job(job, job_execution)
-

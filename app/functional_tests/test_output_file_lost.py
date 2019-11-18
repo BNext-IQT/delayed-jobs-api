@@ -1,9 +1,17 @@
-import requests
+"""
+    Module that runs tests when an output file of a job goes missing
+"""
 import time
 import datetime
 
+import requests
+
 
 def run_test(server_base_url):
+    """
+    Tests that when an output file of a job is missing, the job is started again.
+    :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
+    """
 
     print('------------------------------------------------------------------------------------------------')
     print('Going to test the lost of a results file')
