@@ -24,6 +24,7 @@ functional_tests:
   script:
   - rm -rf app/static/jobs_output || true
   - rm -rf jobs_run || true
+  - export PATH=/bin/bash:$PATH
   - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
   - sleep 10
   - head functional_tests_run.log
