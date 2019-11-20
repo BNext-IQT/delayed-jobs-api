@@ -24,10 +24,11 @@ functional_tests:
   script:
   - rm -rf app/static/jobs_output || true
   - rm -rf jobs_run || true
-  - echo 'run server'
-  - echo 'run test'
-  - echo 'kill server'
+  - CONFIG_FILE_PATH='/Users/dmendez/PycharmProjects/delayed-jobs/configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > funtional_tests_run.log 2>&1 &
+  - SERVER_PID=$!
+  - pushd app/functional_tests
+  - ./run_functional_tests.py
+  - popd
+  - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
-  after_script:
-  - echo 'after'
