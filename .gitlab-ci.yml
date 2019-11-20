@@ -35,6 +35,7 @@ functional_tests:
   - cat functional_tests_run.log
   - which bash
   - which python
+  - ls /usr/bin/env
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
