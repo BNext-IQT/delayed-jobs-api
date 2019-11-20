@@ -1,0 +1,14 @@
+run_env: DEV # DEV, TEST, STAGING or PROD
+server_secret_key: 'ServerKey'
+sql_alchemy:
+  create_tables: True
+  database_uri:  'sqlite:///:memory:'
+  track_modifications: False
+elasticsearch:
+  dry_run: True
+  host: 'https://www.ebi.ac.uk/chembl/glados-es'
+run_jobs: True
+admin_username: 'admin'
+admin_password: '123456'
+jobs_output_dir: 'app/static/jobs_output'
+jobs_run_dir: 'jobs_run'

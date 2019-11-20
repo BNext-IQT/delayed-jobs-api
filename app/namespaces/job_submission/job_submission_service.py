@@ -13,11 +13,17 @@ from app.config import RUN_CONFIG
 from app.authorisation import token_generator
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir')
+if not os.path.isabs(JOBS_RUN_DIR):
+    JOBS_RUN_DIR = Path(JOBS_RUN_DIR).resolve()
+
 if JOBS_RUN_DIR is None:
     JOBS_RUN_DIR = str(Path().absolute()) + '/jobs_run'
 os.makedirs(JOBS_RUN_DIR, exist_ok=True)
 
 JOBS_OUTPUT_DIR = RUN_CONFIG.get('jobs_output_dir')
+if not os.path.isabs(JOBS_OUTPUT_DIR):
+    JOBS_OUTPUT_DIR = Path(JOBS_OUTPUT_DIR).resolve()
+
 if JOBS_OUTPUT_DIR is None:
     JOBS_OUTPUT_DIR = str(Path().absolute()) + '/jobs_output'
 os.makedirs(JOBS_OUTPUT_DIR, exist_ok=True)
