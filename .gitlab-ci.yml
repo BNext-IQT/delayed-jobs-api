@@ -28,6 +28,7 @@ functional_tests:
   - sleep 10
   - head functional_tests_run.log
   - SERVER_PID=$!
+  - ls jobs_run
   - pushd app/functional_tests
   - ./run_functional_tests.py
   - popd
