@@ -31,7 +31,7 @@ functional_tests:
   - pushd app/functional_tests
   - ./run_functional_tests.py || true
   - popd
-  - ls jobs_run
+  - ls jobs_run/TEST-qb7ElDakyCL5UUxKDIoyc7KFU0fArrVAsMD1xLT69zM=
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
