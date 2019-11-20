@@ -33,6 +33,8 @@ functional_tests:
   - popd
   - ls jobs_run/TEST-qb7ElDakyCL5UUxKDIoyc7KFU0fArrVAsMD1xLT69zM=
   - cat functional_tests_run.log
+  - which bash
+  - which python
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
