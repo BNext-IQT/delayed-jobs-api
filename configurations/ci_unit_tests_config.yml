@@ -6,7 +6,7 @@ sql_alchemy:
   track_modifications: False
 elasticsearch:
   dry_run: True
-  host: 'http://wp-p1m-50.ebi.ac.uk:9200'
+  host: 'https://www.ebi.ac.uk/chembl/glados-es'
 run_jobs: False
 admin_username: 'admin'
 admin_password: '123456'
