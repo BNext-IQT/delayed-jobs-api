@@ -14,7 +14,17 @@ pylint:
   script:
   - find . -iname "*.py" | xargs pylint
 
-unit_test:
+unit_tests:
   stage: Test
   script:
   - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
+
+functional_tests:
+  stage: Test
+  before_script:
+  - echo 'before'
+  script:
+  - echo 'run server'
+  - echo 'run test'
+  after_script:
+  - echo 'after'
