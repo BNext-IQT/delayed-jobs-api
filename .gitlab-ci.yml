@@ -28,10 +28,10 @@ functional_tests:
   - sleep 10
   - head functional_tests_run.log
   - SERVER_PID=$!
-  - ls jobs_run
   - pushd app/functional_tests
-  - ./run_functional_tests.py
+  - ./run_functional_tests.py || true
   - popd
+  - ls jobs_run
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
