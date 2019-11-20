@@ -21,10 +21,13 @@ unit_tests:
 
 functional_tests:
   stage: Test
-  before_script:
-  - echo 'before'
   script:
+  - rm -rf app/static/jobs_output || true
+  - rm -rf jobs_run || true
   - echo 'run server'
   - echo 'run test'
+  - echo 'kill server'
+  - rm -rf app/static/jobs_output
+  - rm -rf jobs_run
   after_script:
   - echo 'after'
