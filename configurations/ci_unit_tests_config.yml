@@ -1,0 +1,12 @@
+run_env: DEV # DEV, TEST, STAGING or PROD
+server_secret_key: 'ServerKey'
+sql_alchemy:
+  create_tables: True
+  database_uri:  'sqlite:///:memory:'
+  track_modifications: False
+elasticsearch:
+  dry_run: True
+  host: 'http://wp-p1m-50.ebi.ac.uk:9200'
+run_jobs: False
+admin_username: 'admin'
+admin_password: '123456'
