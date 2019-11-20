@@ -12,9 +12,9 @@ stages:
 pylint:
   stage: Static Analysis
   script:
-  - find . -iname "*.py" | xargs pylint --max-line-length=120
+  - find . -iname "*.py" | xargs pylint
 
-unit_test:
-  stage: Test
-  script:
-  - python -m unittest
+#unit_test:
+#  stage: Test
+#  script:
+#  - python -m unittest
