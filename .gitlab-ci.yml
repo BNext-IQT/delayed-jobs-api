@@ -36,6 +36,7 @@ functional_tests:
   - which bash
   - which python
   - ls /usr/bin/env
+  - env bash
   - echo $PATH
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
