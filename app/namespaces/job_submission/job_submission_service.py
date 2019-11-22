@@ -207,8 +207,9 @@ def run_job(job):
     :param job: DelayedJob object
     """
 
+    print(subprocess.Popen(['which', 'env']).communicate())
     print(subprocess.Popen(['which', 'bash']).communicate())
-    print(subprocess.Popen(['echo', '$PATH']).communicate())
+    print(subprocess.Popen(['echo $PATH'], shell=True).communicate())
 
     run_command = f'{get_job_run_file_path(job)}'
     run_output = subprocess.Popen([run_command, '&'])
