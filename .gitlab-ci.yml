@@ -25,19 +25,12 @@ functional_tests:
   - rm -rf app/static/jobs_output || true
   - rm -rf jobs_run || true
   - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
-  - sleep 10
+  - sleep 5
   - head functional_tests_run.log
   - SERVER_PID=$!
   - pushd app/functional_tests
-  - ./run_functional_tests.py || true
+  - ./run_functional_tests.py
   - popd
-  - ls jobs_run/TEST-qb7ElDakyCL5UUxKDIoyc7KFU0fArrVAsMD1xLT69zM=
-  - cat functional_tests_run.log
-  - which bash
-  - which python
-  - ls /usr/bin/env
-  - env bash
-  - echo $PATH
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
