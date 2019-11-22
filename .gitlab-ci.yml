@@ -41,4 +41,7 @@ deploy_to_staging:
     - master-staging
   script:
     - echo 'DEPLOYING TO STAGING!'
+  environment:
+    name: staging
+    url: https://staging.example.com
 
