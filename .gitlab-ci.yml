@@ -40,7 +40,6 @@ deploy_to_staging:
   stage: Staging
   when: manual
   except:
-    - master
     - tags
   script:
     - echo 'DEPLOYING TO STAGING!'
