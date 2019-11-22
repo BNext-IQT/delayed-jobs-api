@@ -8,6 +8,7 @@ before_script:
 stages:
   - Static Analysis
   - Test
+  - Staging
 
 pylint:
   stage: Static Analysis
@@ -34,3 +35,13 @@ functional_tests:
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
+
+deploy_to_staging:
+  stage: Staging
+  when: manual
+  except:
+    - master
+    - tags
+  script:
+    - echo 'DEPLOYING TO STAGING!'
+
