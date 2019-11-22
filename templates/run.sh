@@ -1,4 +1,7 @@
-#!/usr/bin/env bash -ex
+#!/usr/bin/env bash
+
+set -o verbose
+set -e
 
 pushd {RUN_DIR}
 PYTHONPATH=${{PWD}}:
