@@ -39,8 +39,8 @@ functional_tests:
 deploy_to_staging:
   stage: Staging
   when: manual
-  except:
-    - tags
+  only:
+    - master-staging
   script:
     - echo 'DEPLOYING TO STAGING!'
 
