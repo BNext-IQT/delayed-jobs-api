@@ -211,8 +211,8 @@ def run_job(job):
     print(subprocess.Popen(['which', 'bash']).communicate())
     print(subprocess.Popen(['echo $PATH'], shell=True).communicate())
 
-    run_command = f'{get_job_run_file_path(job)}'
-    run_output = subprocess.Popen([run_command, '&'])
+    run_command = f'{get_job_run_file_path(job)} &'
+    run_output = subprocess.Popen([run_command], shell=True)
 
     job_execution = delayed_job_models.JobExecution(
         hostname=socket.gethostname(),
