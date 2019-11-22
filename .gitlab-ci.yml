@@ -4,12 +4,11 @@ before_script:
   - pip install -r requirements.txt
 
 stages:
-  - Static Analysis
   - Test
   - Staging
 
 pylint:
-  stage: Static Analysis
+  stage: Test
   script:
   - find . -iname "*.py" | xargs pylint
 
