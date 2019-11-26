@@ -11,6 +11,7 @@ from app.namespaces.job_submission.submit_similarity_controller import API as su
 from app.namespaces.job_submission.submit_substructure_controller import API as submit_substructure_search_namespace
 from app.namespaces.job_submission.submit_connectivity_controller import API as submit_connectivity_search_namespace
 from app.namespaces.job_submission.submit_blast_controller import API as submit_blast_search_namespace
+from app.namespaces.job_submission.submit_download_controller import API as submit_download_namespace
 from app.namespaces.job_statistics.record_search_controller import API as record_search_namespace
 from app.namespaces.job_statistics.record_download_controller import API as record_download_namespace
 from app.db import DB
@@ -61,7 +62,7 @@ def create_app():
         for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace,
                           submit_similarity_search_namespace, submit_substructure_search_namespace,
                           submit_connectivity_search_namespace, submit_blast_search_namespace, record_search_namespace,
-                          record_download_namespace]:
+                          record_download_namespace, submit_download_namespace]:
             api.add_namespace(namespace)
 
         return flask_app
