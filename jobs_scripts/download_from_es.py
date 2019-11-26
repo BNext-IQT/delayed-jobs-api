@@ -4,8 +4,6 @@ Script that collects data from elasctisearch and generates a file with it.
 """
 import json
 import argparse
-import time
-from pathlib import Path
 
 import yaml
 
