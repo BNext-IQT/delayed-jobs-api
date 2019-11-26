@@ -58,7 +58,7 @@ class ServerConnection:
         full_msg = f'{username}@{hostname} [{datetime.datetime.utcnow()}]: {msg}\n'
 
         self.current_log += full_msg
-        self.print_if_verbose(full_msg)
+        print_if_verbose(full_msg)
 
         appended_status = {
             'log': self.current_log
@@ -70,9 +70,9 @@ class ServerConnection:
         Update's the job's api initial url
         :param api_initial_url: the initial url from where the job is loading its results
         """
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
-        self.print_if_verbose('update_api_initial_url: ', api_initial_url)
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('update_api_initial_url: ', api_initial_url)
+        print_if_verbose('--------------------------------------------------------------------------------------')
 
         appended_status = {
             'api_initial_url': api_initial_url
@@ -92,18 +92,18 @@ class ServerConnection:
             'X-Job-Key': job_token
         }
 
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
-        self.print_if_verbose('update_api_initial_url')
-        self.print_if_verbose('url: ', url)
-        self.print_if_verbose('headers: ', headers)
-        self.print_if_verbose('file_path: ', file_path)
+        print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('update_api_initial_url')
+        print_if_verbose('url: ', url)
+        print_if_verbose('headers: ', headers)
+        print_if_verbose('file_path: ', file_path)
 
         if self.dry_run:
-            self.print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
+            print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
         else:
             request = requests.post(url, files=files, headers=headers)
-            self.print_if_verbose('Server response: ', request.status_code)
-            self.print_if_verbose('-----------------------------------------------------------------------------------')
+            print_if_verbose('Server response: ', request.status_code)
+            print_if_verbose('-----------------------------------------------------------------------------------')
 
     def update_job_progress(self, progress_percentage):
         """
@@ -112,9 +112,9 @@ class ServerConnection:
         :param verbose: if you want me to print a verbose output
         :return:
         """
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
-        self.print_if_verbose('Setting progress percentage to', progress_percentage)
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('Setting progress percentage to', progress_percentage)
+        print_if_verbose('--------------------------------------------------------------------------------------')
 
         appended_status = {
             'progress': progress_percentage
@@ -128,9 +128,9 @@ class ServerConnection:
         :param status_comment: a comment on the status. E.g. 'Loading ids'
         :return:
         """
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
-        self.print_if_verbose('Setting status to', str(new_status))
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('Setting status to', str(new_status))
+        print_if_verbose('--------------------------------------------------------------------------------------')
 
         appended_status = {
             'status': new_status,
@@ -152,23 +152,24 @@ class ServerConnection:
         }
         payload = appended_status
 
-        self.print_if_verbose('--------------------------------------------------------------------------------------')
-        self.print_if_verbose('Sending status update')
-        self.print_if_verbose('url: ', url)
-        self.print_if_verbose('headers: ', headers)
-        self.print_if_verbose('payload: ', payload)
+        print_if_verbose('--------------------------------------------------------------------------------------')
+        print_if_verbose('Sending status update')
+        print_if_verbose('url: ', url)
+        print_if_verbose('headers: ', headers)
+        print_if_verbose('payload: ', payload)
 
         if self.dry_run:
-            self.print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
+            print_if_verbose('NOT SENDING REQUEST TO THE SERVER (DRY-RUN)')
         else:
             request = requests.patch(url, payload, headers=headers)
-            self.print_if_verbose('Server response: ', request.status_code)
-            self.print_if_verbose('-----------------------------------------------------------------------------------')
+            print_if_verbose('Server response: ', request.status_code)
+            print_if_verbose('-----------------------------------------------------------------------------------')
 
-    def print_if_verbose(self, *args):
-        """
-        Calls the print function if verbose setting is True
-        :param args: arguments for print
-        """
-        if self.verbose:
-            print(args)
+
+def print_if_verbose(*args):
+    """
+    Calls the print function if verbose setting is True
+    :param args: arguments for print
+    """
+    if self.verbose:
+        print(args)
