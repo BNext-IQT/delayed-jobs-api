@@ -1,0 +1,18 @@
+version: '3.7'
+
+x-build-args: &build_args
+  INSTALL_PYTHON_VERSION: 3.7
+
+services:
+  delayed-jobs-dev:
+    build:
+      context: .
+      target: production
+      args:
+        <<: *build_args
+      image: chembl/delayed-jobs:preprod
+      ports:
+      - "5000:5000"
+
+
+
