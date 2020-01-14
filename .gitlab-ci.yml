@@ -28,7 +28,7 @@ functional_tests:
   - SERVER_PID=$!
   - pushd app/functional_tests
   - ./run_functional_tests.py
-  - popd
+  -
   - kill $SERVER_PID
   - rm -rf app/static/jobs_output
   - rm -rf jobs_run
