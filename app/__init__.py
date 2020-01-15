@@ -69,4 +69,4 @@ def create_app():
 
 
 if __name__ == '__main__':
-    create_app()
+    flask_app = create_app()
