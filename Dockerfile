@@ -19,4 +19,4 @@ EXPOSE 5000
 COPY . .
 
 COPY configurations/minimal_dev_config.yml .
-CMD CONFIG_FILE_PATH='/app/minimal_dev_config.yml' FLASK_APP=app flask run
+CMD CONFIG_FILE_PATH='/app/minimal_dev_config.yml' gunicorn wsgi:FLASK_APP -b 0.0.0.0:8080
