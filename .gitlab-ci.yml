@@ -12,7 +12,7 @@ stages:
 # QA
 # ----------------------------------------------------------------------------------------------------------------------
 pylint:
-  stage: Test
+  stage: QA
   script:
   - echo 'disabled temporarily'
 #  - find . -iname "*.py" | xargs pylint
