@@ -66,5 +66,5 @@ deploy_to_staging:
   - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
   - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
-  - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yml
+  - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yaml
 
