@@ -59,4 +59,5 @@ deploy_to_staging:
   - ''
   script:
   - echo $KUBE_URL_HH
+  - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
 
