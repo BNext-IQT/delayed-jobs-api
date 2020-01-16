@@ -24,6 +24,8 @@ pylint:
 build_docker_image:
   stage: Build
   image: docker/compose
+  before_script:
+  - ''
   script:
   - echo 'BUILDING'
 
