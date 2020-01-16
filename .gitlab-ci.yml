@@ -16,7 +16,7 @@ services:
 #  - pip install -r requirements.txt
 
 stages:
-#  - QA
+  - QA
   - Build
 #  - Test
 #  - DeployToStaging
@@ -24,11 +24,11 @@ stages:
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
 # ----------------------------------------------------------------------------------------------------------------------
-#pylint:
-#  stage: QA
-#  script:
-#  - echo 'disabled temporarily'
-#  - find . -iname "*.py" | xargs pylint
+pylint:
+  stage: QA
+  script:
+  - echo 'disabled temporarily'
+  - find . -iname "*.py" | xargs pylint
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Build
