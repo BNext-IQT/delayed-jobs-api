@@ -60,4 +60,10 @@ deploy_to_staging:
   script:
   - echo $KUBE_URL_HH
   - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
+  - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
+  - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
+  - kubectl config set-context ${KUBE_NAMESPACE_STAGING} --cluster=${KUBE_CLUS_NAME_HH} --user=${KUBE_USER_HH}
+  - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
+  - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
+  - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
 
