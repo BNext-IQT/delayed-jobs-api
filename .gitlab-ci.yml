@@ -5,6 +5,7 @@ before_script:
 
 stages:
   - QA
+  - Build
   - Test
   - DeployToStaging
 
@@ -16,6 +17,16 @@ pylint:
   script:
   - echo 'disabled temporarily'
 #  - find . -iname "*.py" | xargs pylint
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Build
+# ----------------------------------------------------------------------------------------------------------------------
+build_docker_image:
+  stage: Build
+  image: docker/compose
+  script:
+  - echo 'BUILDING'
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Tests
@@ -48,7 +59,7 @@ deploy_to_staging:
   stage: DeployToStaging
   image:
     name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ["/bin/sh", "-cx"]
   when: manual
   only:
   - staging
@@ -58,7 +69,6 @@ deploy_to_staging:
   before_script:
   - ''
   script:
-  - set -x
   - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
   - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
   - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
@@ -67,5 +77,5 @@ deploy_to_staging:
   - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
   - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yaml
-  - sed -i "s~<DOCKER_IMAGE>~${DOCKER_IMAGE}~" k8s-deployment.yml
+  - sed -i "s~<DOCKER_IMAGE>~${DOCKER_IMAGE}~" k8s-deployment.yaml
 
