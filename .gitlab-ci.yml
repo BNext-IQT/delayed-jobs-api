@@ -1,13 +1,13 @@
 variables:
   DOCKER_TLS_CERTDIR: ""
   GIT_STRATEGY: clone
-  REGISTRY_USER: chembl/chembl
-  APPLICATION: delayed-jobs
+  REGISTRY_USER: chembl/unichem
+  APPLICATION: unichem-backend
   RELEASE_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:$CI_BUILD_REF_NAME
   DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
   DOCKER_DRIVER: overlay
 
-image: "docker:latest"
+image: docker:latest
 
 services:
   - docker:dind
@@ -33,19 +33,18 @@ stages:
 # ----------------------------------------------------------------------------------------------------------------------
 # Build
 # ----------------------------------------------------------------------------------------------------------------------
-build_docker_image:
-  stage: Build
+build-prod:
   image:
-    name: docker/compose
+    name: docker/compose:1.24.1
     entrypoint: ["/bin/sh", "-c"]
-  before_script:
-  - ''
+  stage: Build/
+  variables:
+    DOCKER_HOST: tcp://docker:2375
   script:
-  - set -x
-  - echo $CI_REGISTRY_PASSWORD
-  - echo $CI_REGISTRY_USER
-  - echo $CI_REGISTRY
-  - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker version # verify docker cli is there. Also prints server info
+    - docker-compose version # verify the docker-compose cli is there    -
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
