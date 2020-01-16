@@ -22,15 +22,6 @@ stages:
 #  - DeployToStaging
 
 # ----------------------------------------------------------------------------------------------------------------------
-# QA
-# ----------------------------------------------------------------------------------------------------------------------
-pylint:
-  stage: QA
-  script:
-  - echo 'disabled temporarily'
-  - find . -iname "*.py" | xargs pylint
-
-# ----------------------------------------------------------------------------------------------------------------------
 # Build
 # ----------------------------------------------------------------------------------------------------------------------
 build_docker_image:
@@ -41,9 +32,19 @@ build_docker_image:
   variables:
     DOCKER_HOST: tcp://docker:2375
   script:
+    - set -x
     - docker version # verify docker cli is there. Also prints server info
-    - docker-compose version # verify the docker-compose cli is there    -
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# QA
+# ----------------------------------------------------------------------------------------------------------------------
+#pylint:
+#  stage: QA
+#  script:
+#  - echo 'disabled temporarily'
+#  - find . -iname "*.py" | xargs pylint
 
 
 
