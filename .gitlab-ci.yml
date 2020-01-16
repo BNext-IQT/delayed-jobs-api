@@ -23,11 +23,14 @@ pylint:
 # ----------------------------------------------------------------------------------------------------------------------
 build_docker_image:
   stage: Build
-  image: docker/compose
+  image:
+    name: docker/compose
+    entrypoint: ["/bin/sh", "-c"]
   before_script:
   - ''
   script:
-  - echo 'BUILDING'
+  - set -x
+  - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -61,7 +64,7 @@ deploy_to_staging:
   stage: DeployToStaging
   image:
     name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: ["/bin/sh", "-cx"]
+    entrypoint: ["/bin/sh", "-c"]
   when: manual
   only:
   - staging
