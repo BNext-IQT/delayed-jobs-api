@@ -1,3 +1,12 @@
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  GIT_STRATEGY: clone
+  REGISTRY_USER: chembl/chembl
+  APPLICATION: delayed-jobs-server
+  RELEASE_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:$CI_BUILD_REF_NAME
+  DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
+  DOCKER_DRIVER: overlay
+
 image: "python:3.7"
 
 before_script:
