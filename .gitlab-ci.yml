@@ -51,10 +51,12 @@ deploy_to_staging:
     entrypoint: ["/bin/sh", "-c"]
   when: manual
   only:
-    - staging
+  - staging
   environment:
     name: staging
     url: https://staging.example.com
+  before_script:
+  - ''
   script:
-    - echo $KUBE_URL_HH
+  - echo $KUBE_URL_HH
 
