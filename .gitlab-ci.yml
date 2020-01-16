@@ -7,24 +7,27 @@ variables:
   DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
   DOCKER_DRIVER: overlay
 
-image: "python:3.7"
+image: "docker:latest"
 
-before_script:
-  - pip install -r requirements.txt
+services:
+  - docker:dind
+
+#before_script:
+#  - pip install -r requirements.txt
 
 stages:
-  - QA
+#  - QA
   - Build
-  - Test
-  - DeployToStaging
+#  - Test
+#  - DeployToStaging
 
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
 # ----------------------------------------------------------------------------------------------------------------------
-pylint:
-  stage: QA
-  script:
-  - echo 'disabled temporarily'
+#pylint:
+#  stage: QA
+#  script:
+#  - echo 'disabled temporarily'
 #  - find . -iname "*.py" | xargs pylint
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -48,52 +51,52 @@ build_docker_image:
 # ----------------------------------------------------------------------------------------------------------------------
 # Tests
 # ----------------------------------------------------------------------------------------------------------------------
-unit_tests:
-  stage: Test
-  script:
-  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
-
-functional_tests:
-  stage: Test
-  script:
-  - rm -rf app/static/jobs_output || true
-  - rm -rf jobs_run || true
-  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
-  - sleep 5
-  - head functional_tests_run.log
-  - SERVER_PID=$!
-  - pushd app/functional_tests
-  - ./run_functional_tests.py
-  - popd
-  - kill $SERVER_PID
-  - rm -rf app/static/jobs_output
-  - rm -rf jobs_run
+#unit_tests:
+#  stage: Test
+#  script:
+#  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
+#
+#functional_tests:
+#  stage: Test
+#  script:
+#  - rm -rf app/static/jobs_output || true
+#  - rm -rf jobs_run || true
+#  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
+#  - sleep 5
+#  - head functional_tests_run.log
+#  - SERVER_PID=$!
+#  - pushd app/functional_tests
+#  - ./run_functional_tests.py
+#  - popd
+#  - kill $SERVER_PID
+#  - rm -rf app/static/jobs_output
+#  - rm -rf jobs_run
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to staging
 # ----------------------------------------------------------------------------------------------------------------------
-deploy_to_staging:
-  stage: DeployToStaging
-  image:
-    name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: ["/bin/sh", "-c"]
-  when: manual
-  only:
-  - staging
-  environment:
-    name: staging
-    url: https://staging.example.com
-  before_script:
-  - ''
-  script:
-  - set -x
-  - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
-  - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
-  - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
-  - kubectl config set-context ${KUBE_NAMESPACE_STAGING} --cluster=${KUBE_CLUS_NAME_HH} --user=${KUBE_USER_HH}
-  - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
-  - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
-  - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
-  - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yaml
-  - sed -i "s~<DOCKER_IMAGE>~${DOCKER_IMAGE}~" k8s-deployment.yaml
+#deploy_to_staging:
+#  stage: DeployToStaging
+#  image:
+#    name: lachlanevenson/k8s-kubectl:latest
+#    entrypoint: ["/bin/sh", "-c"]
+#  when: manual
+#  only:
+#  - staging
+#  environment:
+#    name: staging
+#    url: https://staging.example.com
+#  before_script:
+#  - ''
+#  script:
+#  - set -x
+#  - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
+#  - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
+#  - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
+#  - kubectl config set-context ${KUBE_NAMESPACE_STAGING} --cluster=${KUBE_CLUS_NAME_HH} --user=${KUBE_USER_HH}
+#  - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
+#  - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
+#  - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
+#  - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yaml
+#  - sed -i "s~<DOCKER_IMAGE>~${DOCKER_IMAGE}~" k8s-deployment.yaml
 
