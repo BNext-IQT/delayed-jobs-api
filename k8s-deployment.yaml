@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: bb-site
-        image: chembl/delayed-jobs-server
+        image: <DOCKER_IMAGE>:<VERSION>
         imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1
