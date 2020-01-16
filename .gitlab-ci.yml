@@ -6,7 +6,7 @@ before_script:
 stages:
   - QA
   - Test
-  - Staging
+  - DeployToStaging
 
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
@@ -45,13 +45,16 @@ functional_tests:
 # Deployment to staging
 # ----------------------------------------------------------------------------------------------------------------------
 deploy_to_staging:
-  stage: Staging
+  stage: DeployToStaging
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: ["/bin/sh", "-c"]
   when: manual
   only:
     - staging
-  script:
-    - echo 'DEPLOYING TO STAGING!'
   environment:
     name: staging
     url: https://staging.example.com
+  script:
+    - echo $KUBE_URL_HH
 
