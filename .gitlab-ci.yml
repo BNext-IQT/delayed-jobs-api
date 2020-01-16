@@ -58,7 +58,7 @@ deploy_to_staging:
   before_script:
   - ''
   script:
-  - echo $KUBE_URL_HH
+  - set -x
   - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
   - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
   - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
