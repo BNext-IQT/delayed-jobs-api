@@ -18,7 +18,7 @@ services:
 stages:
   - Build
   - QA
-#  - Test
+  - Test
 #  - DeployToStaging
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -55,10 +55,12 @@ pylint:
 # ----------------------------------------------------------------------------------------------------------------------
 # Tests
 # ----------------------------------------------------------------------------------------------------------------------
-#unit_tests:
-#  stage: Test
-#  script:
-#  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
+unit_tests:
+  stage: Test
+  image:
+    name: $IMAGE_TAG
+  script:
+  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
 #
 #functional_tests:
 #  stage: Test
