@@ -39,6 +39,7 @@ build_docker_image:
     - echo Building $IMAGE_TAG
     - docker-compose build delayed-jobs-server-prod
     - echo Deploying $IMAGE_TAG
+    - docker push $IMAGE_TAG
 
 
 # ----------------------------------------------------------------------------------------------------------------------
