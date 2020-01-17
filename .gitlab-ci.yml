@@ -47,7 +47,7 @@ pylint:
   stage: QA
   image:
     name: $IMAGE_TAG
-    entrypoint: ["/bin/bash"]
+    entrypoint: ["/bin/bash", "-c"]
   script:
   - ''
 #  - hola
