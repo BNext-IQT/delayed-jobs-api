@@ -19,7 +19,7 @@ services:
       target: production
       args:
         <<: *build_args
-    image: chembl/delayed-jobs-server:preprod
+    image: "$IMAGE_TAG"
     ports:
     - "8080:8080"
 
