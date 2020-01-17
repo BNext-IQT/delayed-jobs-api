@@ -80,7 +80,7 @@ functional_tests:
 # Deployment to staging
 # ----------------------------------------------------------------------------------------------------------------------
 deploy_to_staging:
-  stage: DeployToStaging
+  stage: deploy_to_staging
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
@@ -90,8 +90,6 @@ deploy_to_staging:
   environment:
     name: staging
     url: https://staging.example.com
-  before_script:
-  - ''
   script:
   - set -x
   - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
