@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: bb-site
-        image: <DOCKER_IMAGE>:<VERSION>
+        image: <IMAGE_TAG>
         imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1

@@ -12,14 +12,10 @@ image: docker:latest
 services:
   - docker:dind
 
-#before_script:
-#  - pip install -r requirements.txt
-
 stages:
   - build
   - test_and_qa
-  - Test
-#  - DeployToStaging
+  - deploy_to_staging
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -83,28 +79,26 @@ functional_tests:
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to staging
 # ----------------------------------------------------------------------------------------------------------------------
-#deploy_to_staging:
-#  stage: DeployToStaging
-#  image:
-#    name: lachlanevenson/k8s-kubectl:latest
-#    entrypoint: ["/bin/sh", "-c"]
-#  when: manual
-#  only:
-#  - staging
-#  environment:
-#    name: staging
-#    url: https://staging.example.com
-#  before_script:
-#  - ''
-#  script:
-#  - set -x
-#  - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
-#  - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
-#  - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
-#  - kubectl config set-context ${KUBE_NAMESPACE_STAGING} --cluster=${KUBE_CLUS_NAME_HH} --user=${KUBE_USER_HH}
-#  - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
-#  - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
-#  - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
-#  - sed -i "s~<VERSION>~${CI_COMMIT_SHORT_SHA}~" k8s-deployment.yaml
-#  - sed -i "s~<DOCKER_IMAGE>~${DOCKER_IMAGE}~" k8s-deployment.yaml
-
+deploy_to_staging:
+  stage: DeployToStaging
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: ["/bin/sh", "-c"]
+  when: manual
+  only:
+  - staging
+  environment:
+    name: staging
+    url: https://staging.example.com
+  before_script:
+  - ''
+  script:
+  - set -x
+  - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
+  - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
+  - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
+  - kubectl config set-context ${KUBE_NAMESPACE_STAGING} --cluster=${KUBE_CLUS_NAME_HH} --user=${KUBE_USER_HH}
+  - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
+  - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
+  - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
+  - sed -i "s~<IMAGE_TAG>~$IMAGE_TAG~" k8s-deployment.yaml
