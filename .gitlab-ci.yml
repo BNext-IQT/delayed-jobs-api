@@ -99,4 +99,4 @@ deploy_to_staging:
   - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
   - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
-  - sed -i "s~<IMAGE_TAG>~$IMAGE_TAG~" k8s-deployment.yaml
+  - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
