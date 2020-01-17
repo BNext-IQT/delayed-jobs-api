@@ -7,12 +7,11 @@ services:
   delayed-jobs-dev:
     build:
       context: .
-      target: production
       args:
         <<: *build_args
-      image: chembl/delayed-jobs:preprod
-      ports:
-      - "5000:5000"
+    image: chembl/delayed-jobs:dev
+    ports:
+    - "8080:8080"
 
 
 
