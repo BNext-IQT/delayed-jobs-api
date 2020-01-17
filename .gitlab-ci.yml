@@ -3,10 +3,9 @@ variables:
   GIT_STRATEGY: clone
   REGISTRY_USER: chembl/chembl
   APPLICATION: delayed-jobs/delayed-jobs-server
-  RELEASE_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:$CI_BUILD_REF_NAME
+  IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:${CI_COMMIT_SHORT_SHA}
   DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
   DOCKER_DRIVER: overlay
-  IMAGE_TAG: ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}
 
 image: docker:latest
 
@@ -36,7 +35,7 @@ build_docker_image:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - echo $RELEASE_IMAGE
+    - echo $IMAGE_TAG
 #    - echo Building $IMAGE_TAG
 #    - docker-compose build delayed-jobs-server-prod
 #    - echo Deploying $IMAGE_TAG
