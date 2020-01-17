@@ -49,7 +49,7 @@ pylint:
     name: $IMAGE_TAG
   script:
   - echo 'disabled temporarily'
-#  - find . -iname "*.py" | xargs pylint
+  - find . -iname "*.py" | xargs pylint
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Tests
