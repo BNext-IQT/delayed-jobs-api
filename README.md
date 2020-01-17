@@ -6,7 +6,7 @@ This API runs jobs such as generating CSV files or doing substructure and blast 
 
 **python version:** 3.7
 You must create a configuration file and set its path to CONFIG_FILE_PATH. For examples, see the configurations folder.
-```
+```bash
 pip install -r requirements.txt
 CONFIG_FILE_PATH=<Path to your configuration file> FLASK_APP=appflask run
 ```
@@ -36,3 +36,17 @@ popd
 ```
 
 2. Stop the server
+
+# Docker
+
+This app can be run completely using Docker and docker-compose.
+
+To run the development version of the app:
+```bash
+docker-compose up flask-dev
+```
+
+To run the production version of the app:
+```bash
+docker-compose up flask-prod
+```
