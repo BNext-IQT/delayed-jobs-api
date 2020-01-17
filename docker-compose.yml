@@ -4,7 +4,7 @@ x-build-args: &build_args
   INSTALL_PYTHON_VERSION: 3.7
 
 services:
-  delayed-jobs-dev:
+  delayed-jobs-server-dev:
     build:
       context: .
       target: development
@@ -13,13 +13,13 @@ services:
     image: chembl/delayed-jobs-server:dev
     ports:
     - "5000:5000"
-  delayed-jobs-prod:
+  delayed-jobs-server-prod:
     build:
       context: .
       target: production
       args:
         <<: *build_args
-    image: chembl/delayed-jobs-server:test
+    image: chembl/delayed-jobs-server:preprod
     ports:
     - "8080:8080"
 
