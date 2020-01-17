@@ -35,11 +35,10 @@ build_docker_image:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - echo $IMAGE_TAG
-#    - echo Building $IMAGE_TAG
-#    - docker-compose build delayed-jobs-server-prod
-#    - echo Deploying $IMAGE_TAG
-#    - docker push $IMAGE_TAG
+    - echo Building $IMAGE_TAG
+    - docker-compose build delayed-jobs-server-prod
+    - echo Deploying $IMAGE_TAG
+    - docker push $IMAGE_TAG
 
 
 # ----------------------------------------------------------------------------------------------------------------------
