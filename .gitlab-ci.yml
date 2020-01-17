@@ -16,26 +16,26 @@ services:
 #  - pip install -r requirements.txt
 
 stages:
-  - Build
-  - QA
+  - build
+  - test_and_qa
   - Test
 #  - DeployToStaging
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Build
+# build
 # ----------------------------------------------------------------------------------------------------------------------
 build_docker_image:
   image:
     name: docker/compose:1.24.1
     entrypoint: ["/bin/sh", "-c"]
-  stage: Build
+  stage: build
   variables:
     DOCKER_HOST: tcp://docker:2375
   script:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - echo Building $IMAGE_TAG
+    - echo building $IMAGE_TAG
     - docker-compose build delayed-jobs-server-prod
     - echo Deploying $IMAGE_TAG
     - docker push $IMAGE_TAG
@@ -44,7 +44,7 @@ build_docker_image:
 # QA
 # ----------------------------------------------------------------------------------------------------------------------
 pylint:
-  stage: QA
+  stage: test_and_qa
   image:
     name: $IMAGE_TAG
   script:
@@ -56,7 +56,7 @@ pylint:
 # Tests
 # ----------------------------------------------------------------------------------------------------------------------
 unit_tests:
-  stage: Test
+  stage: test_and_qa
   image:
     name: $IMAGE_TAG
   script:
