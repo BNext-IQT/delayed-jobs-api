@@ -16,8 +16,8 @@ services:
 #  - pip install -r requirements.txt
 
 stages:
-  - QA
   - Build
+  - QA
 #  - Test
 #  - DeployToStaging
 
@@ -40,17 +40,17 @@ build_docker_image:
     - echo Deploying $IMAGE_TAG
     - docker push $IMAGE_TAG
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
 # ----------------------------------------------------------------------------------------------------------------------
-#pylint:
-#  stage: QA
-#  script:
-#  - echo 'disabled temporarily'
-#  - find . -iname "*.py" | xargs pylint
-
-
+pylint:
+  stage: QA
+  image:
+    name: $IMAGE_TAG
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+  - echo 'disabled temporarily'
+  - find . -iname "*.py" | xargs pylint
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Tests
