@@ -43,10 +43,10 @@ This app can be run completely using Docker and docker-compose.
 
 To run the development version of the app:
 ```bash
-docker-compose up flask-dev
+docker-compose up delayed-jobs-server-dev
 ```
 
 To run the production version of the app:
 ```bash
-docker-compose up flask-prod
+docker-compose up delayed-jobs-server-prod
 ```
