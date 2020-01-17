@@ -6,6 +6,7 @@ variables:
   RELEASE_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:$CI_BUILD_REF_NAME
   DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
   DOCKER_DRIVER: overlay
+  IMAGE_TAG: $DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA}
 
 image: docker:latest
 
@@ -35,7 +36,6 @@ build_docker_image:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - export IMAGE_TAG=$DOCKER_IMAGE:${CI_COMMIT_SHORT_SHA}
     - echo Building $IMAGE_TAG
     - docker-compose build delayed-jobs-server-prod
     - echo Deploying $IMAGE_TAG
