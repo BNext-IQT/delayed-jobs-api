@@ -49,9 +49,10 @@ pylint:
     name: $IMAGE_TAG
     entrypoint: ["/bin/sh", "-c"]
   script:
-  - hola
-  - echo 'disabled temporarily'
-  - find . -iname "*.py" | xargs pylint
+  - ''
+#  - hola
+#  - echo 'disabled temporarily'
+#  - find . -iname "*.py" | xargs pylint
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Tests
