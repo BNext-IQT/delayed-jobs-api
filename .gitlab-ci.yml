@@ -16,7 +16,6 @@ stages:
   - build
   - test_and_qa
   - deploy_to_staging
-  - chores
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -102,15 +101,3 @@ deploy_to_staging:
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
   - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
   - kubectl apply -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Chores
-# ----------------------------------------------------------------------------------------------------------------------
-delete_all_containers_in_registry:
-  stage: chores
-  when: manual
-  script:
-    - set -x
-    - docker version # verify docker cli is there. Also prints server info
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker image ls
