@@ -113,3 +113,4 @@ delete_all_containers_in_registry:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker image ls
