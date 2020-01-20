@@ -2,7 +2,7 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   GIT_STRATEGY: clone
   REGISTRY_USER: chembl/chembl
-  APPLICATION: delayed-jobs/delayed-jobs-server
+  APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-server
   IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:${CI_COMMIT_SHORT_SHA}
   DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
   DOCKER_DRIVER: overlay
