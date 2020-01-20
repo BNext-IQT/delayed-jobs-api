@@ -16,6 +16,7 @@ stages:
   - build
   - test_and_qa
   - deploy_to_staging
+  - chores
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -106,8 +107,9 @@ deploy_to_staging:
 # Chores
 # ----------------------------------------------------------------------------------------------------------------------
 delete_all_containers_in_registry:
-  only:
-    - schedules
+  stage: chores
   when: manual
   script:
-    - echo 'Only when triggered!'
+    - set -x
+    - docker version # verify docker cli is there. Also prints server info
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
