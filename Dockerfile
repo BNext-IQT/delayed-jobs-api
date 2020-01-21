@@ -15,13 +15,10 @@ USER glados
 ENV PATH="/home/glados/.local/bin:${PATH}"
 
 RUN pip install --user -r requirements.txt
-EXPOSE 5000
 COPY . .
 
 FROM base AS development
-COPY configurations/minimal_dev_config.yml .
-CMD CONFIG_FILE_PATH='/app/minimal_dev_config.yml' FLASK_APP=app flask run
+CMD CONFIG_FILE_PATH='/app/config.yml' FLASK_APP=app flask run --host=0.0.0.0
 
 FROM base AS production
-COPY configurations/minimal_dev_config.yml .
-CMD CONFIG_FILE_PATH='/app/minimal_dev_config.yml' gunicorn wsgi:FLASK_APP -b 0.0.0.0:8080
+CMD CONFIG_FILE_PATH='/app/config.yml' gunicorn wsgi:FLASK_APP -b 0.0.0.0:8080

@@ -39,7 +39,8 @@ popd
 
 # Docker
 
-This app can be run completely using Docker and docker-compose.
+This app can be run completely using Docker and docker-compose. First, you need to create a file called 
+'config.yml' with the app configuration. See the configurations folder for examples.  
 
 To run the development version of the app:
 ```bash
