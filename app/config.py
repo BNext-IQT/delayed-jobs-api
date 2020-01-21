@@ -6,6 +6,7 @@ from pathlib import Path
 import hashlib
 from enum import Enum
 import yaml
+import logging
 
 
 CUSTOM_CONFIG_FILE_PATH = os.getenv('CONFIG_FILE_PATH')
@@ -59,7 +60,10 @@ def verify_secret(prop_name, value):
 
     return hashed == has_must_be
 
+print('LOADING RUN CONFIG')
 RUN_CONFIG = yaml.load(open(CONFIG_FILE_PATH, 'r'), Loader=yaml.FullLoader)
 
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
+
+print('RUN CONFIG: ', RUN_CONFIG)
