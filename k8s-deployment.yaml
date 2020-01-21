@@ -16,6 +16,12 @@ spec:
       - name: delayed-jobs-api
         image: <IMAGE_TAG>
         imagePullPolicy: IfNotPresent
+        env:
+        - name: SOME_VAR
+          valueFrom:
+            configMapKeyRef:
+              name: delayed-jobs-server-staging
+              key: SOME_VAR
 ---
 apiVersion: v1
 kind: Service
