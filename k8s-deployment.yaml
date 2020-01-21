@@ -18,7 +18,7 @@ spec:
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
-          name: delayed-jobs-server-staging
+            name: delayed-jobs-server-staging
 ---
 apiVersion: v1
 kind: Service
