@@ -1,7 +1,7 @@
 """
 Entry file for the delayed jobs app
 """
-from flask import Flask
+from flask import Flask, Blueprint
 from flask_restplus import Api
 
 from app.namespaces.admin_auth.admin_auth_controller import API as job_admin_namespace
@@ -26,7 +26,6 @@ def create_app():
     """
 
     flask_app = Flask(__name__)
-    # flask_app.config['APPLICATION_ROOT'] = '/abc/123'
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
@@ -51,14 +50,17 @@ def create_app():
         if create_tables:
             DB.create_all()
 
+        blueprint = Blueprint('api', __name__, url_prefix=RUN_CONFIG.get('base_path'))
         api = Api(
             title='ChEMBL Interface Delayed Jobs',
             version='1.0',
             description='A microservice that runs delayed jobs for the ChEMBL interface. '
                         'For example generating a .csv file from elasticsearch',
-            app=flask_app,
-            authorizations=authorizations
+            app=blueprint,
+            authorizations=authorizations,
         )
+
+        flask_app.register_blueprint(blueprint)
 
         for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace,
                           submit_similarity_search_namespace, submit_substructure_search_namespace,
