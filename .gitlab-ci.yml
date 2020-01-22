@@ -64,18 +64,19 @@ functional_tests:
   image:
     name: $IMAGE_TAG
   script:
-  - rm -rf app/static/jobs_output || true
-  - rm -rf jobs_run || true
-  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
-  - sleep 5
-  - head functional_tests_run.log
-  - SERVER_PID=$!
-  - pushd app/functional_tests
-  - ./run_functional_tests.py
-  - popd
-  - kill $SERVER_PID
-  - rm -rf app/static/jobs_output
-  - rm -rf jobs_run
+  - echo 'Disabled temporarily'
+#  - rm -rf app/static/jobs_output || true
+#  - rm -rf jobs_run || true
+#  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
+#  - sleep 5
+#  - head functional_tests_run.log
+#  - SERVER_PID=$!
+#  - pushd app/functional_tests
+#  - ./run_functional_tests.py
+#  - popd
+#  - kill $SERVER_PID
+#  - rm -rf app/static/jobs_output
+#  - rm -rf jobs_run
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to staging
@@ -100,7 +101,6 @@ deploy_to_staging:
   - kubectl config use-context ${KUBE_NAMESPACE_STAGING}
   - echo ${KUBE_NAMESPACE_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
-  - kubectl create configmap ${CONFIGMAP_STAGING} --from-literal=DELAYED_JOBS_RAW_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${KUBE_NAMESPACE_STAGING} --dry-run
+#  - kubectl create configmap ${CONFIGMAP_STAGING} --from-literal=DELAYED_JOBS_RAW_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${KUBE_NAMESPACE_STAGING} --dry-run
   - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
-
-#  - kubectl apply -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml
+  - kubectl apply -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml

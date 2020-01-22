@@ -66,6 +66,7 @@ try:
 except FileNotFoundError:
     print('Config file not found. Attempting to load config from environment variable DELAYED_JOBS_RAW_CONFIG')
     raw_config = os.getenv('DELAYED_JOBS_RAW_CONFIG')
+    print('raw_config: ', raw_config)
     RUN_CONFIG = yaml.load(raw_config, Loader=yaml.FullLoader)
 
 
