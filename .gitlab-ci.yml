@@ -84,7 +84,7 @@ deploy_to_staging:
   stage: deploy_to_staging
   image:
     name: lachlanevenson/k8s-kubectl:latest
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ["/bin/bash", "-c"]
   when: manual
   only:
   - staging
