@@ -12,8 +12,12 @@ PARSER.add_argument('raw_config', help="A stringification of the run configurati
                                        "{'dry_run': True, 'host': 'http://wp-p1m-50.ebi.ac.uk:9200'}, "
                                        "'admin_username': 'admin', 'admin_password': '123456', "
                                        "base_path': '/chembl/interface_api/delayed_jobs'}")
+
+PARSER.add_argument('template_path', help="Path to the template file.", type=str,
+                    default='kubernetes_configmap_template.txt')
+
 ARGS = PARSER.parse_args()
 
-template = open('kubernetes_configmap_template.txt', 'r').read()
+template = open(ARGS.template_path, 'r').read()
 configmap = template.format(DELAYED_JOBS_RAW_CONFIG=ARGS.raw_config)
 print(configmap)
