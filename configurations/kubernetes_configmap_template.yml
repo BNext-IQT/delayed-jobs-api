@@ -1,0 +1,4 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  DELAYED_JOBS_RAW_CONFIG: "<DELAYED_JOBS_RAW_CONFIG>"
