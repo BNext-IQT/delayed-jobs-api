@@ -31,6 +31,8 @@ def create_app():
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
+    set_up_app_logger(flask_app)
+
     authorizations = {
         'jobKey': {
             'type': 'apiKey',
@@ -69,7 +71,6 @@ def create_app():
                           record_download_namespace, submit_download_namespace]:
             api.add_namespace(namespace)
 
-        set_up_app_logger(flask_app)
         return flask_app
 
 def set_up_app_logger(flask_app):
@@ -79,6 +80,7 @@ def set_up_app_logger(flask_app):
     """
 
     print('LOGGING: ')
+    flask_app.logger.setLevel(20)
 
     flask_app.logger.debug('this is a DEBUG message')
     flask_app.logger.info('this is an INFO message')
