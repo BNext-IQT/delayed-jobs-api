@@ -21,7 +21,9 @@ RUN pip install --user -r requirements.txt
 COPY . .
 
 FROM base AS development
-CMD CONFIG_FILE_PATH='/app/config.yml' FLASK_APP=app flask run --host=0.0.0.0
+ENTRYPOINT CONFIG_FILE_PATH='/app/config.yml' FLASK_APP=app flask run --host=0.0.0.0
 
 FROM base AS production
-CMD CONFIG_FILE_PATH='/app/config.yml' gunicorn wsgi:FLASK_APP -b 0.0.0.0:8080
+# Take into account that the app will get the configuration from the variable DELAYED_JOBS_RAW_CONFIG if the config.yml
+# file is not found.
+ENTRYPOINT CONFIG_FILE_PATH='/app/config.yml' gunicorn wsgi:FLASK_APP -b 0.0.0.0:8080
