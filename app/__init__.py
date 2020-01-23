@@ -1,6 +1,7 @@
 """
 Entry file for the delayed jobs app
 """
+
 from flask import Flask, Blueprint
 from flask_restplus import Api
 
@@ -68,8 +69,22 @@ def create_app():
                           record_download_namespace, submit_download_namespace]:
             api.add_namespace(namespace)
 
+        set_up_app_logger(flask_app)
         return flask_app
 
+def set_up_app_logger(flask_app):
+    """
+    Sets up the logger for the app
+    :param flask_app: flask app
+    """
+
+    print('LOGGING: ')
+
+    flask_app.logger.debug('this is a DEBUG message')
+    flask_app.logger.info('this is an INFO message')
+    flask_app.logger.warning('this is a WARNING message')
+    flask_app.logger.error('this is an ERROR message')
+    flask_app.logger.critical('this is a CRITICAL message')
 
 if __name__ == '__main__':
     flask_app = create_app()
