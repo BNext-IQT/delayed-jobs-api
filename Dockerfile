@@ -4,7 +4,10 @@ FROM python:${INSTALL_PYTHON_VERSION}-slim-buster AS base
 
 RUN apt-get update
 RUN apt-get install -y \
-    curl
+    curl \
+    netcat \
+    iputils-ping \
+    ssh
 
 WORKDIR /app
 COPY requirements.txt .
