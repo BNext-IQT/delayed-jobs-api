@@ -43,7 +43,7 @@ pylint:
   stage: test_and_qa
   image:
     name: $IMAGE_TAG
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ""
   script:
   - pwd
   - ls
@@ -56,7 +56,7 @@ unit_tests:
   stage: test_and_qa
   image:
     name: $IMAGE_TAG
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ""
   script:
   - env
   - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
@@ -65,7 +65,7 @@ functional_tests:
   stage: test_and_qa
   image:
     name: $IMAGE_TAG
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: ""
   script:
   - echo 'Disabled temporarily'
 #  - rm -rf app/static/jobs_output || true
