@@ -59,8 +59,7 @@ unit_tests:
     entrypoint: [""]
   script:
   - env
-  - echo 'Disabled temporarily'
-#  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
+  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
 
 functional_tests:
   stage: test_and_qa
