@@ -108,4 +108,4 @@ deploy_to_staging:
   - kubectl create configmap ${CONFIGMAP_STAGING} --from-file=DELAYED_JOBS_RAW_CONFIG=config.yml -o yaml -n ${KUBE_NAMESPACE_STAGING} --dry-run | kubectl replace -f -
   - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
   - sed -i "s~<CONFIG_MAP>~${CONFIGMAP_STAGING}~" k8s-deployment.yaml
-  - kubectl apply -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml
+  - kubectl apply -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml --force
