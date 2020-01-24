@@ -76,6 +76,8 @@ def submit_job(job_type, job_params):
     :param job_params: dict with the job parameters
     """
 
+    0/0
+
     try:
         job = delayed_job_models.get_job_by_params(job_type, job_params)
 

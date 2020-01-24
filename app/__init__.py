@@ -33,8 +33,6 @@ def create_app():
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
-    0/0
-
     authorizations = {
         'jobKey': {
             'type': 'apiKey',
