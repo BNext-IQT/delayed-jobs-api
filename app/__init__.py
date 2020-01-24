@@ -33,11 +33,7 @@ def create_app():
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
-    app_logging.debug('This is a Debug Message')
-    app_logging.info('This is an info Message')
-    app_logging.warning('This is an warning Message')
-    app_logging.error('This is an error Message')
-    app_logging.critical('This is a critial Message')
+    0/0
 
     authorizations = {
         'jobKey': {
