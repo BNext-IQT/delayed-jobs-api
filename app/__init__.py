@@ -1,6 +1,7 @@
 """
 Entry file for the delayed jobs app
 """
+import logging
 
 from flask import Flask, Blueprint
 from flask_restplus import Api
@@ -18,6 +19,7 @@ from app.namespaces.job_statistics.record_download_controller import API as reco
 from app.db import DB
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
+import app.app_logging as app_logging
 
 
 def create_app():
@@ -31,7 +33,11 @@ def create_app():
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
 
-    set_up_app_logger(flask_app)
+    app_logging.debug('This is a Debug Message')
+    app_logging.info('This is an info Message')
+    app_logging.warning('This is an warning Message')
+    app_logging.error('This is an error Message')
+    app_logging.critical('This is a critial Message')
 
     authorizations = {
         'jobKey': {
@@ -72,21 +78,6 @@ def create_app():
             api.add_namespace(namespace)
 
         return flask_app
-
-def set_up_app_logger(flask_app):
-    """
-    Sets up the logger for the app
-    :param flask_app: flask app
-    """
-
-    print('LOGGING: ')
-    flask_app.logger.setLevel(20)
-
-    flask_app.logger.debug('this is a DEBUG message')
-    flask_app.logger.info('this is an INFO message')
-    flask_app.logger.warning('this is a WARNING message')
-    flask_app.logger.error('this is an ERROR message')
-    flask_app.logger.critical('this is a CRITICAL message')
 
 if __name__ == '__main__':
     flask_app = create_app()
