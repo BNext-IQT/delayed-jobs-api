@@ -4,7 +4,7 @@ Entry file for the delayed jobs app
 import logging
 
 from flask import Flask, Blueprint
-from flask_restplus import Api
+from flask_restx import Api
 
 from app.namespaces.admin_auth.admin_auth_controller import API as job_admin_namespace
 from app.namespaces.job_status.job_status_controller import API as job_status_namespace

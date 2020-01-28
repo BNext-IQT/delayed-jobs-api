@@ -2,7 +2,7 @@
 Module that describes and handles the requests to submit a test job
 """
 from flask import request
-from flask_restplus import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields
 
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.namespaces.models import delayed_job_models

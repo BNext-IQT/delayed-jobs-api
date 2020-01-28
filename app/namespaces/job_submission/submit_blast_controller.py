@@ -2,7 +2,7 @@
 Module that describes and handles the requests concerned with the blast search submission
 """
 from flask import request
-from flask_restplus import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.namespaces.models import delayed_job_models
 from app.namespaces.job_submission import job_submission_service

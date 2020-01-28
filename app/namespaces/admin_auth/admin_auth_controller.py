@@ -2,7 +2,7 @@
 Module that describes and handles the requests concerned with performing admin tasks
 """
 from flask import request, make_response, jsonify
-from flask_restplus import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields
 
 from app.authorisation import token_generator
 from app.config import verify_secret

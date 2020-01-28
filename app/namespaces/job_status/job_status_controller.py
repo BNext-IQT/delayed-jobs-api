@@ -3,7 +3,7 @@ Module that describes and handles the requests concerned with the job status
 """
 # pylint: disable=W0622,C0103, R0201
 from flask import abort, request
-from flask_restplus import Namespace, Resource, fields, reqparse
+from flask_restx import Namespace, Resource, fields, reqparse
 import werkzeug
 
 from app.namespaces.models import delayed_job_models

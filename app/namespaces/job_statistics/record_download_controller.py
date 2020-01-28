@@ -2,7 +2,7 @@
 Module that describes and handles the requests concerned with recording the downloads
 """
 from flask import abort, request
-from flask_restplus import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields
 
 from app.namespaces.job_statistics import record_statistics_service
 from app.authorisation.decorators import token_required_for_job_id
