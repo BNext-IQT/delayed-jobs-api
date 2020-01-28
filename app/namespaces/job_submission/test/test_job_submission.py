@@ -1,18 +1,18 @@
 """
 This module tests jobs submission to the EBI queue
 """
-import unittest
 import os
 import shutil
+import unittest
 
 import jwt
 import yaml
 
-from app.config import RUN_CONFIG
-from app.namespaces.job_submission import job_submission_service
-from app.namespaces.models import delayed_job_models
 from app import create_app
 from app.authorisation import token_generator
+from app.config import RUN_CONFIG
+from app.namespaces.job_submission.services import job_submission_service
+from app.namespaces.models import delayed_job_models
 
 
 class TestJobSubmitter(unittest.TestCase):

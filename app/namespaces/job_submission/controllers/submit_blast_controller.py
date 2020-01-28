@@ -3,9 +3,10 @@ Module that describes and handles the requests concerned with the blast search s
 """
 from flask import request
 from flask_restx import Namespace, Resource, fields
+
+from app.namespaces.job_submission.services import job_submission_service
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.namespaces.models import delayed_job_models
-from app.namespaces.job_submission import job_submission_service
 
 API = Namespace('submit/blast', description='Namespace to submit a BLAST job')
 
