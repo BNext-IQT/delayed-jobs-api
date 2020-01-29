@@ -68,7 +68,7 @@ class OutputFile(DB.Model):
     """
     id = DB.Column(DB.Integer, primary_key=True)
     internal_path = DB.Column(DB.Text, nullable=False)
-    public_url = DB.Column(DB.Text, nullable=False)
+    public_url = DB.Column(DB.Text)
     job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
@@ -207,15 +207,24 @@ def update_job_status(job_id, new_data):
     DB.session.commit()
     return job
 
-
-def add_job_execution_to_job(job, execution):
+def add_input_file_to_job(job, input_file):
     """
-    Adds a job execution to a job and saves it
+    Adds an input file to a job and saves the job
     :param job: job object
-    :param execution: execution object
+    :param input_file: input_file object
     """
-    job.executions.append(execution)
-    DB.session.add(execution)
+    job.input_files.append(input_file)
+    DB.session.add(input_file)
+    DB.session.commit()
+
+def add_output_file_to_job(job, output_file):
+    """
+    Adds an input file to a job and saves the job
+    :param job: job object
+    :param input_file: input_file object
+    """
+    job.output_files.append(output_file)
+    DB.session.add(output_file)
     DB.session.commit()
 
 
@@ -254,8 +263,10 @@ def delete_all_expired_jobs():
     num_deleted = 0
     for job in jobs_to_delete:
         run_dir_path = job.run_dir_path
+        output_dir_path = job.output_dir_path
         delete_job(job)
         shutil.rmtree(run_dir_path, ignore_errors=True)
+        shutil.rmtree(output_dir_path, ignore_errors=True)
         num_deleted += 1
 
     return num_deleted
