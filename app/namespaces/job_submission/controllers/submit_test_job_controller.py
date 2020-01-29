@@ -19,7 +19,11 @@ TEST_JOB = API.model('TestJob', {
     'seconds': fields.Integer(description='The amount of seconds that the job will run for',
                               required=True,
                               min=0,
-                              example=1)
+                              example=1),
+    'api_url': fields.Integer(description='The url on an API to test a call',
+                              required=True,
+                              example='https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
+                              )
 })
 
 SUBMISSION_RESPONSE = API.inherit('SubmissionResponse', BASE_SUBMISSION_RESPONSE)

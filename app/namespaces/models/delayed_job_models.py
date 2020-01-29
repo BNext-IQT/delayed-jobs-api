@@ -53,16 +53,22 @@ class JobStatuses(Enum):
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
-
-class JobExecution(DB.Model):
+class InputFile(DB.Model):
     """
-        Class that represents in the database an execution of a job, a job can have multiple executions.
+        Class that represents an input file that was sent to the job
     """
     id = DB.Column(DB.Integer, primary_key=True)
-    hostname = DB.Column(DB.String(length=500), nullable=False)
-    command = DB.Column(DB.String(length=500), nullable=False)
-    pid = DB.Column(DB.Integer, nullable=False)
-    run_dir = DB.Column(DB.Text)
+    internal_path = DB.Column(DB.Text, nullable=False)
+    job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
+
+
+class OutputFile(DB.Model):
+    """
+        Class that represents an output file that the job produced.
+    """
+    id = DB.Column(DB.Integer, primary_key=True)
+    internal_path = DB.Column(DB.Text, nullable=False)
+    public_url = DB.Column(DB.Text, nullable=False)
     job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
@@ -73,21 +79,20 @@ class DelayedJob(DB.Model):
     id = DB.Column(DB.String(length=60), primary_key=True)
     type = DB.Column(DB.Enum(JobTypes))
     status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
-    status_comment = DB.Column(DB.String)  # a comment about the status, for example 'Compressing file'
+    status_log = DB.Column(DB.String)  # a comment about the status, for example 'Compressing file'
     progress = DB.Column(DB.Integer, default=0)
     created_at = DB.Column(DB.DateTime, default=datetime.datetime.utcnow)
     started_at = DB.Column(DB.DateTime)
     finished_at = DB.Column(DB.DateTime)
     run_dir_path = DB.Column(DB.Text)
     output_dir_path = DB.Column(DB.Text)
-    output_file_path = DB.Column(DB.Text)
-    output_file_url = DB.Column(DB.Text)
-    log = DB.Column(DB.Text)
     raw_params = DB.Column(DB.Text)
     expires_at = DB.Column(DB.DateTime)
     api_initial_url = DB.Column(DB.Text)
     timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
-    executions = DB.relationship('JobExecution', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
+    num_failures = DB.Column(DB.Integer, default=0) # How many times the job has failed.
+    input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
+    output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
