@@ -129,15 +129,23 @@ class DelayedJob(DB.Model):
         return len(self.executions)
 
 
-def generate_job_id(job_type, job_params):
+def generate_job_id(job_type, job_params, input_files_hashes={}):
     """
     Generates a job id from a sha 256 hash of the string version of the job params in base 64
     :param job_type: type of job run
     :param job_params: parameters for the job
+    :param input_files_contents: a dict with the contents of the input files.
     :return: The id that the job must have
 '    """
 
-    stable_raw_search_params = json.dumps(job_params, sort_keys=True)
+    all_params = {
+        **job_params,
+        'job_input_files_hashes': {
+            **input_files_hashes
+        }
+    }
+
+    stable_raw_search_params = json.dumps(all_params, sort_keys=True)
     search_params_digest = hashlib.sha256(stable_raw_search_params.encode('utf-8')).digest()
     base64_search_params_digest = base64.b64encode(search_params_digest).decode('utf-8').replace('/', '_').replace(
         '+', '-')

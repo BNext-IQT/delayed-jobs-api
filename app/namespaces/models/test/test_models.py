@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import json
 import unittest
+from pathlib import Path
 
 from app import create_app
 from app.namespaces.models import delayed_job_models
@@ -15,6 +16,8 @@ class TestModels(unittest.TestCase):
     """
     Class to test CRUD operation in the delayed job models
     """
+    OUT_RUN_DIR_NAME = 'test_out_dir'
+    ABS_OUT_DIR_PATH = str(Path(OUT_RUN_DIR_NAME).resolve())
 
     def setUp(self):
         self.flask_app = create_app()
@@ -30,14 +33,31 @@ class TestModels(unittest.TestCase):
         Tests that a job id is generated correctly from hashing its parameters.
         """
         job_type = delayed_job_models.JobTypes.SIMILARITY
+
         params = {
             'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
-        id_got = delayed_job_models.generate_job_id(job_type, params)
 
-        stable_raw_search_params = json.dumps(params, sort_keys=True)
+        # A structure with the hashes of the input files influences the job id
+        input_files_hashes = {
+            'input1': 'hash1-hash1-hash1-hash1-hash1-hash1-hash1',
+            'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
+        }
+
+        id_got = delayed_job_models.generate_job_id(job_type, params, input_files_hashes)
+
+        all_params = {
+            **params,
+            'job_input_files_hashes':{
+                **input_files_hashes
+            }
+        }
+
+        print('ALL PARAMS: ', all_params)
+
+        stable_raw_search_params = json.dumps(all_params, sort_keys=True)
         search_params_digest = hashlib.sha256(stable_raw_search_params.encode('utf-8')).digest()
         base64_search_params_digest = base64.b64encode(search_params_digest).decode('utf-8').replace('/', '_').replace(
             '+', '-')

@@ -67,6 +67,9 @@ class TestJobSubmitter(unittest.TestCase):
             job_data = job_submission_service.submit_job(job_type, params)
             job_id = job_data.get('id')
 
+            return
+
+
             job_run_dir_must_be = os.path.join(job_submission_service.JOBS_RUN_DIR, job_id)
             self.assertTrue(os.path.isdir(job_run_dir_must_be),
                             msg=f'The run dir for the job ({job_run_dir_must_be}) has not been created!')

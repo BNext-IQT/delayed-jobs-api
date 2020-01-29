@@ -77,13 +77,13 @@ def submit_job(job_type, job_params):
     """
 
     try:
+        # See if the job existed before
         job = delayed_job_models.get_job_by_params(job_type, job_params)
 
         if job.status == delayed_job_models.JobStatuses.ERROR:
             if job.get_executions_count() < (MAX_RETRIES + 1):
                 prepare_job_and_run(job)
 
-        # This will not be necessary if we get FIRE
         job_status = job.status
         output_file_path = job.output_file_path
         results_file_is_not_accessible = (output_file_path is None) or (not os.path.exists(output_file_path))
@@ -91,6 +91,9 @@ def submit_job(job_type, job_params):
             prepare_job_and_run(job)
 
     except delayed_job_models.JobNotFoundError:
+        # It doesn't exist, so I submit it
+
+        print('SUBMITTING JOB')
         job = delayed_job_models.get_or_create(job_type, job_params)
         prepare_job_and_run(job)
 
