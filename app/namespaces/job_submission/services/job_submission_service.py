@@ -7,21 +7,26 @@ import stat
 import shutil
 import subprocess
 import socket
+import hashlib
+import random
+
+import werkzeug
 
 from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.authorisation import token_generator
 
-JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir')
-if JOBS_RUN_DIR is None:
-    JOBS_RUN_DIR = str(Path().absolute()) + '/jobs_run'
+JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir', str(Path().absolute()) + '/jobs_run')
 if not os.path.isabs(JOBS_RUN_DIR):
     JOBS_RUN_DIR = Path(JOBS_RUN_DIR).resolve()
 os.makedirs(JOBS_RUN_DIR, exist_ok=True)
 
-JOBS_OUTPUT_DIR = RUN_CONFIG.get('jobs_output_dir')
-if JOBS_OUTPUT_DIR is None:
-    JOBS_OUTPUT_DIR = str(Path().absolute()) + '/jobs_output'
+JOBS_TMP_DIR = RUN_CONFIG.get('jobs_tmp_dir', str(Path().absolute()) + '/jobs_tmp_dir')
+if not os.path.isabs(JOBS_TMP_DIR):
+    JOBS_TMP_DIR = Path(JOBS_TMP_DIR).resolve()
+os.makedirs(JOBS_TMP_DIR, exist_ok=True)
+
+JOBS_OUTPUT_DIR = RUN_CONFIG.get('jobs_output_dir', str(Path().absolute()) + '/jobs_output')
 if not os.path.isabs(JOBS_OUTPUT_DIR):
     JOBS_OUTPUT_DIR = Path(JOBS_OUTPUT_DIR).resolve()
 os.makedirs(JOBS_OUTPUT_DIR, exist_ok=True)
@@ -68,6 +73,69 @@ SCRIPT_FILES = {
 
 MAX_RETRIES = 6
 
+def get_input_files_hashes(input_files_desc):
+    """
+    :param input_files_desc: args sent to the endpoint from flask rest-plus
+    :return: dict with the hashes of each of the files uploaded as an input
+    """
+
+    input_files_hashes = {}
+    for input_key, input_path in input_files_desc.items():
+        with open(input_path, 'rb') as input_file:
+            file_bytes = input_file.read()
+            file_hash = hashlib.sha256(file_bytes).hexdigest()
+            input_files_hashes[input_key] = file_hash
+
+    return input_files_hashes
+
+
+def get_job_input_files_desc_only(args):
+    """
+    Saves the input files to a temporary directory to not depend from flask-respx implementation, then returns a
+    structure describing them.
+    :param args: args sent to the endpoint from flask rest-plus
+    :return: dict with the input files and their temporary location
+    """
+
+    input_files_desc = {}
+    for param_key, parameter in args.items():
+        if isinstance(parameter, werkzeug.datastructures.FileStorage):
+            tmp_dir = Path.joinpath(Path(JOBS_TMP_DIR), f'{random.randint(1, 1000000)}')
+            os.makedirs(tmp_dir, exist_ok=True)
+            tmp_path = Path.joinpath(Path(tmp_dir), parameter.filename)
+            parameter.save(str(tmp_path))
+            input_files_desc[param_key] = str(tmp_path)
+
+    return input_files_desc
+
+
+def get_job_params_only(args):
+    """
+    :param args: args sent to the endpoint from flask rest-plus
+    :return: dict the parameters that are not files
+    """
+    job_params = {}
+    for param_key, parameter in args.items():
+        if not isinstance(parameter, werkzeug.datastructures.FileStorage):
+            job_params[param_key] = parameter
+
+    return job_params
+
+
+def parse_args_and_submit_job(job_type, args):
+
+
+
+    job_params_only = get_job_params_only(args)
+    job_inputs_only = get_job_input_files_desc_only(args)
+    input_files_hashes = get_input_files_hashes(job_inputs_only)
+
+    print('job_params_only: ', job_params_only)
+    print('job_inputs_only: ', job_inputs_only)
+    print('input_files_hashes: ', input_files_hashes)
+
+    # return submit_job(job_type, job_params)
+
 
 def submit_job(job_type, job_params):
     """
@@ -76,6 +144,9 @@ def submit_job(job_type, job_params):
     :param job_params: dict with the job parameters
     """
 
+    print('SUBMITTING JOB...')
+
+    return
     try:
         # See if the job existed before
         job = delayed_job_models.get_job_by_params(job_type, job_params)
@@ -93,7 +164,7 @@ def submit_job(job_type, job_params):
     except delayed_job_models.JobNotFoundError:
         # It doesn't exist, so I submit it
 
-        print('SUBMITTING JOB')
+
         job = delayed_job_models.get_or_create(job_type, job_params)
         prepare_job_and_run(job)
 

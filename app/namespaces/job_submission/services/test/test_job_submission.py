@@ -58,13 +58,22 @@ class TestJobSubmitter(unittest.TestCase):
         Test that a job can be submitted
         """
         with self.flask_app.app_context():
-            job_type = delayed_job_models.JobTypes.SIMILARITY
-            params = {
-                'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
-                'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
-                'threshold': '70'
+            job_type = delayed_job_models.JobTypes.TEST
+
+            input_files_hashes = {
+                'input1': 'hash1-hash1-hash1-hash1-hash1-hash1-hash1',
+                'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
             }
+
+            params = {
+                'instruction': 'RUN_NORMALLY',
+                'seconds': 1,
+                'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
+            }
+
             job_data = job_submission_service.submit_job(job_type, params)
+
+            print('job_data: ', job_data)
             job_id = job_data.get('id')
 
             return

@@ -134,7 +134,7 @@ def generate_job_id(job_type, job_params, input_files_hashes={}):
     Generates a job id from a sha 256 hash of the string version of the job params in base 64
     :param job_type: type of job run
     :param job_params: parameters for the job
-    :param input_files_contents: a dict with the contents of the input files.
+    :param input_files_hashes: a dict with the contents of the input files.
     :return: The id that the job must have
 '    """
 
