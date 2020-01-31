@@ -101,8 +101,6 @@ def get_job_params_only(args):
 
 def parse_args_and_submit_job(job_type, args):
 
-
-
     job_params_only = get_job_params_only(args)
     job_inputs_only = get_job_input_files_desc_only(args)
     input_files_hashes = get_input_files_hashes(job_inputs_only)
@@ -111,7 +109,7 @@ def parse_args_and_submit_job(job_type, args):
     print('job_inputs_only: ', job_inputs_only)
     print('input_files_hashes: ', input_files_hashes)
 
-    # return submit_job(job_type, job_params)
+    return submit_job(job_type, job_inputs_only, input_files_hashes, job_params_only)
 
 
 def submit_job(job_type, input_files_desc, input_files_hashes, job_params):
@@ -196,8 +194,8 @@ def prepare_job_and_submit(job, input_files_desc):
     prepare_job_submission_script(job)
 
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
-    if must_run_jobs:
-        run_job(job)
+    # if must_run_jobs:
+    #     run_job(job)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Preparation of run folder
@@ -241,7 +239,7 @@ def create_params_file(job, input_files_desc):
         'inputs': prepare_job_inputs(job, input_files_desc),
         'output_dir': get_job_output_dir_path(job),
         'status_update_endpoint': {
-            'url': f'http://127.0.0.1:5000/status/{job.id}',
+            'url': f'http://127.0.0.1:5000{RUN_CONFIG.get("base_path", "")}/status/{job.id}',
             'method': 'PATCH'
         },
         'job_params': json.loads(job.raw_params)
@@ -273,7 +271,7 @@ def prepare_job_inputs(job, tmp_input_files_desc):
         run_path = Path(get_job_input_files_dir(job)).joinpath(filename)
         shutil.move(tmp_path, run_path)
         tmp_parent_dir = Path(tmp_path).parent
-        input_files_desc[key] = run_path
+        input_files_desc[key] = str(run_path)
 
     if tmp_parent_dir is not None:
         shutil.rmtree(tmp_parent_dir)
