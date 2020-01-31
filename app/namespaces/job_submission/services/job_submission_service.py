@@ -45,34 +45,8 @@ JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 
 INPUT_FILES_DIR_NAME = 'input_files'
 RUN_PARAMS_FILENAME = 'run_params.yml'
-RUN_FILE_NAME = 'run.sh'
 COMMON_PACKAGE_NAME = 'common'
-
-SCRIPT_FILENAMES = {
-    f'{delayed_job_models.JobTypes.TEST}': 'run_test_job.py',
-    f'{delayed_job_models.JobTypes.SIMILARITY}': 'structure_search.py',
-    f'{delayed_job_models.JobTypes.SUBSTRUCTURE}': 'structure_search.py',
-    f'{delayed_job_models.JobTypes.CONNECTIVITY}': 'structure_search.py',
-    f'{delayed_job_models.JobTypes.BLAST}': 'blast_search.py',
-    f'{delayed_job_models.JobTypes.DOWNLOAD}': 'download_from_es.py'
-}
-
-UTILS_PACKAGE_PATH = os.path.join(JOBS_SCRIPTS_DIR, COMMON_PACKAGE_NAME)
-
-SCRIPT_FILES = {
-    f'{delayed_job_models.JobTypes.TEST}':
-        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.TEST))),
-    f'{delayed_job_models.JobTypes.SIMILARITY}':
-        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SIMILARITY))),
-    f'{delayed_job_models.JobTypes.SUBSTRUCTURE}':
-        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.SUBSTRUCTURE))),
-    f'{delayed_job_models.JobTypes.CONNECTIVITY}':
-        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.CONNECTIVITY))),
-    f'{delayed_job_models.JobTypes.BLAST}':
-        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.BLAST))),
-    f'{delayed_job_models.JobTypes.DOWNLOAD}':
-        os.path.join(JOBS_SCRIPTS_DIR, SCRIPT_FILENAMES.get(str(delayed_job_models.JobTypes.DOWNLOAD))),
-}
+SUBMISSION_FILE_NAME = 'submit_job.sh'
 
 MAX_RETRIES = 6
 
@@ -195,12 +169,12 @@ def get_job_input_files_dir(job):
     return os.path.join(get_job_run_dir(job), INPUT_FILES_DIR_NAME)
 
 
-def get_job_run_file_path(job):
+def get_job_submission_script_file_path(job):
     """
     :param job: DelayedJob object
     :return: local path of the job results file
     """
-    return os.path.join(get_job_run_dir(job), RUN_FILE_NAME)
+    return os.path.join(get_job_run_dir(job), SUBMISSION_FILE_NAME)
 
 
 def get_job_output_dir_path(job):
@@ -211,18 +185,6 @@ def get_job_output_dir_path(job):
     return os.path.join(JOBS_OUTPUT_DIR, job.id)
 
 
-# def prepare_job_and_submit(job):
-#     """
-#     prepares the run directory of the job, then executes the job script as a suprpocess
-#     :param job: DelayedJob object
-#     """
-#     job.output_dir_path = get_job_output_dir_path(job)
-#     prepare_run_folder(job)
-#     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
-#     if must_run_jobs:
-#         run_job(job)
-
-
 def prepare_job_and_submit(job, input_files_desc):
     """
     prepares the run directory of the job, then executes the job script as a suprpocess
@@ -230,8 +192,8 @@ def prepare_job_and_submit(job, input_files_desc):
     :param input_files_desc: a dict describing the input files and their temporary location
     """
     prepare_run_folder(job, input_files_desc)
-
-    job.output_dir_path = get_job_output_dir_path(job)
+    prepare_output_dir(job)
+    prepare_job_submission_script(job)
 
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
     if must_run_jobs:
@@ -249,35 +211,6 @@ def prepare_run_folder(job, input_files_desc):
 
     create_job_run_dir(job)
     create_params_file(job, input_files_desc)
-    prepare_output_dir(job)
-    return
-
-    job_script = SCRIPT_FILES[str(job.type)]
-    script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES[str(job.type)])
-    shutil.copyfile(job_script, script_path)
-
-    shutil.copytree(UTILS_PACKAGE_PATH, os.path.join(job_run_dir, COMMON_PACKAGE_NAME))
-
-    # make sure file is executable
-    file_stats = os.stat(script_path)
-    os.chmod(script_path, file_stats.st_mode | stat.S_IEXEC)
-
-    run_job_template_file = open(os.path.join(Path().absolute(), 'templates', RUN_FILE_NAME))
-    run_job_template = run_job_template_file.read()
-    run_job_params = run_job_template.format(
-        RUN_DIR=job_run_dir,
-        SCRIPT_TO_EXECUTE=script_path,
-        PARAMS_FILE=run_params_path
-    )
-    run_job_template_file.close()
-    run_file_path = get_job_run_file_path(job)
-
-    with open(run_file_path, 'w') as out_file:
-        out_file.write(run_job_params)
-
-    # make sure file is executable
-    file_stats = os.stat(run_file_path)
-    os.chmod(run_file_path, file_stats.st_mode | stat.S_IEXEC)
 
 def create_job_run_dir(job):
     """
@@ -361,6 +294,27 @@ def prepare_output_dir(job):
     job.output_dir_path = job_output_dir
     delayed_job_models.save_job(job)
     os.makedirs(job_output_dir, exist_ok=True)
+
+def prepare_job_submission_script(job):
+    """
+    Prepares the script that will submit the job to LSF
+    :param job: job object for which prepare the job submission script
+    """
+
+    job_submission_script_template_path = os.path.join(Path().absolute(), 'templates', SUBMISSION_FILE_NAME)
+    with open(job_submission_script_template_path, 'r') as template_file:
+        submit_job_template = template_file.read()
+        job_submission_script = submit_job_template.format(JOB_ID=job.id)
+
+        submit_file_path = get_job_submission_script_file_path(job)
+        print('submit_file_path: ', submit_file_path)
+        with open(submit_file_path, 'w') as submission_script_file:
+            submission_script_file.write(job_submission_script)
+
+        # make sure file is executable
+        file_stats = os.stat(submit_file_path)
+        os.chmod(submit_file_path, file_stats.st_mode | stat.S_IEXEC)
+
 
 def run_job(job):
     """

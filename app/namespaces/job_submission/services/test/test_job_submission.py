@@ -165,29 +165,20 @@ class TestJobSubmitter(unittest.TestCase):
             # -----------------------------------------------
             output_dir_must_be = Path(job_submission_service.JOBS_OUTPUT_DIR).joinpath(job_id)
             output_dir_got = params_got.get('output_dir')
-            print('output_dir_must_be: ', output_dir_must_be)
-            print('output_dir_got: ', output_dir_got)
             self.assertEqual(str(output_dir_got), str(output_dir_must_be),
                              msg='The job output dir was not set correctly')
             self.assertTrue(os.path.isdir(output_dir_must_be),
                             msg=f'The output dir for the job ({output_dir_must_be}) has not been created!')
 
-            return
+            # -----------------------------------------------
+            # Submission script file
+            # -----------------------------------------------
+            submission_script_file_must_be = \
+                os.path.join(job_run_dir_must_be, job_submission_service.SUBMISSION_FILE_NAME)
 
-            script_file_must_be = \
-                os.path.join(job_run_dir_must_be, job_submission_service.SCRIPT_FILENAMES.get(job_data.get('type')))
+            self.assertTrue(os.path.isfile(submission_script_file_must_be),
+                            msg=f'The script file for submitting the job ({submission_script_file_must_be}) '
+                                f'has not been created!')
 
-            self.assertTrue(os.path.isfile(script_file_must_be),
-                            msg=f'The script file for the job ({script_file_must_be}) has not been created!')
-
-            self.assertTrue(os.access(script_file_must_be, os.X_OK),
-                            msg=f'The script file for the job ({script_file_must_be}) is not executable!')
-
-            run_file_must_be = \
-                os.path.join(job_run_dir_must_be, job_submission_service.RUN_FILE_NAME)
-
-            self.assertTrue(os.path.isfile(run_file_must_be),
-                            msg=f'The run file for the job ({run_file_must_be}) has not been created!')
-
-            self.assertTrue(os.access(run_file_must_be, os.X_OK),
-                            msg=f'The script file for the job ({run_file_must_be}) is not executable!')
+            self.assertTrue(os.access(submission_script_file_must_be, os.X_OK),
+                            msg=f'The script file for the job ({submission_script_file_must_be}) is not executable!')
