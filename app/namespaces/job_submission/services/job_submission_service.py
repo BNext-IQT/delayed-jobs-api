@@ -10,7 +10,6 @@ import socket
 import hashlib
 import random
 import json
-import shutil
 
 import werkzeug
 import yaml
@@ -250,6 +249,7 @@ def prepare_run_folder(job, input_files_desc):
 
     create_job_run_dir(job)
     create_params_file(job, input_files_desc)
+    prepare_output_dir(job)
     return
 
     job_script = SCRIPT_FILES[str(job.type)]
@@ -286,7 +286,6 @@ def create_job_run_dir(job):
     """
     job_run_dir = get_job_run_dir(job)
     job_input_files_dir = get_job_input_files_dir(job)
-    print('job_input_files_dir: ', job_input_files_dir)
 
     if os.path.exists(job_run_dir):
         shutil.rmtree(job_run_dir)
@@ -307,6 +306,7 @@ def create_params_file(job, input_files_desc):
         'job_id': job.id,
         'job_token': job_token,
         'inputs': prepare_job_inputs(job, input_files_desc),
+        'output_dir': get_job_output_dir_path(job),
         'status_update_endpoint': {
             'url': f'http://127.0.0.1:5000/status/{job.id}',
             'method': 'PATCH'
@@ -347,6 +347,20 @@ def prepare_job_inputs(job, tmp_input_files_desc):
 
     return input_files_desc
 
+def prepare_output_dir(job):
+    """
+    Makes sure to create the output dir for the job
+    :param job: job object for which create the job output
+    """
+
+    job_output_dir = get_job_output_dir_path(job)
+
+    if os.path.exists(job_output_dir):
+        shutil.rmtree(job_output_dir)
+
+    job.output_dir_path = job_output_dir
+    delayed_job_models.save_job(job)
+    os.makedirs(job_output_dir, exist_ok=True)
 
 def run_job(job):
     """

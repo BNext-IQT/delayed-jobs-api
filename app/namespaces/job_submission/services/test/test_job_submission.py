@@ -33,10 +33,12 @@ class TestJobSubmitter(unittest.TestCase):
             delayed_job_models.delete_all_jobs()
             jobs_run_dir = job_submission_service.JOBS_RUN_DIR
             jobs_tmp_dir = job_submission_service.JOBS_TMP_DIR
+            jobs_out_dir = job_submission_service.JOBS_OUTPUT_DIR
 
             try:
                 shutil.rmtree(jobs_run_dir)
                 shutil.rmtree(jobs_tmp_dir)
+                shutil.rmtree(jobs_out_dir)
             except FileNotFoundError:
                 pass
 
@@ -100,9 +102,7 @@ class TestJobSubmitter(unittest.TestCase):
             input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
             job_data = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes, params)
 
-
             job_id = job_data.get('id')
-
 
             # -----------------------------------------------
             # Test Run Dir
@@ -146,7 +146,6 @@ class TestJobSubmitter(unittest.TestCase):
                              msg='The status update method was not set correctly!')
 
             job_params_got = params_got.get('job_params')
-            print('job_params_got: ', job_params_got)
 
             raw_job_params_must_be = job_data.get('raw_params')
             self.assertEqual(json.dumps(job_params_got, sort_keys=True), raw_job_params_must_be,
@@ -161,6 +160,17 @@ class TestJobSubmitter(unittest.TestCase):
                 self.assertTrue(os.path.isfile(run_path_must_be),
                                 msg=f'The input file for the job ({run_path_must_be}) has not been created!')
 
+            # -----------------------------------------------
+            # Test Output Directory
+            # -----------------------------------------------
+            output_dir_must_be = Path(job_submission_service.JOBS_OUTPUT_DIR).joinpath(job_id)
+            output_dir_got = params_got.get('output_dir')
+            print('output_dir_must_be: ', output_dir_must_be)
+            print('output_dir_got: ', output_dir_got)
+            self.assertEqual(str(output_dir_got), str(output_dir_must_be),
+                             msg='The job output dir was not set correctly')
+            self.assertTrue(os.path.isdir(output_dir_must_be),
+                            msg=f'The output dir for the job ({output_dir_must_be}) has not been created!')
 
             return
 
