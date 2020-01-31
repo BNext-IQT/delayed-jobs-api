@@ -222,7 +222,7 @@ def create_job_run_dir(job):
     os.makedirs(job_run_dir, exist_ok=True)
     os.makedirs(job_input_files_dir, exist_ok=True)
 
-    app_logging.log(f'Job run dir is {job_run_dir}')
+    app_logging.info(f'Job run dir is {job_run_dir}')
 
 def create_params_file(job, input_files_desc):
     """
@@ -291,7 +291,7 @@ def prepare_output_dir(job):
     delayed_job_models.save_job(job)
     os.makedirs(job_output_dir, exist_ok=True)
 
-    app_logging.log(f'Job output dir is {job_output_dir}')
+    app_logging.info(f'Job output dir is {job_output_dir}')
 
 def prepare_job_submission_script(job):
     """
