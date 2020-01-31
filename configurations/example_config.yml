@@ -10,3 +10,5 @@ jobs_run_dir: 'Where the job runs'
 jobs_scripts_dir: 'Where the job scripts are'
 run_jobs: False # If False, do not actually run any job, useful for testing. Assumed to be true if missing.
 logger: 'gunicorn.error' #Logger to use for the app logs
+job_feedback_base_url: http://some_server:30001 # The base url for the jobs to send feedback to the server, if unset,
+# it will be http://0.0.0.0:5000/
