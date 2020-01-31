@@ -9,8 +9,11 @@ import subprocess
 import socket
 import hashlib
 import random
+import json
+import shutil
 
 import werkzeug
+import yaml
 
 from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
@@ -41,6 +44,7 @@ print('-------------------------------------------------------------------------
 
 JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 
+INPUT_FILES_DIR_NAME = 'input_files'
 RUN_PARAMS_FILENAME = 'run_params.yml'
 RUN_FILE_NAME = 'run.sh'
 COMMON_PACKAGE_NAME = 'common'
@@ -137,7 +141,7 @@ def parse_args_and_submit_job(job_type, args):
     # return submit_job(job_type, job_params)
 
 
-def submit_job(job_type, job_params):
+def submit_job(job_type, input_files_desc, input_files_hashes, job_params):
     """
     Submits job to the queue, and runs it in background
     :param job_type: type of job to submit
@@ -145,6 +149,11 @@ def submit_job(job_type, job_params):
     """
 
     print('SUBMITTING JOB...')
+
+    job = delayed_job_models.get_or_create(job_type, job_params, input_files_hashes)
+    prepare_job_and_submit(job, input_files_desc)
+
+    return job.public_dict()
 
     return
     try:
@@ -179,6 +188,14 @@ def get_job_run_dir(job):
     return os.path.join(JOBS_RUN_DIR, job.id)
 
 
+def get_job_input_files_dir(job):
+    """
+    :param job: DelayedJob object
+    :return: input files dir of the job
+    """
+    return os.path.join(get_job_run_dir(job), INPUT_FILES_DIR_NAME)
+
+
 def get_job_run_file_path(job):
     """
     :param job: DelayedJob object
@@ -195,60 +212,45 @@ def get_job_output_dir_path(job):
     return os.path.join(JOBS_OUTPUT_DIR, job.id)
 
 
-def prepare_job_and_run(job):
+# def prepare_job_and_submit(job):
+#     """
+#     prepares the run directory of the job, then executes the job script as a suprpocess
+#     :param job: DelayedJob object
+#     """
+#     job.output_dir_path = get_job_output_dir_path(job)
+#     prepare_run_folder(job)
+#     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
+#     if must_run_jobs:
+#         run_job(job)
+
+
+def prepare_job_and_submit(job, input_files_desc):
     """
     prepares the run directory of the job, then executes the job script as a suprpocess
     :param job: DelayedJob object
+    :param input_files_desc: a dict describing the input files and their temporary location
     """
+    prepare_run_folder(job, input_files_desc)
+
     job.output_dir_path = get_job_output_dir_path(job)
-    prepare_run_folder(job)
+
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
     if must_run_jobs:
         run_job(job)
 
-
+# ----------------------------------------------------------------------------------------------------------------------
+# Preparation of run folder
+# ----------------------------------------------------------------------------------------------------------------------
 # pylint: disable=too-many-locals
-def prepare_run_folder(job):
+def prepare_run_folder(job, input_files_desc):
     """
     Prepares the folder where the job will run
     :param job: DelayedJob object
     """
 
-    job_run_dir = get_job_run_dir(job)
-
-    if os.path.exists(job_run_dir):
-        shutil.rmtree(job_run_dir)
-
-    job.run_dir_path = job_run_dir
-    delayed_job_models.save_job(job)
-    os.makedirs(job_run_dir, exist_ok=True)
-
-    template_run_params_path = os.path.join(Path().absolute(), 'templates', 'run_params_template.yml')
-    template_file = open(template_run_params_path, 'r')
-    run_params_template = template_file.read()
-    template_file.close()
-    job_token = token_generator.generate_job_token(job.id)
-
-    run_params = run_params_template.format(
-        JOB_ID=job.id,
-        JOB_TOKEN=job_token,
-        STATUS_UPDATE_URL=f'http://127.0.0.1:5000/status/{job.id}',
-        STATUS_UPDATE_METHOD='PATCH',
-        STATISTICS_URL=f'http://127.0.0.1:5000/record/search/{job.id}',
-        STATISTICS_METHOD='POST',
-        FILE_UPLOAD_URL=f'http://127.0.0.1:5000/status/{job.id}/results_file',
-        FILE_UPLOAD_METHOD='POST',
-        JOB_PARAMS=f'{job.raw_params}',
-    )
-
-    run_params_path = os.path.join(job_run_dir, RUN_PARAMS_FILENAME)
-
-    # delete file if existed before, just in case
-    if os.path.exists(run_params_path):
-        os.remove(run_params_path)
-
-    with open(run_params_path, 'w') as out_file:
-        out_file.write(run_params)
+    create_job_run_dir(job)
+    create_params_file(job, input_files_desc)
+    return
 
     job_script = SCRIPT_FILES[str(job.type)]
     script_path = os.path.join(job_run_dir, SCRIPT_FILENAMES[str(job.type)])
@@ -276,6 +278,74 @@ def prepare_run_folder(job):
     # make sure file is executable
     file_stats = os.stat(run_file_path)
     os.chmod(run_file_path, file_stats.st_mode | stat.S_IEXEC)
+
+def create_job_run_dir(job):
+    """
+    CReates the directory where the job will run
+    :param job: job object for which to create the job run directory
+    """
+    job_run_dir = get_job_run_dir(job)
+    job_input_files_dir = get_job_input_files_dir(job)
+    print('job_input_files_dir: ', job_input_files_dir)
+
+    if os.path.exists(job_run_dir):
+        shutil.rmtree(job_run_dir)
+
+    job.run_dir_path = job_run_dir
+    delayed_job_models.save_job(job)
+    os.makedirs(job_run_dir, exist_ok=True)
+    os.makedirs(job_input_files_dir, exist_ok=True)
+
+def create_params_file(job, input_files_desc):
+    """
+    Creates the parameters file for the job
+    :param job: job oject for which the parmeters file will be created
+    """
+    job_token = token_generator.generate_job_token(job.id)
+
+    run_params = {
+        'job_id': job.id,
+        'job_token': job_token,
+        'inputs': prepare_job_inputs(job, input_files_desc),
+        'status_update_endpoint': {
+            'url': f'http://127.0.0.1:5000/status/{job.id}',
+            'method': 'PATCH'
+        },
+        'job_params': json.loads(job.raw_params)
+    }
+
+
+    run_params_path = os.path.join(get_job_run_dir(job), RUN_PARAMS_FILENAME)
+
+    # delete file if existed before, just in case
+    if os.path.exists(run_params_path):
+        os.remove(run_params_path)
+
+    with open(run_params_path, 'w') as out_file:
+        out_file.write(yaml.dump(run_params))
+
+
+def prepare_job_inputs(job, tmp_input_files_desc):
+    """
+    Moves the input files from the temporary folder to its proper run folder. Deletes the temporary files. Returns a
+    dictionary describing the input files.
+    :param job: job object for which the input files are prepared
+    :param tmp_input_files_desc: dict describing the temporary path
+    """
+    input_files_desc = {}
+    tmp_parent_dir = None
+
+    for key, tmp_path in tmp_input_files_desc.items():
+        filename = Path(tmp_path).name
+        run_path = Path(get_job_input_files_dir(job)).joinpath(filename)
+        shutil.move(tmp_path, run_path)
+        tmp_parent_dir = Path(tmp_path).parent
+        input_files_desc[key] = run_path
+
+    if tmp_parent_dir is not None:
+        shutil.rmtree(tmp_parent_dir)
+
+    return input_files_desc
 
 
 def run_job(job):

@@ -1,9 +1,12 @@
 """
 This module tests jobs submission to the EBI queue
 """
+from pathlib import Path
 import os
 import shutil
 import unittest
+import random
+import json
 
 import jwt
 import yaml
@@ -29,8 +32,11 @@ class TestJobSubmitter(unittest.TestCase):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
             jobs_run_dir = job_submission_service.JOBS_RUN_DIR
+            jobs_tmp_dir = job_submission_service.JOBS_TMP_DIR
+
             try:
                 shutil.rmtree(jobs_run_dir)
+                shutil.rmtree(jobs_tmp_dir)
             except FileNotFoundError:
                 pass
 
@@ -51,6 +57,37 @@ class TestJobSubmitter(unittest.TestCase):
             data_got = jwt.decode(token_got, key, algorithms=['HS256'])
             self.assertEqual(data_got.get('job_id'), job_must_be.id, msg='The token was not generated correctly!')
 
+    def prepare_mock_job_args(self):
+        """
+        Creates some mock input files and returns some parameters as they will be used by the job submission function
+        :return: a tuple with the mock input files description, input files hashes, and job params
+        """
+
+        tmp_dir = Path(job_submission_service.JOBS_TMP_DIR).joinpath(f'{random.randint(1, 1000000)}')
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        input_files_desc = {
+            'input1': str(Path.joinpath(tmp_dir, 'input1.txt')),
+            'input2': str(Path.joinpath(tmp_dir, 'input2.txt'))
+        }
+
+        for key, path in input_files_desc.items():
+            with open(path, 'w') as input_file:
+                input_file.write(f'This is input file {key}')
+
+        input_files_hashes = {
+            'input1': 'hash1-hash1-hash1-hash1-hash1-hash1-hash1',
+            'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
+        }
+
+        params = {
+            'instruction': 'RUN_NORMALLY',
+            'seconds': 1,
+            'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
+        }
+
+        return input_files_desc, input_files_hashes, params
+
     # pylint: disable=no-self-use
     # pylint: disable=too-many-locals
     def test_job_can_be_submitted(self):
@@ -60,29 +97,27 @@ class TestJobSubmitter(unittest.TestCase):
         with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.TEST
 
-            input_files_hashes = {
-                'input1': 'hash1-hash1-hash1-hash1-hash1-hash1-hash1',
-                'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
-            }
+            input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
+            job_data = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes, params)
 
-            params = {
-                'instruction': 'RUN_NORMALLY',
-                'seconds': 1,
-                'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
-            }
 
-            job_data = job_submission_service.submit_job(job_type, params)
-
-            print('job_data: ', job_data)
             job_id = job_data.get('id')
 
-            return
 
-
+            # -----------------------------------------------
+            # Test Run Dir
+            # -----------------------------------------------
             job_run_dir_must_be = os.path.join(job_submission_service.JOBS_RUN_DIR, job_id)
             self.assertTrue(os.path.isdir(job_run_dir_must_be),
                             msg=f'The run dir for the job ({job_run_dir_must_be}) has not been created!')
 
+            input_files_dir_must_be = os.path.join(job_run_dir_must_be, job_submission_service.INPUT_FILES_DIR_NAME)
+            self.assertTrue(os.path.isdir(input_files_dir_must_be),
+                            msg=f'The input files dir for the job ({input_files_dir_must_be}) has not been created!')
+
+            # -----------------------------------------------
+            # Test Run Params
+            # -----------------------------------------------
             params_file_must_be = os.path.join(job_run_dir_must_be, job_submission_service.RUN_PARAMS_FILENAME)
 
             self.assertTrue(os.path.isfile(params_file_must_be),
@@ -110,25 +145,24 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertEqual(status_update_method_must_be, status_update_method_got,
                              msg='The status update method was not set correctly!')
 
-            statistics_url_must_be = f'http://127.0.0.1:5000/record/search/{job_id}'
-            statistics_url_got = params_got.get('statistics_endpoint').get('url')
-            self.assertEqual(statistics_url_must_be, statistics_url_got,
-                             msg='The statistics url was not set correctly!')
-
-            file_upload_url_must_be = f'http://127.0.0.1:5000/status/{job_id}/results_file'
-            file_upload_url_got = params_got.get('file_upload_endpoint').get('url')
-            self.assertEqual(file_upload_url_must_be, file_upload_url_got,
-                             msg='The file upload url was not generated correctly')
-
-            statistics_method_must_be = 'POST'
-            statistics_method_got = params_got.get('statistics_endpoint').get('method')
-            self.assertEqual(statistics_method_must_be, statistics_method_got,
-                             msg='The statistics update method was not set correctly!')
-
             job_params_got = params_got.get('job_params')
-            job_params_must_be = job_data.get('raw_params')
-            self.assertEqual(job_params_got, job_params_must_be,
+            print('job_params_got: ', job_params_got)
+
+            raw_job_params_must_be = job_data.get('raw_params')
+            self.assertEqual(json.dumps(job_params_got, sort_keys=True), raw_job_params_must_be,
                              msg='The job params were not set correctly')
+
+            # -----------------------------------------------
+            # Test Input Files
+            # -----------------------------------------------
+            job_input_files_desc_got = params_got.get('inputs')
+            for key, tmp_path in input_files_desc.items():
+                run_path_must_be = job_input_files_desc_got[key]
+                self.assertTrue(os.path.isfile(run_path_must_be),
+                                msg=f'The input file for the job ({run_path_must_be}) has not been created!')
+
+
+            return
 
             script_file_must_be = \
                 os.path.join(job_run_dir_must_be, job_submission_service.SCRIPT_FILENAMES.get(job_data.get('type')))

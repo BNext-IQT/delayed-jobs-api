@@ -102,9 +102,9 @@ class DelayedJob(DB.Model):
         Returns a dictionary representation of the object with all the fields that are safe to be public
         :return:
         """
-        return {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_comment', 'progress',
-                                                         'created_at', 'started_at', 'finished_at', 'output_file_url',
-                                                         'raw_params', 'expires_at', 'api_initial_url', 'timezone']}
+        return {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
+                                                         'created_at', 'started_at', 'finished_at', 'raw_params',
+                                                         'expires_at', 'api_initial_url', 'timezone']}
 
     def update_run_status(self, new_value):
         """
@@ -153,20 +153,21 @@ def generate_job_id(job_type, job_params, input_files_hashes={}):
     return '{}-{}'.format(repr(job_type), base64_search_params_digest)
 
 
-def get_or_create(job_type, job_params):
+def get_or_create(job_type, job_params, input_files_hashes={}):
     """
     Based on the type and the parameters given, returns a job if it exists, if not it creates it and returns it.
     :param job_type: type of job to get or create
     :param job_params: parameters of the job
+    :param input_files_hashes:
     :return: the job corresponding to those parameters.
     """
-    job_id = generate_job_id(job_type, job_params)
+    job_id = generate_job_id(job_type, job_params, input_files_hashes)
 
     existing_job = DelayedJob.query.filter_by(id=job_id).first()
     if existing_job is not None:
         return existing_job
 
-    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params))
+    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params, sort_keys=True))
 
     DB.session.add(job)
     DB.session.commit()
