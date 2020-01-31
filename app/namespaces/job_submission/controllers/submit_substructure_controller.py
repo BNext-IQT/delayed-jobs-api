@@ -1,38 +1,33 @@
 """
-Module that describes and handles the requests concerned with the similarity search
+Module that describes and handles the requests concerned with the substructure search
 """
 from flask import request
 from flask_restx import Namespace, Resource, fields
 
+from app.namespaces.job_submission.services import job_submission_service
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.namespaces.models import delayed_job_models
-from app.namespaces.job_submission import job_submission_service
 
-API = Namespace('submit/similarity', description='Namespace to submit a similarity job')
+API = Namespace('submit/substructure', description='Namespace to submit a substructure job')
 
-SIMILARITY_JOB = API.model('SimilarityJob', {
+SUBSTRUCTURE_JOB = API.model('SubstructureJob', {
     'structure': fields.String(description='The structure (SMILES) you want to search against',
                                required=True,
-                               example='[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1'),
-    'threshold': fields.Integer(description='The threshold for the similarity search',
-                                required=True,
-                                min=70,
-                                max=100,
-                                example=90)
+                               example='CC(=O)Oc1ccccc1C(=O)O'),
 })
 
 SUBMISSION_RESPONSE = API.inherit('SubmissionResponse', BASE_SUBMISSION_RESPONSE)
 
 
 @API.route('/')
-class SubmitSimilarityJob(Resource):
+class SubmitConnectivityJob(Resource):
     """
-        Resource that handles similarity search job submission requests
+        Resource that handles substructure search job submission requests
     """
-    job_type = delayed_job_models.JobTypes.SIMILARITY
+    job_type = delayed_job_models.JobTypes.SUBSTRUCTURE
 
-    @API.expect(SIMILARITY_JOB)
-    @API.doc(body=SIMILARITY_JOB)
+    @API.expect(SUBSTRUCTURE_JOB)
+    @API.doc(body=SUBSTRUCTURE_JOB)
     @API.marshal_with(BASE_SUBMISSION_RESPONSE)
     def post(self):  # pylint: disable=no-self-use
         """

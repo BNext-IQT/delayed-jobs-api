@@ -1,16 +1,16 @@
 """
-Module that describes and handles the requests concerned with the substructure search
+Module that describes and handles the requests concerned with the connectivity search
 """
 from flask import request
 from flask_restx import Namespace, Resource, fields
 
+from app.namespaces.job_submission.services import job_submission_service
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
 from app.namespaces.models import delayed_job_models
-from app.namespaces.job_submission import job_submission_service
 
-API = Namespace('submit/substructure', description='Namespace to submit a substructure job')
+API = Namespace('submit/connectivity', description='Namespace to submit a connectivity job')
 
-SUBSTRUCTURE_JOB = API.model('SubstructureJob', {
+CONNECTIVITY_JOB = API.model('ConnectivityJob', {
     'structure': fields.String(description='The structure (SMILES) you want to search against',
                                required=True,
                                example='CC(=O)Oc1ccccc1C(=O)O'),
@@ -22,12 +22,12 @@ SUBMISSION_RESPONSE = API.inherit('SubmissionResponse', BASE_SUBMISSION_RESPONSE
 @API.route('/')
 class SubmitConnectivityJob(Resource):
     """
-        Resource that handles substructure search job submission requests
+        Resource that handles connectivity search job submission requests
     """
-    job_type = delayed_job_models.JobTypes.SUBSTRUCTURE
+    job_type = delayed_job_models.JobTypes.CONNECTIVITY
 
-    @API.expect(SUBSTRUCTURE_JOB)
-    @API.doc(body=SUBSTRUCTURE_JOB)
+    @API.expect(CONNECTIVITY_JOB)
+    @API.doc(body=CONNECTIVITY_JOB)
     @API.marshal_with(BASE_SUBMISSION_RESPONSE)
     def post(self):  # pylint: disable=no-self-use
         """

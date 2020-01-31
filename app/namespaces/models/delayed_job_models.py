@@ -53,16 +53,22 @@ class JobStatuses(Enum):
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
-
-class JobExecution(DB.Model):
+class InputFile(DB.Model):
     """
-        Class that represents in the database an execution of a job, a job can have multiple executions.
+        Class that represents an input file that was sent to the job
     """
     id = DB.Column(DB.Integer, primary_key=True)
-    hostname = DB.Column(DB.String(length=500), nullable=False)
-    command = DB.Column(DB.String(length=500), nullable=False)
-    pid = DB.Column(DB.Integer, nullable=False)
-    run_dir = DB.Column(DB.Text)
+    internal_path = DB.Column(DB.Text, nullable=False)
+    job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
+
+
+class OutputFile(DB.Model):
+    """
+        Class that represents an output file that the job produced.
+    """
+    id = DB.Column(DB.Integer, primary_key=True)
+    internal_path = DB.Column(DB.Text, nullable=False)
+    public_url = DB.Column(DB.Text)
     job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
@@ -73,21 +79,20 @@ class DelayedJob(DB.Model):
     id = DB.Column(DB.String(length=60), primary_key=True)
     type = DB.Column(DB.Enum(JobTypes))
     status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
-    status_comment = DB.Column(DB.String)  # a comment about the status, for example 'Compressing file'
+    status_log = DB.Column(DB.String)  # a comment about the status, for example 'Compressing file'
     progress = DB.Column(DB.Integer, default=0)
     created_at = DB.Column(DB.DateTime, default=datetime.datetime.utcnow)
     started_at = DB.Column(DB.DateTime)
     finished_at = DB.Column(DB.DateTime)
     run_dir_path = DB.Column(DB.Text)
     output_dir_path = DB.Column(DB.Text)
-    output_file_path = DB.Column(DB.Text)
-    output_file_url = DB.Column(DB.Text)
-    log = DB.Column(DB.Text)
     raw_params = DB.Column(DB.Text)
     expires_at = DB.Column(DB.DateTime)
     api_initial_url = DB.Column(DB.Text)
     timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
-    executions = DB.relationship('JobExecution', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
+    num_failures = DB.Column(DB.Integer, default=0) # How many times the job has failed.
+    input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
+    output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
@@ -97,9 +102,9 @@ class DelayedJob(DB.Model):
         Returns a dictionary representation of the object with all the fields that are safe to be public
         :return:
         """
-        return {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_comment', 'progress',
-                                                         'created_at', 'started_at', 'finished_at', 'output_file_url',
-                                                         'raw_params', 'expires_at', 'api_initial_url', 'timezone']}
+        return {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
+                                                         'created_at', 'started_at', 'finished_at', 'raw_params',
+                                                         'expires_at', 'api_initial_url', 'timezone']}
 
     def update_run_status(self, new_value):
         """
@@ -124,15 +129,23 @@ class DelayedJob(DB.Model):
         return len(self.executions)
 
 
-def generate_job_id(job_type, job_params):
+def generate_job_id(job_type, job_params, input_files_hashes={}):
     """
     Generates a job id from a sha 256 hash of the string version of the job params in base 64
     :param job_type: type of job run
     :param job_params: parameters for the job
+    :param input_files_hashes: a dict with the contents of the input files.
     :return: The id that the job must have
 '    """
 
-    stable_raw_search_params = json.dumps(job_params, sort_keys=True)
+    all_params = {
+        **job_params,
+        'job_input_files_hashes': {
+            **input_files_hashes
+        }
+    }
+
+    stable_raw_search_params = json.dumps(all_params, sort_keys=True)
     search_params_digest = hashlib.sha256(stable_raw_search_params.encode('utf-8')).digest()
     base64_search_params_digest = base64.b64encode(search_params_digest).decode('utf-8').replace('/', '_').replace(
         '+', '-')
@@ -140,20 +153,21 @@ def generate_job_id(job_type, job_params):
     return '{}-{}'.format(repr(job_type), base64_search_params_digest)
 
 
-def get_or_create(job_type, job_params):
+def get_or_create(job_type, job_params, input_files_hashes={}):
     """
     Based on the type and the parameters given, returns a job if it exists, if not it creates it and returns it.
     :param job_type: type of job to get or create
     :param job_params: parameters of the job
+    :param input_files_hashes:
     :return: the job corresponding to those parameters.
     """
-    job_id = generate_job_id(job_type, job_params)
+    job_id = generate_job_id(job_type, job_params, input_files_hashes)
 
     existing_job = DelayedJob.query.filter_by(id=job_id).first()
     if existing_job is not None:
         return existing_job
 
-    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params))
+    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params, sort_keys=True))
 
     DB.session.add(job)
     DB.session.commit()
@@ -202,15 +216,24 @@ def update_job_status(job_id, new_data):
     DB.session.commit()
     return job
 
-
-def add_job_execution_to_job(job, execution):
+def add_input_file_to_job(job, input_file):
     """
-    Adds a job execution to a job and saves it
+    Adds an input file to a job and saves the job
     :param job: job object
-    :param execution: execution object
+    :param input_file: input_file object
     """
-    job.executions.append(execution)
-    DB.session.add(execution)
+    job.input_files.append(input_file)
+    DB.session.add(input_file)
+    DB.session.commit()
+
+def add_output_file_to_job(job, output_file):
+    """
+    Adds an input file to a job and saves the job
+    :param job: job object
+    :param input_file: input_file object
+    """
+    job.output_files.append(output_file)
+    DB.session.add(output_file)
     DB.session.commit()
 
 
@@ -249,8 +272,10 @@ def delete_all_expired_jobs():
     num_deleted = 0
     for job in jobs_to_delete:
         run_dir_path = job.run_dir_path
+        output_dir_path = job.output_dir_path
         delete_job(job)
         shutil.rmtree(run_dir_path, ignore_errors=True)
+        shutil.rmtree(output_dir_path, ignore_errors=True)
         num_deleted += 1
 
     return num_deleted
