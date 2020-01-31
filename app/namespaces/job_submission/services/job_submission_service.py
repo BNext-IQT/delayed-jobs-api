@@ -17,6 +17,7 @@ import yaml
 from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.authorisation import token_generator
+import app.app_logging as app_logging
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir', str(Path().absolute()) + '/jobs_run')
 if not os.path.isabs(JOBS_RUN_DIR):
@@ -33,13 +34,13 @@ if not os.path.isabs(JOBS_OUTPUT_DIR):
     JOBS_OUTPUT_DIR = Path(JOBS_OUTPUT_DIR).resolve()
 os.makedirs(JOBS_OUTPUT_DIR, exist_ok=True)
 
-print('------------------------------------------------------------------------------')
-print('JOBS_RUN_DIR: ', JOBS_RUN_DIR)
-print('------------------------------------------------------------------------------')
+app_logging.info('------------------------------------------------------------------------------')
+app_logging.info(f'JOBS_RUN_DIR: {JOBS_RUN_DIR}')
+app_logging.info('------------------------------------------------------------------------------')
 
-print('------------------------------------------------------------------------------')
-print('JOBS_OUTPUT_DIR: ', JOBS_OUTPUT_DIR)
-print('------------------------------------------------------------------------------')
+app_logging.info('------------------------------------------------------------------------------')
+app_logging.info(f'JOBS_OUTPUT_DIR: {JOBS_OUTPUT_DIR}')
+app_logging.info('------------------------------------------------------------------------------')
 
 JOBS_SCRIPTS_DIR = str(Path().absolute()) + '/jobs_scripts'
 
@@ -105,10 +106,6 @@ def parse_args_and_submit_job(job_type, args):
     job_inputs_only = get_job_input_files_desc_only(args)
     input_files_hashes = get_input_files_hashes(job_inputs_only)
 
-    print('job_params_only: ', job_params_only)
-    print('job_inputs_only: ', job_inputs_only)
-    print('input_files_hashes: ', input_files_hashes)
-
     return submit_job(job_type, job_inputs_only, input_files_hashes, job_params_only)
 
 
@@ -119,9 +116,8 @@ def submit_job(job_type, input_files_desc, input_files_hashes, job_params):
     :param job_params: dict with the job parameters
     """
 
-    print('SUBMITTING JOB...')
-
     job = delayed_job_models.get_or_create(job_type, job_params, input_files_hashes)
+    app_logging.info(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
 
     return job.public_dict()
@@ -305,7 +301,6 @@ def prepare_job_submission_script(job):
         job_submission_script = submit_job_template.format(JOB_ID=job.id)
 
         submit_file_path = get_job_submission_script_file_path(job)
-        print('submit_file_path: ', submit_file_path)
         with open(submit_file_path, 'w') as submission_script_file:
             submission_script_file.write(job_submission_script)
 
