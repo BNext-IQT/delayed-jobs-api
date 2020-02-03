@@ -106,7 +106,7 @@ deploy_to_staging:
   - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - echo "${RUN_CONFIG_STAGING}" > "$(pwd)/config.yml"
-  - kubectl create configmap ${CONFIGMAP_STAGING} --from-file=DELAYED_JOBS_RAW_CONFIG=config.yml -o yaml -n ${CHEMBL_NS_STAGING}
+  - kubectl create configmap ${CONFIGMAP_STAGING} --from-file=DELAYED_JOBS_RAW_CONFIG=config.yml -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
   - sed -i "s~<CONFIG_MAP>~${CONFIGMAP_STAGING}~" k8s-deployment.yaml
