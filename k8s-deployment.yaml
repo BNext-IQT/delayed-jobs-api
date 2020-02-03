@@ -25,7 +25,7 @@ spec:
       volumes:
         - name: nfs-volume
           nfs:
-            server: hh-isi-srv.ebi.ac.uk
+            server: <NFS_FQDN>
             path: /ifs/public/rw/chembl
 
 ---
