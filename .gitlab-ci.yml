@@ -13,9 +13,15 @@ services:
   - docker:dind
 
 stages:
+  - test_var_value
   - build
   - test_and_qa
   - deploy_to_staging
+
+test_var_value:
+  stage: test_var_value
+  script:
+    - echo $CHEMBL_VAR
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
