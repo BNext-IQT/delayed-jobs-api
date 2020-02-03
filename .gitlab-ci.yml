@@ -95,7 +95,7 @@ deploy_to_staging:
   - staging
   environment:
     name: staging
-    url: http://hx-rke-wp-webadmin-04-worker-3.caas.ebi.ac.uk:30001/chembl/interface_api/delayed_jobs/
+    url: http://hx-rke-wp-webadmin-04-worker-3.caas.ebi.ac.uk:${SERVICE_PORT_STAGING}/chembl/interface_api/delayed_jobs/
   script:
   - set -x
   - echo "$KUBE_CA_PEM_HX" > "$(pwd)/kube.ca.pem"
