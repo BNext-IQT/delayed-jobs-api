@@ -25,7 +25,7 @@ spec:
             name: <CONFIG_MAP>
         volumeMounts:
         - name: nfs-volume
-          mountPath: /nfs/public/rw/chembl
+          mountPath: <NFS_MOUNT_PATH>
       volumes:
         - name: nfs-volume
           nfs:
