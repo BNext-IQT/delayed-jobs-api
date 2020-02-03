@@ -44,4 +44,3 @@ spec:
   ports:
   - port: 8080
     targetPort: 8080
-    nodePort: <SERVICE_NODE_PORT>
