@@ -27,7 +27,7 @@ spec:
         - name: nfs-volume
           nfs:
             server: <NFS_FQDN>
-            path: /ifs/public-r/rw/chembl
+            path: <NFS_PATH>
 
 ---
 apiVersion: v1
