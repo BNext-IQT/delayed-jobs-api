@@ -15,7 +15,7 @@ spec:
       containers:
       - name: delayed-jobs-api
         image: <IMAGE_TAG>
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         envFrom:
         - configMapRef:
             name: <CONFIG_MAP>
