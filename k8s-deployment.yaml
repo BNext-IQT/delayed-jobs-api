@@ -13,6 +13,9 @@ spec:
       labels:
         app: delayed-jobs
     spec:
+      securityContext:
+        runAsUser: <UID>
+        runAsGroup: <GID>
       containers:
       - name: delayed-jobs-api
         image: <IMAGE_TAG>
