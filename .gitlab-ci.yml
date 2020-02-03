@@ -107,9 +107,10 @@ deploy_to_staging:
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}
   - echo "${RUN_CONFIG_STAGING}" > "$(pwd)/config.yml"
   - kubectl create configmap ${CONFIGMAP_STAGING} --from-file=DELAYED_JOBS_RAW_CONFIG=config.yml -o yaml -n ${KUBE_NAMESPACE_STAGING} --dry-run | kubectl replace -f -
+  - sed -i "s~<NAMESPACE>~${KUBE_NAMESPACE_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
   - sed -i "s~<CONFIG_MAP>~${CONFIGMAP_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<NFS_FQDN>~${NFS_FQDN_STAGING}~" k8s-deployment.yaml
   - cat k8s-deployment.yaml
-  - kubectl replace -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml --force
+  - kubectl apply -n ${KUBE_NAMESPACE_STAGING} -f k8s-deployment.yaml --force
   - kubectl get pods -n ${KUBE_NAMESPACE_STAGING}

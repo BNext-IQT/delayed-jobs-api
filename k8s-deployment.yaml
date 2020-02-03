@@ -2,15 +2,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: delayed-jobs-server
+  namespace: <NAMESPACE>
 spec:
   replicas: 1
   selector:
     matchLabels:
-      bb: delayed-jobs
+      app: delayed-jobs
   template:
     metadata:
       labels:
-        bb: delayed-jobs
+        app: delayed-jobs
     spec:
       containers:
       - name: delayed-jobs-api
