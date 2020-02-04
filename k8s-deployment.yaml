@@ -26,11 +26,17 @@ spec:
         volumeMounts:
         - name: nfs-volume
           mountPath: <NFS_MOUNT_PATH>
+        - name: id-rda-lsf
+          mountPath: '/etc/lsf/id_rsa'
+          readOnly: true
       volumes:
         - name: nfs-volume
           nfs:
             server: <NFS_FQDN>
             path: <NFS_PATH>
+        - name: id-rda-lsf
+          secret:
+            secretName: <ID_RSA_SECRET_NAME>
 
 ---
 apiVersion: v1
