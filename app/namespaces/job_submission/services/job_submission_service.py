@@ -306,7 +306,16 @@ def prepare_job_submission_script(job):
     job_submission_script_template_path = os.path.join(Path().absolute(), 'templates', SUBMISSION_FILE_NAME)
     with open(job_submission_script_template_path, 'r') as template_file:
         submit_job_template = template_file.read()
-        job_submission_script = submit_job_template.format(JOB_ID=job.id)
+
+        lsf_config = RUN_CONFIG.get('lsf_submission')
+        lsf_user = lsf_config['lsf_user']
+        lsf_host = lsf_config['lsf_host']
+
+        job_submission_script = submit_job_template.format(
+            JOB_ID=job.id,
+            LSF_USER=lsf_user,
+            LSF_HOST=lsf_host
+        )
 
         submit_file_path = get_job_submission_script_file_path(job)
         with open(submit_file_path, 'w') as submission_script_file:
