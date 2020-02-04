@@ -185,6 +185,8 @@ def prepare_job_and_submit(job, input_files_desc):
     :param job: DelayedJob object
     :param input_files_desc: a dict describing the input files and their temporary location
     """
+    app_logging.info(f'Preparing submission of job: {job.id}')
+
     prepare_run_folder(job, input_files_desc)
     prepare_output_dir(job)
     prepare_job_submission_script(job)
