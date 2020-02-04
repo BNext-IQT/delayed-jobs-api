@@ -6,7 +6,6 @@ import os
 import stat
 import shutil
 import subprocess
-import socket
 import hashlib
 import random
 import json
@@ -185,15 +184,17 @@ def prepare_job_and_submit(job, input_files_desc):
     :param job: DelayedJob object
     :param input_files_desc: a dict describing the input files and their temporary location
     """
-    app_logging.info(f'Preparing submission of job: {job.id}')
 
     prepare_run_folder(job, input_files_desc)
     prepare_output_dir(job)
     prepare_job_submission_script(job)
 
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
-    # if must_run_jobs:
-    #     run_job(job)
+    if must_run_jobs:
+        run_job(job)
+    else:
+        app_logging.info(f'Not submitting jobs because run_jobs is False')
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Preparation of run folder
@@ -318,18 +319,22 @@ def prepare_job_submission_script(job):
 
 def run_job(job):
     """
-    Runs the job in background by executing the run script
+    Runs a script that submits the job to LSF
     :param job: DelayedJob object
     """
+    submit_file_path = get_job_submission_script_file_path(job)
+    submission_output_path = Path(submit_file_path).parent.joinpath('submission.out')
+    submission_error_path = Path(submit_file_path).parent.joinpath('submission.err')
 
-    run_command = f'{get_job_run_file_path(job)}'
-    run_output = subprocess.Popen([run_command, '&'])
+    run_command = f'{submit_file_path}'
+    app_logging.info(f'Going to run job submission script, command: {run_command}')
+    submission_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    job_execution = delayed_job_models.JobExecution(
-        hostname=socket.gethostname(),
-        command=run_command,
-        pid=run_output.pid,
-        run_dir=get_job_run_dir(job)
-    )
+    app_logging.info(f'Output: \n {submission_process.stdout}')
+    app_logging.info(f'Error: \n {submission_process.stderr}')
 
-    delayed_job_models.add_job_execution_to_job(job, job_execution)
+    with open(submission_output_path, 'wb') as submission_out_file:
+        submission_out_file.write(submission_process.stdout)
+
+    with open(submission_error_path, 'wb') as submission_err_file:
+        submission_err_file.write(submission_process.stderr)
