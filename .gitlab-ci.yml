@@ -108,6 +108,7 @@ deploy_to_staging:
   - echo "${RUN_CONFIG_STAGING}" > "$(pwd)/config.yml"
   - kubectl create configmap ${CONFIGMAP_STAGING} --from-file=DELAYED_JOBS_RAW_CONFIG=config.yml -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - kubectl describe configmap ${CONFIGMAP_STAGING} -n ${CHEMBL_NS_STAGING}
+  - echo "${RUN_CONFIG_STAGING}"
   - echo "${SOME_VAR}"
   - echo "holaaa" > "$(pwd)/id_rsa_lsf.txt"
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=id_rsa_lsf.txt -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
