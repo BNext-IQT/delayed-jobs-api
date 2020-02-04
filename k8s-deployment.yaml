@@ -27,7 +27,7 @@ spec:
         - name: nfs-volume
           mountPath: <NFS_MOUNT_PATH>
         - name: id-rda-lsf
-          mountPath: '/etc/lsf/id_rsa'
+          mountPath: '/etc/lsf_config/'
           readOnly: true
       volumes:
         - name: nfs-volume
