@@ -323,7 +323,8 @@ def prepare_job_submission_script(job):
             LSF_USER=lsf_user,
             LSF_HOST=lsf_host,
             RUN_PARAMS_FILE=run_params_path,
-            DOCKER_IMAGE_URL=job.docker_image_url
+            DOCKER_IMAGE_URL=job.docker_image_url,
+            RUN_DIR=get_job_run_dir(job)
 
         )
 
