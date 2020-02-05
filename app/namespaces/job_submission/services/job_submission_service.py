@@ -50,6 +50,10 @@ SUBMISSION_FILE_NAME = 'submit_job.sh'
 
 MAX_RETRIES = 6
 
+class JobSubmissionError(Exception):
+    """Base class for exceptions in this module."""
+
+
 def get_input_files_hashes(input_files_desc):
     """
     :param input_files_desc: args sent to the endpoint from flask rest-plus
@@ -350,3 +354,7 @@ def run_job(job):
 
     with open(submission_error_path, 'wb') as submission_err_file:
         submission_err_file.write(submission_process.stderr)
+
+    return_code = submission_out_file
+    if return_code != 0:
+        raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
