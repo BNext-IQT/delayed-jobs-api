@@ -2,7 +2,7 @@
 set -x
 set -e
 
-IDENTITY_FILE=${1:-'~/.ssh/id_rsa'}
+IDENTITY_FILE=$1
 
 echo "I am going to submit the job {JOB_ID}"
 

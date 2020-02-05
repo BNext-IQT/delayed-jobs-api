@@ -188,13 +188,7 @@ def prepare_job_and_submit(job, input_files_desc):
     prepare_run_folder(job, input_files_desc)
     prepare_output_dir(job)
     prepare_job_submission_script(job)
-
-    must_run_jobs = RUN_CONFIG.get('run_jobs', True)
-    if must_run_jobs:
-        run_job(job)
-    else:
-        app_logging.info(f'Not submitting jobs because run_jobs is False')
-
+    run_job(job)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Preparation of run folder
@@ -335,8 +329,17 @@ def run_job(job):
     submission_output_path = Path(submit_file_path).parent.joinpath('submission.out')
     submission_error_path = Path(submit_file_path).parent.joinpath('submission.err')
 
-    run_command = f'{submit_file_path}'
+    lsf_config = RUN_CONFIG.get('lsf_submission')
+    id_rsa_path = lsf_config['id_rsa_file']
+
+    run_command = f'{submit_file_path} {id_rsa_path}'
     app_logging.info(f'Going to run job submission script, command: {run_command}')
+
+    must_run_jobs = RUN_CONFIG.get('run_jobs', True)
+    if not must_run_jobs:
+        app_logging.info(f'Not submitting jobs because run_jobs is False')
+        return
+
     submission_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     app_logging.info(f'Output: \n {submission_process.stdout}')
