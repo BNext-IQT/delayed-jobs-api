@@ -355,6 +355,6 @@ def run_job(job):
     with open(submission_error_path, 'wb') as submission_err_file:
         submission_err_file.write(submission_process.stderr)
 
-    return_code = submission_out_file
+    return_code = submission_process.returncode
     if return_code != 0:
         raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
