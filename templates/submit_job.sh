@@ -6,9 +6,7 @@ IDENTITY_FILE=$1
 
 echo "I am going to submit the job {JOB_ID}"
 
-ssh {LSF_USER}@{LSF_HOST} -i $IDENTITY_FILE -v -oStrictHostKeyChecking=no <<ENDSSH
-echo '------'
-whoami
-bjobs
-echo '------'
+ssh {LSF_USER}@{LSF_HOST} -i $IDENTITY_FILE -oStrictHostKeyChecking=no <<ENDSSH
+#bjobs
+echo $ "singularity exec {DOCKER_IMAGE_URL} /app/run_job.sh {RUN_PARAMS_FILE}"
 ENDSSH

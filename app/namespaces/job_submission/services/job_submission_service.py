@@ -103,23 +103,23 @@ def get_job_params_only(args):
     return job_params
 
 
-def parse_args_and_submit_job(job_type, args):
+def parse_args_and_submit_job(job_type, args, docker_image_url):
 
     job_params_only = get_job_params_only(args)
     job_inputs_only = get_job_input_files_desc_only(args)
     input_files_hashes = get_input_files_hashes(job_inputs_only)
 
-    return submit_job(job_type, job_inputs_only, input_files_hashes, job_params_only)
+    return submit_job(job_type, job_inputs_only, input_files_hashes, docker_image_url, job_params_only)
 
 
-def submit_job(job_type, input_files_desc, input_files_hashes, job_params):
+def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
     """
     Submits job to the queue, and runs it in background
     :param job_type: type of job to submit
     :param job_params: dict with the job parameters
     """
 
-    job = delayed_job_models.get_or_create(job_type, job_params, input_files_hashes)
+    job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
     app_logging.info(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
 
@@ -172,6 +172,14 @@ def get_job_submission_script_file_path(job):
     :return: local path of the job results file
     """
     return os.path.join(get_job_run_dir(job), SUBMISSION_FILE_NAME)
+
+
+def get_job_run_params_file_path(job):
+    """
+    :param job: DelayedJob object
+    :return: local path of the job run params file
+    """
+    return os.path.join(get_job_run_dir(job), RUN_PARAMS_FILENAME)
 
 
 def get_job_output_dir_path(job):
@@ -246,7 +254,7 @@ def create_params_file(job, input_files_desc):
     }
 
 
-    run_params_path = os.path.join(get_job_run_dir(job), RUN_PARAMS_FILENAME)
+    run_params_path = get_job_run_params_file_path(job)
 
     # delete file if existed before, just in case
     if os.path.exists(run_params_path):
@@ -308,11 +316,15 @@ def prepare_job_submission_script(job):
         lsf_config = RUN_CONFIG.get('lsf_submission')
         lsf_user = lsf_config['lsf_user']
         lsf_host = lsf_config['lsf_host']
+        run_params_path = get_job_run_params_file_path(job)
 
         job_submission_script = submit_job_template.format(
             JOB_ID=job.id,
             LSF_USER=lsf_user,
-            LSF_HOST=lsf_host
+            LSF_HOST=lsf_host,
+            RUN_PARAMS_FILE=run_params_path,
+            DOCKER_IMAGE_URL=job.docker_image_url
+
         )
 
         submit_file_path = get_job_submission_script_file_path(job)

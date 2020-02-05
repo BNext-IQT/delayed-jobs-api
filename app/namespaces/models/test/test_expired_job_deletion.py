@@ -83,8 +83,9 @@ class TestExpiredJobDeletion(unittest.TestCase):
             'structure': ''.join(random.choice(string.ascii_lowercase) for i in range(10)),
             'threshold': '70'
         }
+        docker_image_url = 'some_url'
 
-        job = delayed_job_models.get_or_create(job_type, params)
+        job = delayed_job_models.get_or_create(job_type, params, docker_image_url)
         # simulate it finished
 
         job_run_dir = os.path.join(self.ABS_RUN_DIR_PATH, job.id)

@@ -46,13 +46,16 @@ class TestModels(unittest.TestCase):
             'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
         }
 
-        id_got = delayed_job_models.generate_job_id(job_type, params, input_files_hashes)
+        docker_image_url = 'some_url'
+
+        id_got = delayed_job_models.generate_job_id(job_type, params, docker_image_url, input_files_hashes)
 
         all_params = {
             **params,
             'job_input_files_hashes':{
                 **input_files_hashes
-            }
+            },
+            'docker_image_url': docker_image_url
         }
 
         print('ALL PARAMS: ', all_params)
@@ -77,8 +80,9 @@ class TestModels(unittest.TestCase):
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }
+            docker_image_url_must_be = 'some_url'
 
-            job_must_be = delayed_job_models.get_or_create(job_type, params)
+            job_must_be = delayed_job_models.get_or_create(job_type, params, docker_image_url_must_be)
             job_id_must_be = job_must_be.id
             job_got = delayed_job_models.DelayedJob.query.filter_by(id=job_id_must_be).first()
             self.assertEqual(job_type, job_got.type, msg='The job type was not saved correctly.')
@@ -95,6 +99,10 @@ class TestModels(unittest.TestCase):
             params_got = job_got.raw_params
             self.assertEqual(params_got, params_must_be, msg='The parameters where not saved correctly')
 
+            docker_image_url_got = job_got.docker_image_url
+            self.assertEqual(docker_image_url_got, docker_image_url_must_be,
+                             msg='The docker image url was not saved correctly')
+
     def test_a_job_is_created_only_once(self):
         """
         Tests that there can only exist one job instance with given a set of parameters.
@@ -107,14 +115,15 @@ class TestModels(unittest.TestCase):
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }
+            docker_image_url = 'some_url'
 
             # Create a job and set status as finished
-            job_0 = delayed_job_models.get_or_create(job_type, params)
+            job_0 = delayed_job_models.get_or_create(job_type, params, docker_image_url)
             status_must_be = delayed_job_models.JobStatuses.FINISHED
             job_0.status = status_must_be
 
             # Create a job with exactly the same params
-            job_1 = delayed_job_models.get_or_create(job_type, params)
+            job_1 = delayed_job_models.get_or_create(job_type, params, docker_image_url)
 
             # they must be the same
             self.assertEqual(job_0.id, job_1.id, msg='A job with the same params was created twice!')

@@ -48,6 +48,7 @@ class SubmitTestJob(Resource):
         Resource that handles test job submission requests
     """
     job_type = delayed_job_models.JobTypes.TEST
+    docker_image_url = 'docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/test-job:latest'
 
     @API.expect(TEST_JOB_PARSER)
     # @API.doc(body=TEST_JOB)
@@ -58,5 +59,5 @@ class SubmitTestJob(Resource):
         :return: a json response with the result of the submission
         """
         args = TEST_JOB_PARSER.parse_args()
-        response = job_submission_service.parse_args_and_submit_job(self.job_type, args)
+        response = job_submission_service.parse_args_and_submit_job(self.job_type, args, self.docker_image_url)
         return response

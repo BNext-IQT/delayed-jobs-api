@@ -89,6 +89,7 @@ class DelayedJob(DB.Model):
     raw_params = DB.Column(DB.Text)
     expires_at = DB.Column(DB.DateTime)
     api_initial_url = DB.Column(DB.Text)
+    docker_image_url = DB.Column(DB.Text)
     timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
     num_failures = DB.Column(DB.Integer, default=0) # How many times the job has failed.
     input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
@@ -129,7 +130,7 @@ class DelayedJob(DB.Model):
         return len(self.executions)
 
 
-def generate_job_id(job_type, job_params, input_files_hashes={}):
+def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={}):
     """
     Generates a job id from a sha 256 hash of the string version of the job params in base 64
     :param job_type: type of job run
@@ -142,7 +143,8 @@ def generate_job_id(job_type, job_params, input_files_hashes={}):
         **job_params,
         'job_input_files_hashes': {
             **input_files_hashes
-        }
+        },
+        'docker_image_url': docker_image_url
     }
 
     stable_raw_search_params = json.dumps(all_params, sort_keys=True)
@@ -153,7 +155,7 @@ def generate_job_id(job_type, job_params, input_files_hashes={}):
     return '{}-{}'.format(repr(job_type), base64_search_params_digest)
 
 
-def get_or_create(job_type, job_params, input_files_hashes={}):
+def get_or_create(job_type, job_params, docker_image_url, input_files_hashes={}):
     """
     Based on the type and the parameters given, returns a job if it exists, if not it creates it and returns it.
     :param job_type: type of job to get or create
@@ -161,13 +163,14 @@ def get_or_create(job_type, job_params, input_files_hashes={}):
     :param input_files_hashes:
     :return: the job corresponding to those parameters.
     """
-    job_id = generate_job_id(job_type, job_params, input_files_hashes)
+    job_id = generate_job_id(job_type, job_params, docker_image_url, input_files_hashes)
 
     existing_job = DelayedJob.query.filter_by(id=job_id).first()
     if existing_job is not None:
         return existing_job
 
-    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params, sort_keys=True))
+    job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params, sort_keys=True),
+                     docker_image_url=docker_image_url)
 
     DB.session.add(job)
     DB.session.commit()

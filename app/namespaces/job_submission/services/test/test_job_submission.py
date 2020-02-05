@@ -53,7 +53,8 @@ class TestJobSubmitter(unittest.TestCase):
                 'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
                 'threshold': '70'
             }
-            job_must_be = delayed_job_models.get_or_create(job_type, params)
+            docker_image_url = 'some_url'
+            job_must_be = delayed_job_models.get_or_create(job_type, params, docker_image_url)
             token_got = token_generator.generate_job_token(job_must_be.id)
             key = RUN_CONFIG.get('server_secret_key')
             data_got = jwt.decode(token_got, key, algorithms=['HS256'])
@@ -98,9 +99,11 @@ class TestJobSubmitter(unittest.TestCase):
         """
         with self.flask_app.app_context():
             job_type = delayed_job_models.JobTypes.TEST
+            docker_image_url = 'some_url'
 
             input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
-            job_data = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes, params)
+            job_data = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes,
+                                                         docker_image_url, params)
 
             job_id = job_data.get('id')
 
