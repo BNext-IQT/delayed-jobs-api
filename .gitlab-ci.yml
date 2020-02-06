@@ -111,6 +111,7 @@ deploy_to_staging:
   - kubectl create configmap ${CONFIGMAP_STAGING} --from-file=DELAYED_JOBS_RAW_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - kubectl describe configmap ${CONFIGMAP_STAGING} -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
+  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl apply -f -
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID_HX}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID_HX}~" k8s-deployment.yaml
