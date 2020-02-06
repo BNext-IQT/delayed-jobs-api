@@ -29,6 +29,9 @@ spec:
         - name: id-rda-lsf
           mountPath: '/etc/lsf_config/'
           readOnly: true
+        - name: run-config
+          mountPath: '/etc/run_config/'
+          readOnly: true
       volumes:
         - name: nfs-volume
           nfs:
@@ -37,6 +40,9 @@ spec:
         - name: id-rda-lsf
           secret:
             secretName: <ID_RSA_SECRET_NAME>
+        - name: run-config
+          secret:
+            secretName: <RUN_CONFIG_SECRET_NAME>
 
 ---
 apiVersion: v1
