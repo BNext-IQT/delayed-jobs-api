@@ -7,7 +7,9 @@ RUN apt-get install -y \
     curl \
     netcat \
     iputils-ping \
-    ssh
+    ssh \
+    build-essential \
+    default-libmysqlclient-dev
 
 WORKDIR /app
 COPY requirements.txt .
