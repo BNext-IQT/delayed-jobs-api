@@ -59,7 +59,7 @@ class InputFile(DB.Model):
     """
     id = DB.Column(DB.Integer, primary_key=True)
     internal_path = DB.Column(DB.Text, nullable=False)
-    job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
+    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
 class OutputFile(DB.Model):
@@ -69,7 +69,7 @@ class OutputFile(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     internal_path = DB.Column(DB.Text, nullable=False)
     public_url = DB.Column(DB.Text)
-    job_id = DB.Column(DB.Integer, DB.ForeignKey('delayed_job.id'), nullable=False)
+    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
 class DelayedJob(DB.Model):
@@ -79,7 +79,7 @@ class DelayedJob(DB.Model):
     id = DB.Column(DB.String(length=60), primary_key=True)
     type = DB.Column(DB.Enum(JobTypes))
     status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
-    status_log = DB.Column(DB.String)  # a comment about the status, for example 'Compressing file'
+    status_log = DB.Column(DB.Text)  # a comment about the status, for example 'Compressing file'
     progress = DB.Column(DB.Integer, default=0)
     created_at = DB.Column(DB.DateTime, default=datetime.datetime.utcnow)
     started_at = DB.Column(DB.DateTime)
