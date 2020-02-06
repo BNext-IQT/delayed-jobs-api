@@ -121,5 +121,5 @@ deploy_to_staging:
   - sed -i "s~<ID_RSA_SECRET_NAME>~${ID_RSA_SECRET_NAME_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<RUN_CONFIG_SECRET_NAME>~${RUN_CONFIG_SECRET_NAME_STAGING}~" k8s-deployment.yaml
   - cat k8s-deployment.yaml
-  - kubectl apply -n ${CHEMBL_NS_STAGING} -f k8s-deployment.yaml --force
+  - kubectl apply -n ${CHEMBL_NS_STAGING} -f k8s-deployment.yaml
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
