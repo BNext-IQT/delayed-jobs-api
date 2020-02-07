@@ -6,17 +6,7 @@ from flask import Flask, Blueprint
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
 from app.db import DB
-from app.namespaces.admin_auth.admin_auth_controller import API as job_admin_namespace
-from app.namespaces.job_statistics.record_download_controller import API as record_download_namespace
-from app.namespaces.job_statistics.record_search_controller import API as record_search_namespace
-from app.namespaces.job_status.job_status_controller import API as job_status_namespace
-from app.namespaces.job_submission.controllers.submit_connectivity_controller import \
-    API as submit_connectivity_search_namespace
-from app.namespaces.job_submission.controllers.submit_blast_controller import API as submit_blast_search_namespace
-from app.namespaces.job_submission.controllers.submit_download_controller import API as submit_download_namespace
-from app.namespaces.job_submission.controllers.submit_similarity_controller import API as submit_similarity_search_namespace
-from app.namespaces.job_submission.controllers.submit_substructure_controller import API as submit_substructure_search_namespace
-from app.namespaces.job_submission.controllers.submit_test_job_controller import API as submit_test_job_namespace
+
 
 
 def create_app():
