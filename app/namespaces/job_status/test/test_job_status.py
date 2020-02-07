@@ -1,18 +1,18 @@
 """
 Tests for the status namespace
 """
+import datetime
+import io
 import json
+import os
 import shutil
 import unittest
-import io
-import os
-import datetime
 from pathlib import Path
 
-from app.authorisation import token_generator
 from app import create_app
-from app.namespaces.models import delayed_job_models
+from app.authorisation import token_generator
 from app.db import DB
+from app.models import delayed_job_models
 
 
 # pylint: disable=E1101

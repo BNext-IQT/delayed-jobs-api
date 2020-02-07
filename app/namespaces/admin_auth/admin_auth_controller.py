@@ -5,10 +5,10 @@ from flask import request, make_response, jsonify
 from flask_restx import Namespace, Resource, fields
 
 from app.authorisation import token_generator
-from app.config import verify_secret
-from app.config import RUN_CONFIG
 from app.authorisation.decorators import admin_token_required
-from app.namespaces.models import delayed_job_models
+from app.config import RUN_CONFIG
+from app.config import verify_secret
+from app.models import delayed_job_models
 
 API = Namespace('admin', description='Request to login and get a token for the admin user')
 

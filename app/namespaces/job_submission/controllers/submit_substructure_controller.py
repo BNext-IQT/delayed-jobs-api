@@ -4,9 +4,9 @@ Module that describes and handles the requests concerned with the substructure s
 from flask import request
 from flask_restx import Namespace, Resource, fields
 
+from app.models import delayed_job_models
 from app.namespaces.job_submission.services import job_submission_service
 from app.namespaces.job_submission.shared_marshalls import BASE_SUBMISSION_RESPONSE
-from app.namespaces.models import delayed_job_models
 
 API = Namespace('submit/substructure', description='Namespace to submit a substructure job')
 

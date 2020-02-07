@@ -1,12 +1,12 @@
 """
 This module tests jobs submission to the EBI queue
 """
-from pathlib import Path
+import json
 import os
+import random
 import shutil
 import unittest
-import random
-import json
+from pathlib import Path
 
 import jwt
 import yaml
@@ -14,8 +14,8 @@ import yaml
 from app import create_app
 from app.authorisation import token_generator
 from app.config import RUN_CONFIG
+from app.models import delayed_job_models
 from app.namespaces.job_submission.services import job_submission_service
-from app.namespaces.models import delayed_job_models
 
 
 class TestJobSubmitter(unittest.TestCase):

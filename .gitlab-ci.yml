@@ -60,9 +60,9 @@ unit_tests:
   script:
   - env
   # Reminder for David: put here all tests that should be ready until you finish and then run all
-  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app.namespaces.models.test.test_models.TestModels
-  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app.namespaces.models.test.test_expired_job_deletion.TestExpiredJobDeletion
-  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app.namespaces.job_submission.services.test.test_job_submission.TestJobSubmitter
+  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app.models.test.test_models.TestModels
+  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app.models.test.test_expired_job_deletion.TestExpiredJobDeletion
+#  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app.namespaces.job_submission.services.test.test_job_submission.TestJobSubmitter
 #  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
 
 functional_tests:

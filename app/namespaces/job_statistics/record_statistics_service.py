@@ -1,9 +1,9 @@
 """
 Module that describes and handles the requests concerned with recording statistics
 """
-from app.namespaces.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.es_connection import ES
+from app.models import delayed_job_models
 
 
 class JobNotFoundError(Exception):

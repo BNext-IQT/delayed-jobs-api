@@ -5,7 +5,7 @@ import os
 
 from flask import url_for
 
-from app.namespaces.models import delayed_job_models
+from app.models import delayed_job_models
 
 
 class JobNotFoundError(Exception):

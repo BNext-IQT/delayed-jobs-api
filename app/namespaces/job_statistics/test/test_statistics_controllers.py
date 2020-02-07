@@ -1,14 +1,14 @@
 """
 Tests for the search statistics API
 """
-import unittest
 import datetime
 import json
+import unittest
 
 from app import create_app
-from app.db import DB
-from app.namespaces.models import delayed_job_models
 from app.authorisation import token_generator
+from app.db import DB
+from app.models import delayed_job_models
 
 
 # pylint: disable=too-many-locals,no-member

@@ -1,16 +1,16 @@
 """
 Tests for the job deletion
 """
-import unittest
-import os
-from pathlib import Path
-import shutil
 import datetime
+import os
 import random
+import shutil
 import string
+import unittest
+from pathlib import Path
 
 from app import create_app
-from app.namespaces.models import delayed_job_models
+from app.models import delayed_job_models
 
 
 class TestExpiredJobDeletion(unittest.TestCase):

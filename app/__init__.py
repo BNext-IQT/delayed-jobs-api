@@ -2,7 +2,6 @@
 Entry file for the delayed jobs app
 """
 from flask import Flask, Blueprint
-from flask_restx import Api
 
 from app.config import RUN_CONFIG
 from app.config import RunEnvs

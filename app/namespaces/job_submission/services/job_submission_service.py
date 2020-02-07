@@ -1,22 +1,22 @@
 """
 This module submits jobs to the EBI queue
 """
-from pathlib import Path
-import os
-import stat
-import shutil
-import subprocess
 import hashlib
-import random
 import json
+import os
+import random
+import shutil
+import stat
+import subprocess
+from pathlib import Path
 
 import werkzeug
 import yaml
 
-from app.namespaces.models import delayed_job_models
-from app.config import RUN_CONFIG
-from app.authorisation import token_generator
 import app.app_logging as app_logging
+from app.authorisation import token_generator
+from app.config import RUN_CONFIG
+from app.models import delayed_job_models
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir', str(Path().absolute()) + '/jobs_run')
 if not os.path.isabs(JOBS_RUN_DIR):

@@ -4,9 +4,9 @@ Module that describes and handles the requests concerned with recording the sear
 from flask import abort, request
 from flask_restx import Namespace, Resource, fields
 
-from app.namespaces.job_statistics import record_statistics_service
 from app.authorisation.decorators import token_required_for_job_id
-from app.namespaces.models import delayed_job_models
+from app.models import delayed_job_models
+from app.namespaces.job_statistics import record_statistics_service
 
 # pylint: disable=redefined-builtin,invalid-name,no-self-use
 API = Namespace('record/search', description='Requests to record statistics of a search')
