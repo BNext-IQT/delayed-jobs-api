@@ -29,7 +29,7 @@ TEST_JOB_PARSER.add_argument('instruction',
                              help='How do you want the job to behave')
 
 TEST_JOB_PARSER.add_argument('seconds',
-                             choices=tuple(i for i in range(1, 21)),
+                             choices=tuple(i for i in range(1, 301)),
                              type=int,
                              required=True,
                              help='How many seconds you want the job to run for')

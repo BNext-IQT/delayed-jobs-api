@@ -200,7 +200,7 @@ def prepare_job_and_submit(job, input_files_desc):
     prepare_run_folder(job, input_files_desc)
     prepare_output_dir(job)
     prepare_job_submission_script(job)
-    run_job(job)
+    submit_job_to_lsf(job)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Preparation of run folder
@@ -337,7 +337,10 @@ def prepare_job_submission_script(job):
         os.chmod(submit_file_path, file_stats.st_mode | stat.S_IEXEC)
 
 
-def run_job(job):
+# ----------------------------------------------------------------------------------------------------------------------
+# Job submission
+# ----------------------------------------------------------------------------------------------------------------------
+def submit_job_to_lsf(job):
     """
     Runs a script that submits the job to LSF
     :param job: DelayedJob object
@@ -371,3 +374,8 @@ def run_job(job):
     return_code = submission_process.returncode
     if return_code != 0:
         raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
+
+
+
+
+
