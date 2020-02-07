@@ -51,23 +51,35 @@ def create_app():
         if create_tables:
             DB.create_all()
 
-        blueprint = Blueprint('api', __name__, url_prefix=RUN_CONFIG.get('base_path'))
-        api = Api(
-            title='ChEMBL Interface Delayed Jobs',
-            version='1.0',
-            description='A microservice that runs delayed jobs for the ChEMBL interface. '
-                        'For example generating a .csv file from elasticsearch',
-            app=blueprint,
-            authorizations=authorizations,
-        )
+        base_path = RUN_CONFIG.get('base_path', '')
 
-        flask_app.register_blueprint(blueprint)
+        swager_desc_blueprint = Blueprint('swagger', __name__, url_prefix=f'{base_path}/swagger')
 
-        for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace,
-                          submit_similarity_search_namespace, submit_substructure_search_namespace,
-                          submit_connectivity_search_namespace, submit_blast_search_namespace, record_search_namespace,
-                          record_download_namespace, submit_download_namespace]:
-            api.add_namespace(namespace)
+        @swager_desc_blueprint.route('/swagger.json')
+        def get_json():
+            from flask import jsonify
+            return jsonify({'hello': 'world'})
+
+        flask_app.register_blueprint(swager_desc_blueprint)
+
+
+
+        # api = Api(
+        #     title='ChEMBL Interface Delayed Jobs',
+        #     version='1.0',
+        #     description='A microservice that runs delayed jobs for the ChEMBL interface. '
+        #                 'For example generating a .csv file from elasticsearch',
+        #     app=blueprint,
+        #     authorizations=authorizations,
+        # )
+        #
+        # flask_app.register_blueprint(blueprint)
+        #
+        # for namespace in [job_admin_namespace, job_status_namespace, submit_test_job_namespace,
+        #                   submit_similarity_search_namespace, submit_substructure_search_namespace,
+        #                   submit_connectivity_search_namespace, submit_blast_search_namespace, record_search_namespace,
+        #                   record_download_namespace, submit_download_namespace]:
+        #     api.add_namespace(namespace)
 
         return flask_app
 
