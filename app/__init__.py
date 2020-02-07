@@ -1,7 +1,8 @@
 """
 Entry file for the delayed jobs app
 """
-from flask import Flask, Blueprint
+from flask import Flask
+from flask_cors import CORS
 
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
@@ -19,6 +20,7 @@ def create_app():
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
+    CORS(flask_app)
 
     authorizations = {
         'jobKey': {

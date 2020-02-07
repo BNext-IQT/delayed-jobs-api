@@ -1,11 +1,19 @@
 """
 Blueprint in charge of sending the swagger configuration in json format.
 """
-from flask import Blueprint
+from pathlib import Path
+
+from flask import Blueprint, jsonify
+import yaml
 
 SWAGGER_BLUEPRINT = Blueprint('swagger', __name__)
 
 @SWAGGER_BLUEPRINT.route('/swagger.json')
 def get_json():
-    from flask import jsonify
-    return jsonify({'hello': 'world'})
+
+    # with open("example.yaml", 'r') as stream:
+    yaml_file_path = Path(Path().absolute()).joinpath('app', 'swagger', 'swagger.yaml')
+
+    with open(yaml_file_path, 'r') as stream:
+        swagger_desc = yaml.safe_load(stream)
+        return jsonify(swagger_desc)
