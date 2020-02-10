@@ -206,24 +206,16 @@ def get_job_by_params(job_type, job_params):
     return get_job_by_id(job_id)
 
 
-def update_job_status(job_id, new_data):
+def update_job_progress(job_id, progress):
     """
     Updates the job with new data passed in a dict
     :param job_id: id of the job to modify
-    :param new_data: a dictionary with the new data for the job
+    :param progress: progress percentage of the job
     :return: the job that was modified
     """
     job = get_job_by_id(job_id)
-    for key in new_data.keys():
 
-        new_value = new_data.get(key)
-
-        if new_value is not None:
-            if key == 'status':
-                job.update_run_status(new_value)
-            else:
-                setattr(job, key, new_value)
-
+    job.progress = progress
     DB.session.commit()
     return job
 

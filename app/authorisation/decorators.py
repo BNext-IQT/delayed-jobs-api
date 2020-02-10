@@ -20,7 +20,7 @@ def token_required_for_job_id(func):
     @wraps(func)
     def decorated(*args, **kwargs):
 
-        job_id = kwargs.get('id')
+        job_id = kwargs.get('job_id')
         token = request.headers.get('X-Job-Key')
         key = RUN_CONFIG.get('server_secret_key')
 
@@ -32,7 +32,6 @@ def token_required_for_job_id(func):
             authorised_id = token_data.get('job_id')
             if authorised_id != job_id:
                 return jsonify({'message': f'You are not authorised modify the job {id}'}), 401
-
         except:
             return jsonify({'message': 'Token is invalid'}), 401
 

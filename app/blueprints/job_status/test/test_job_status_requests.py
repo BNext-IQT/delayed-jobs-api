@@ -65,7 +65,7 @@ class TestStatus(unittest.TestCase):
         response = client.get('/status/some_id')
         self.assertEqual(response.status_code, 404, msg='A 404 not found error should have been produced')
 
-    def test_a_job_cannot_update_another_job_status(self):
+    def test_a_job_cannot_update_another_job_progress(self):
         """
         Tests that a job can not use its token to update another job's status
         """
@@ -98,45 +98,46 @@ class TestStatus(unittest.TestCase):
 
 
 
-            #
-            # def test_update_job_status(self):
-            #     """
-            #     Tests that a job can update its status
-            #     """
-            #
-            #     job_type = delayed_job_models.JobTypes.SIMILARITY
-            #     params = {
-            #         'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
-            #         'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
-            #         'threshold': '70'
-            #     }
-            #
-            #     with self.flask_app.app_context():
-            #         job_must_be = delayed_job_models.get_or_create(job_type, params)
-            #         job_id = job_must_be.id
-            #         new_data = {
-            #             'status': delayed_job_models.JobStatuses.RUNNING,
-            #             'status_comment': 'Querying from web services',
-            #             'progress': 50
-            #         }
-            #
-            #         token = token_generator.generate_job_token(job_id)
-            #         headers = {
-            #             'X-JOB-KEY': token
-            #         }
-            #         client = self.client
-            #         response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
-            #         self.assertEqual(response.status_code, 200, msg='The request should have not failed')
-            #
-            #         job_got = delayed_job_models.get_job_by_id(job_id)
-            #         # be sure to have a fresh version of the object
-            #         DB.session.rollback()
-            #         DB.session.expire(job_got)
-            #         DB.session.refresh(job_got)
-            #
-            #         for key, value_must_be in new_data.items():
-            #             value_got = getattr(job_got, key)
-            #             self.assertEqual(value_got, value_must_be, msg=f'The {key} was not updated correctly!')
+
+    def test_update_job_status(self):
+        """
+        Tests that a job can update its status
+        """
+
+        job_type = delayed_job_models.JobTypes.SIMILARITY
+        params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+            'threshold': '70'
+        }
+        docker_image_url = 'some url'
+
+        with self.flask_app.app_context():
+            job_must_be = delayed_job_models.get_or_create(job_type, params, docker_image_url)
+            job_id = job_must_be.id
+            new_data = {
+                'progress': 50,
+                'status_log': 'Loading database',
+            }
+
+            token = token_generator.generate_job_token(job_id)
+            headers = {
+                'X-Job-Key': token
+            }
+
+            client = self.client
+            response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
+            self.assertEqual(response.status_code, 200, msg='The request should have not failed')
+
+
+            job_got = delayed_job_models.get_job_by_id(job_id)
+            # be sure to have a fresh version of the object
+            DB.session.rollback()
+            DB.session.expire(job_got)
+            DB.session.refresh(job_got)
+
+            progress_got = job_got.progress
+            self.assertEqual(progress_got, new_data['progress'], msg=f'The progress was not updated correctly!')
             #
             # def test_started_at_time_is_calculated_correctly(self):
             #     """
