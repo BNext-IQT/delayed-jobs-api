@@ -129,7 +129,6 @@ class TestStatus(unittest.TestCase):
             response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
             self.assertEqual(response.status_code, 200, msg='The request should have not failed')
 
-
             job_got = delayed_job_models.get_job_by_id(job_id)
             # be sure to have a fresh version of the object
             DB.session.rollback()
