@@ -89,10 +89,6 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/SubmissionResponse"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
       x-swagger-router-controller: "swagger_server.controllers.pet_controller"
 
 securityDefinitions:
