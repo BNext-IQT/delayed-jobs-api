@@ -20,7 +20,11 @@ def create_app():
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
-    CORS(flask_app)
+
+    enable_cors = RUN_CONFIG.get('enable_cors', False)
+
+    if enable_cors:
+        CORS(flask_app)
 
     authorizations = {
         'jobKey': {

@@ -71,6 +71,9 @@ except FileNotFoundError:
     RUN_CONFIG = yaml.load(raw_config, Loader=yaml.FullLoader)
 
 
+# Load defaults
+if not RUN_CONFIG.get('server_public_host'):
+    RUN_CONFIG['server_public_host'] = '0.0.0.0:5000'
 
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
