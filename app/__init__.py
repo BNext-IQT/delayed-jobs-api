@@ -8,6 +8,7 @@ from app.config import RUN_CONFIG
 from app.config import RunEnvs
 from app.db import DB
 from app.blueprints.swagger_description.swagger_description_blueprint import SWAGGER_BLUEPRINT
+from app.blueprints.job_submission.controllers.job_submissions_controller import SUBMISSION_BLUEPRINT
 
 
 def create_app():
@@ -49,6 +50,7 @@ def create_app():
         base_path = RUN_CONFIG.get('base_path', '')
 
         flask_app.register_blueprint(SWAGGER_BLUEPRINT, url_prefix=f'{base_path}/swagger')
+        flask_app.register_blueprint(SUBMISSION_BLUEPRINT, url_prefix=f'{base_path}/submit')
 
 
 

@@ -70,43 +70,29 @@ def get_input_files_hashes(input_files_desc):
     return input_files_hashes
 
 
-def get_job_input_files_desc_only(args):
+def get_job_input_files_desc(args):
     """
     Saves the input files to a temporary directory to not depend from flask-respx implementation, then returns a
     structure describing them.
-    :param args: args sent to the endpoint from flask rest-plus
+    :param args: files sent to the endpoint from flask
     :return: dict with the input files and their temporary location
     """
 
     input_files_desc = {}
     for param_key, parameter in args.items():
-        if isinstance(parameter, werkzeug.datastructures.FileStorage):
-            tmp_dir = Path.joinpath(Path(JOBS_TMP_DIR), f'{random.randint(1, 1000000)}')
-            os.makedirs(tmp_dir, exist_ok=True)
-            tmp_path = Path.joinpath(Path(tmp_dir), parameter.filename)
-            parameter.save(str(tmp_path))
-            input_files_desc[param_key] = str(tmp_path)
+        tmp_dir = Path.joinpath(Path(JOBS_TMP_DIR), f'{random.randint(1, 1000000)}')
+        os.makedirs(tmp_dir, exist_ok=True)
+        tmp_path = Path.joinpath(Path(tmp_dir), parameter.filename)
+        parameter.save(str(tmp_path))
+        input_files_desc[param_key] = str(tmp_path)
 
     return input_files_desc
 
 
-def get_job_params_only(args):
-    """
-    :param args: args sent to the endpoint from flask rest-plus
-    :return: dict the parameters that are not files
-    """
-    job_params = {}
-    for param_key, parameter in args.items():
-        if not isinstance(parameter, werkzeug.datastructures.FileStorage):
-            job_params[param_key] = parameter
+def parse_args_and_submit_job(job_type, form_args, file_args, docker_image_url):
 
-    return job_params
-
-
-def parse_args_and_submit_job(job_type, args, docker_image_url):
-
-    job_params_only = get_job_params_only(args)
-    job_inputs_only = get_job_input_files_desc_only(args)
+    job_params_only = {param_key: parameter for (param_key, parameter) in form_args.items()}
+    job_inputs_only = get_job_input_files_desc(file_args)
     input_files_hashes = get_input_files_hashes(job_inputs_only)
 
     return submit_job(job_type, job_inputs_only, input_files_hashes, docker_image_url, job_params_only)
