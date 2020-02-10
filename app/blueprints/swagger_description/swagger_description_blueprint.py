@@ -19,4 +19,5 @@ def get_json():
     with open(yaml_file_path, 'r') as stream:
         swagger_desc = yaml.safe_load(stream)
         swagger_desc['host'] = RUN_CONFIG.get('server_public_host')
+        swagger_desc['basePath'] = RUN_CONFIG.get('base_path')
         return jsonify(swagger_desc)
