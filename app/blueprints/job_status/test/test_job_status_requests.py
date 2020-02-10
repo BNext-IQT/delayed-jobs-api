@@ -138,6 +138,9 @@ class TestStatus(unittest.TestCase):
 
             progress_got = job_got.progress
             self.assertEqual(progress_got, new_data['progress'], msg=f'The progress was not updated correctly!')
+
+            status_log_got = job_got.status_log
+            self.assertIsNotNone(status_log_got, msg=f'The status log was not set correctly!')
             #
             # def test_started_at_time_is_calculated_correctly(self):
             #     """
