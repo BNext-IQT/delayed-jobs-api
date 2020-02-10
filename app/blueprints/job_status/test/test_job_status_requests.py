@@ -141,8 +141,8 @@ class TestStatus(unittest.TestCase):
 
             status_log_got = job_got.status_log
             self.assertIsNotNone(status_log_got, msg=f'The status log was not set correctly!')
-            self.assertNotEqual(status_log_got, new_data['status_log'], msg=f'It seems that the status log was not saved '
-                                                                         f'correctly. It should be accumulative')
+            self.assertNotEqual(status_log_got, new_data['status_log'], msg=f'It seems that the status log was not saved'
+                                                                        f'correctly. It should be accumulative')
 
             #
             # def test_started_at_time_is_calculated_correctly(self):

@@ -102,11 +102,11 @@ class TestJobSubmitter(unittest.TestCase):
             docker_image_url = 'some_url'
 
             input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
-            job_data = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes,
+            submission_result = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes,
                                                          docker_image_url, params)
 
-            job_id = job_data.get('id')
-
+            job_id = submission_result.get('job_id')
+            job_data = delayed_job_models.get_job_by_id(job_id).public_dict()
             # -----------------------------------------------
             # Test Run Dir
             # -----------------------------------------------
@@ -149,8 +149,10 @@ class TestJobSubmitter(unittest.TestCase):
                              msg='The status update method was not set correctly!')
 
             job_params_got = params_got.get('job_params')
+            print('job_params_got: ', job_params_got)
 
             raw_job_params_must_be = job_data.get('raw_params')
+            print('raw_job_params_must_be: ', raw_job_params_must_be)
             self.assertEqual(json.dumps(job_params_got, sort_keys=True), raw_job_params_must_be,
                              msg='The job params were not set correctly')
 
