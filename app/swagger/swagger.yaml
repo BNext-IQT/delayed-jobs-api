@@ -23,87 +23,111 @@ paths:
   /status/{jobId}:
     get:
       tags:
-      - 'status'
+        - 'status'
       summary: 'Get status of a job by ID'
       description: 'Returns a single job'
       operationId: 'get_job_status_by_id'
       produces:
-      - 'application/json'
+        - 'application/json'
       parameters:
-      - name: "jobId"
-        in: "path"
-        description: "ID of job to return"
-        required: true
-        type: 'string'
+        - name: "jobId"
+          in: "path"
+          description: "ID of job to return"
+          required: true
+          type: 'string'
       responses:
         "200":
           description: "successful operation"
           schema:
             $ref: '#/definitions/JobStatus'
         "400":
-          description: "Invalid ID supplied"
+          description: 'Invalid ID supplied'
         "404":
-          description: "Job not found"
+          description: 'Job not found'
+    patch:
+      tags:
+        - 'status'
+      summary: 'Update the progress of a job'
+      description: 'Updates the progress of a job, you can also add a comment on the progress'
+      operationId: 'update_job_progress'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "jobId"
+          in: "path"
+          description: "ID of job to return"
+          required: true
+          type: 'string'
+        - name: 'progress'
+          in: 'formData'
+          description: 'The percentage of progress of the job'
+          required: true
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 100
+        - name: 'status_log'
+          in: 'formData'
+          description: 'A comment on what is the job doing'
+          required: true
+          type: 'string'
+          example: 'Generating fingerprint...'
+      security:
+        - JobKeyAuth: []
   /submit/test_job:
     post:
       tags:
-      - 'submission'
+        - 'submission'
       summary: 'Submits a Job that tests the system'
       operationId: 'submit_test_job'
       consumes:
-      - 'multipart/form-data'
+        - 'multipart/form-data'
       produces:
-      - 'application/json'
+        - 'application/json'
       parameters:
-      - name: 'instruction'
-        in: 'formData'
-        description: "How do you want the job to behave"
-        required: true
-        type: 'string'
-        enum: ['RUN_NORMALLY', 'FAIL']
-      - name: 'seconds'
-        in: 'formData'
-        description: 'The amount of seconds that the job will run for'
-        required: true
-        type: integer
-        format: int64
-        minimum: 1
-        maximum: 512
-        enum: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
-      - name: 'api_url'
-        in: 'formData'
-        description: 'The url of an API to test a call to it during the job run'
-        required: true
-        type: 'string'
-        default: 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
-      - name: 'input1'
-        in: 'formData'
-        description: 'Input File 1'
-        required: true
-        type: 'file'
-      - name: 'input2'
-        in: 'formData'
-        description: 'Input File 2'
-        required: true
-        type: 'file'
+        - name: 'instruction'
+          in: 'formData'
+          description: "How do you want the job to behave"
+          required: true
+          type: 'string'
+          enum: ['RUN_NORMALLY', 'FAIL']
+        - name: 'seconds'
+          in: 'formData'
+          description: 'The amount of seconds that the job will run for'
+          required: true
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 512
+          enum: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+        - name: 'api_url'
+          in: 'formData'
+          description: 'The url of an API to test a call to it during the job run'
+          required: true
+          type: 'string'
+          default: 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
+        - name: 'input1'
+          in: 'formData'
+          description: 'Input File 1'
+          required: true
+          type: 'file'
+        - name: 'input2'
+          in: 'formData'
+          description: 'Input File 2'
+          required: true
+          type: 'file'
       responses:
         "200":
           description: "successful operation"
           schema:
             $ref: "#/definitions/SubmissionResponse"
-
 securityDefinitions:
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-    flow: "implicit"
-    scopes:
-      write:pets: "modify pets in your account"
-      read:pets: "read your pets"
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
+  JobKeyAuth:        # arbitrary name for the security scheme
+    type: apiKey
+    in: header       # can be "header", "query" or "cookie"
+    name: X-Job-Key  # name of the header, query parameter or cookie
+security:
+  - JobKeyAuth: []
 definitions:
   SubmissionResponse:
     type: 'object'
