@@ -10,7 +10,6 @@ import stat
 import subprocess
 from pathlib import Path
 
-import werkzeug
 import yaml
 
 import app.app_logging as app_logging
