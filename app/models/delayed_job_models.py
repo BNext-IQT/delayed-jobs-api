@@ -206,7 +206,7 @@ def get_job_by_params(job_type, job_params):
     return get_job_by_id(job_id)
 
 
-def update_job_progress(job_id, progress):
+def update_job_progress(job_id, progress, status_log):
     """
     Updates the job with new data passed in a dict
     :param job_id: id of the job to modify
@@ -216,6 +216,10 @@ def update_job_progress(job_id, progress):
     job = get_job_by_id(job_id)
 
     job.progress = progress
+    if job.status_log is None:
+        job.status_log = ''
+    job.status_log += f'{datetime.datetime.now().isoformat()}: {status_log}'
+
     DB.session.commit()
     return job
 

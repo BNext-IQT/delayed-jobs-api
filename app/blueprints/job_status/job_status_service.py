@@ -26,16 +26,17 @@ def get_job_status(job_id):
         raise JobNotFoundError()
 
 
-def update_job_progress(job_id, progress):
+def update_job_progress(job_id, progress, status_log):
     """
     Updates the status of the job wit the id given as parameter.
     :param job_id: job_id of the job to modify
     :param progress: the progress percentage of the job
+    :param status_log: a message to append to the public job status log
     :return: a dict with the public properties of a job.
     """
 
     try:
-        delayed_job_models.update_job_progress(job_id, progress)
+        delayed_job_models.update_job_progress(job_id, progress, status_log)
         job = delayed_job_models.get_job_by_id(job_id)
         return job.public_dict()
     except delayed_job_models.JobNotFoundError:
