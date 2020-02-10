@@ -108,7 +108,9 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     app_logging.info(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
 
-    return job.public_dict()
+    return {
+        'job_id': job.id
+    }
 
     return
     try:

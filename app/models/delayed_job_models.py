@@ -103,9 +103,17 @@ class DelayedJob(DB.Model):
         Returns a dictionary representation of the object with all the fields that are safe to be public
         :return:
         """
-        return {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
+        plain_properties = {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
                                                          'created_at', 'started_at', 'finished_at', 'raw_params',
-                                                         'expires_at', 'api_initial_url', 'timezone']}
+                                                         'expires_at', 'api_initial_url', 'docker_image_url',
+                                                         'timezone']}
+
+        output_files_urls = []
+
+        return {
+            **plain_properties,
+            'output_files_urls': output_files_urls
+        }
 
     def update_run_status(self, new_value):
         """
