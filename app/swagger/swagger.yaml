@@ -69,7 +69,6 @@ paths:
         - name: 'status_log'
           in: 'formData'
           description: 'A comment on what is the job doing'
-          required: true
           type: 'string'
           example: 'Generating fingerprint...'
       responses:

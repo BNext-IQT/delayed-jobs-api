@@ -98,7 +98,6 @@ class TestStatus(unittest.TestCase):
 
 
 
-
     def test_update_job_status(self):
         """
         Tests that a job can update its status
@@ -142,6 +141,49 @@ class TestStatus(unittest.TestCase):
             self.assertIsNotNone(status_log_got, msg=f'The status log was not set correctly!')
             self.assertNotEqual(status_log_got, new_data['status_log'], msg=f'It seems that the status log was not saved'
                                                                         f'correctly. It should be accumulative')
+
+    def test_update_job_status_no_status_log(self):
+        """
+        Tests that a job can update its status without providing a status log
+        """
+
+        job_type = delayed_job_models.JobTypes.SIMILARITY
+        params = {
+            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+            'threshold': '70'
+        }
+        docker_image_url = 'some url'
+
+        with self.flask_app.app_context():
+            job_must_be = delayed_job_models.get_or_create(job_type, params, docker_image_url)
+            job_id = job_must_be.id
+            new_data = {
+                'progress': 50,
+
+            }
+
+            token = token_generator.generate_job_token(job_id)
+            headers = {
+                'X-Job-Key': token
+            }
+
+            client = self.client
+            response = client.patch(f'/status/{job_id}', data=new_data, headers=headers)
+            self.assertEqual(response.status_code, 200, msg='The request should have not failed')
+
+            job_got = delayed_job_models.get_job_by_id(job_id)
+            # be sure to have a fresh version of the object
+            DB.session.rollback()
+            DB.session.expire(job_got)
+            DB.session.refresh(job_got)
+
+            progress_got = job_got.progress
+            self.assertEqual(progress_got, new_data['progress'], msg=f'The progress was not updated correctly!')
+
+            status_log_got = job_got.status_log
+            self.assertIsNone(status_log_got, msg=f'The status should have not been modified!')
+
 
             #
             # def test_started_at_time_is_calculated_correctly(self):

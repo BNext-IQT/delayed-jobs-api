@@ -216,9 +216,11 @@ def update_job_progress(job_id, progress, status_log):
     job = get_job_by_id(job_id)
 
     job.progress = progress
-    if job.status_log is None:
-        job.status_log = ''
-    job.status_log += f'{datetime.datetime.now().isoformat()}: {status_log}'
+
+    if status_log is not None:
+        if job.status_log is None:
+            job.status_log = ''
+        job.status_log += f'{datetime.datetime.now().isoformat()}: {status_log}'
 
     DB.session.commit()
     return job
