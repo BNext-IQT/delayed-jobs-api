@@ -221,7 +221,7 @@ def update_job_progress(job_id, progress, status_log):
     if status_log is not None:
         if job.status_log is None:
             job.status_log = ''
-        job.status_log += f'{datetime.datetime.now().isoformat()}: {status_log}'
+        job.status_log += f'{datetime.datetime.now().isoformat()}: {status_log}\n'
 
     DB.session.commit()
     return job
