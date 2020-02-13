@@ -95,7 +95,6 @@ deploy_to_staging:
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
-  when: manual
   only:
   - staging
   environment:
