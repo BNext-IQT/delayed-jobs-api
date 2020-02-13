@@ -20,6 +20,6 @@ def get_job_status(job_id):
 @token_required_for_job_id
 def update_job_progress(job_id):
 
-    progress = request.form.get('progress')
+    progress = int(request.form.get('progress'))
     status_log = request.form.get('status_log')
     return jsonify(job_status_service.update_job_progress(job_id, progress, status_log))
