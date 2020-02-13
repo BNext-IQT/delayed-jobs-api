@@ -92,6 +92,7 @@ class DelayedJob(DB.Model):
     docker_image_url = DB.Column(DB.Text)
     timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
     num_failures = DB.Column(DB.Integer, default=0) # How many times the job has failed.
+    lsf_job_id = DB.Column(DB.Integer)
     input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 

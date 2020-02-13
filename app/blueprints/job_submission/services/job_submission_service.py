@@ -9,6 +9,7 @@ import shutil
 import stat
 import subprocess
 from pathlib import Path
+import re
 
 import yaml
 
@@ -361,6 +362,23 @@ def submit_job_to_lsf(job):
     return_code = submission_process.returncode
     if return_code != 0:
         raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
+
+    lsf_job_id = get_lsf_job_id(str(submission_process.stdout))
+    job.lsf_job_id = lsf_job_id
+    delayed_job_models.save_job(job)
+    app_logging.info(f'LSF Job ID is: {lsf_job_id}')
+
+
+def get_lsf_job_id(submission_out):
+    """
+    Reads the output of the job submission command and returns the lsf job id assigned
+    :param submission_out: the output of the submission command
+    :return: the lsf job id
+    """
+    match = re.search(r'Job <\d+>', submission_out)
+    job_id = re.split(r'<|>', match.group(0))[1]
+
+    return int(job_id)
 
 
 

@@ -184,3 +184,13 @@ class TestJobSubmitter(unittest.TestCase):
 
             self.assertTrue(os.access(submission_script_file_must_be, os.X_OK),
                             msg=f'The script file for the job ({submission_script_file_must_be}) is not executable!')
+
+    def test_lsf_job_id_is_parsed_correctly_after_submission(self):
+
+        lsf_id_must_be = 2010993
+        sample_output = f'I am going to submit the job TEST-QGtXZZhmNOfL2BYyvOuZ5JKhz06MEL8oU8wGwgNOYQA=\n' \
+                        f'Job <{lsf_id_must_be}> is submitted to default queue <normal>.\n'
+
+
+        lsf_job_id_got = job_submission_service.get_lsf_job_id(sample_output)
+        self.assertEqual(lsf_id_must_be, lsf_job_id_got, msg='The lsf job id was not parsed correctly')
