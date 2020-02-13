@@ -149,10 +149,7 @@ class TestJobSubmitter(unittest.TestCase):
                              msg='The status update method was not set correctly!')
 
             job_params_got = params_got.get('job_params')
-            print('job_params_got: ', job_params_got)
-
             raw_job_params_must_be = job_data.get('raw_params')
-            print('raw_job_params_must_be: ', raw_job_params_must_be)
             self.assertEqual(json.dumps(job_params_got, sort_keys=True), raw_job_params_must_be,
                              msg='The job params were not set correctly')
 
