@@ -30,6 +30,6 @@ services:
       target: production-server
       args:
         <<: *build_args
-    image: "${IMAGE_TAG:-chembl/delayed-jobs-server:prod}"
+    image: "${SERVER_IMAGE_TAG:-chembl/delayed-jobs-server:prod}"
     ports:
     - "8080:8080"
