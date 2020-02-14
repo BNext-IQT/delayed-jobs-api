@@ -30,6 +30,6 @@ services:
       target: production-server
       args:
         <<: *build_args
-    image: "$IMAGE_TAG"
+    image: "$SERVER_IMAGE_TAG"
     ports:
     - "8080:8080"
