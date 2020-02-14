@@ -24,7 +24,6 @@ RUN pip install --user -r requirements.txt
 COPY . .
 
 FROM base AS development-server
-COPY config.yml /app/config.yml
 ENTRYPOINT FLASK_APP=app flask run --host=0.0.0.0
 
 FROM base AS production-server
