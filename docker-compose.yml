@@ -39,4 +39,4 @@ services:
       target: job-status-daemon
       args:
         <<: *build_args
-    image: "${DAEMON_IMAGE_TAG:-chembl/delayed-jobs-status-daemon:prod}"
+    image: "${STATUS_DAEMON_IMAGE_TAG:-chembl/delayed-jobs-status-daemon:prod}"
