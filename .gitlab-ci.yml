@@ -2,9 +2,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   GIT_STRATEGY: clone
   REGISTRY_USER: chembl/chembl
-  APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-server
-  IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION:${CI_COMMIT_SHORT_SHA}
-  DOCKER_IMAGE: $CI_REGISTRY/$REGISTRY_USER/$APPLICATION
+  SERVER_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-server
+  SERVER_IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$SERVER_APPLICATION:${CI_COMMIT_SHORT_SHA}
   DOCKER_DRIVER: overlay
 
 image: docker:latest
@@ -31,10 +30,10 @@ build_docker_image:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - echo building $IMAGE_TAG
+    - echo building $SERVER_IMAGE_TAG
     - docker-compose build delayed-jobs-server-prod
-    - echo Deploying $IMAGE_TAG
-    - docker push $IMAGE_TAG
+    - echo Deploying $SERVER_IMAGE_TAG
+    - docker push $SERVER_IMAGE_TAG
 
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
@@ -42,7 +41,7 @@ build_docker_image:
 pylint:
   stage: test_and_qa
   image:
-    name: $IMAGE_TAG
+    name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   script:
   - pwd
@@ -55,7 +54,7 @@ pylint:
 unit_tests:
   stage: test_and_qa
   image:
-    name: $IMAGE_TAG
+    name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   script:
   - env
@@ -70,7 +69,7 @@ unit_tests:
 functional_tests:
   stage: test_and_qa
   image:
-    name: $IMAGE_TAG
+    name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   script:
   - echo 'Disabled temporarily'
@@ -115,7 +114,7 @@ deploy_to_staging:
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID}~" k8s-deployment.yaml
-  - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
+  - sed -i "s~<SERVER_IMAGE_TAG>~${SERVER_IMAGE_TAG}~" k8s-deployment.yaml
   - sed -i "s~<NFS_MOUNT_PATH>~${NFS_MOUNT_PATH_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<NFS_FQDN>~${NFS_FQDN_HX}~" k8s-deployment.yaml
   - sed -i "s~<NFS_PATH>~${NFS_PATH_HX}~" k8s-deployment.yaml
