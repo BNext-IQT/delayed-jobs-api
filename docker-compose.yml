@@ -7,16 +7,27 @@ services:
   delayed-jobs-server-dev:
     build:
       context: .
-      target: development
+      target: development-server
       args:
         <<: *build_args
     image: chembl/delayed-jobs-server:dev
+    environment:
+      - CONFIG_FILE_PATH=/app/config.yml
     ports:
     - "5000:5000"
+  delayed-job-status-daemon-dev:
+    build:
+      context: .
+      target: job-status-daemon
+      args:
+        <<: *build_args
+    image: chembl/delayed-jobs-status-daemon:dev
+    environment:
+    - CONFIG_FILE_PATH=/app/config.yml
   delayed-jobs-server-prod:
     build:
       context: .
-      target: production
+      target: production-server
       args:
         <<: *build_args
     image: "$IMAGE_TAG"
