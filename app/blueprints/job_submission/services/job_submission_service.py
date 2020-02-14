@@ -89,8 +89,9 @@ def get_job_input_files_desc(args):
     return input_files_desc
 
 
-def parse_args_and_submit_job(job_type, form_args, file_args, docker_image_url):
+def parse_args_and_submit_job(job_type, form_args, file_args):
 
+    docker_image_url = delayed_job_models.get_docker_image_url(job_type)
     job_params_only = {param_key: parameter for (param_key, parameter) in form_args.items()}
     job_inputs_only = get_job_input_files_desc(file_args)
     input_files_hashes = get_input_files_hashes(job_inputs_only)

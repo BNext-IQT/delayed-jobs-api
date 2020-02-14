@@ -53,6 +53,18 @@ class JobStatuses(Enum):
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
+class DockerImageNotSet(Exception):
+    """Base class for exceptions."""
+
+
+class DefaultContainerImage(DB.Model):
+    """
+    Class that represents a default container image for a job type
+    """
+    job_type = DB.Column(DB.Enum(JobTypes), primary_key=True)
+    docker_image_url = DB.Column(DB.Text)
+
+
 class InputFile(DB.Model):
     """
         Class that represents an input file that was sent to the job
@@ -195,6 +207,23 @@ def get_job_by_id(job_id):
     if job is None:
         raise JobNotFoundError()
     return job
+
+def get_docker_image_url(job_type):
+    """
+    :param job_type: job type for which to get the image url
+    :return: the url of the docker image to use for this type of job
+    """
+    docker_image = DefaultContainerImage.query.filter_by(job_type=job_type).first()
+
+    if docker_image is not None:
+        return docker_image.docker_image_url
+    else:
+        # return some default values when nothing is set up. This helps when developing locally and using a sqlite db
+        # in memory
+        if job_type == JobTypes.TEST:
+            return 'docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/test-job:d7fce8e8-13-Feb-2020--16-05-09'
+        else:
+            raise DockerImageNotSet(f'There is no image container url set for jobs of type {job_type}')
 
 
 def get_job_by_params(job_type, job_params):
