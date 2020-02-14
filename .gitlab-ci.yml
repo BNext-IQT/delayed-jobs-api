@@ -35,6 +35,10 @@ build_docker_image:
     - docker-compose build delayed-jobs-server-prod
     - echo Deploying $IMAGE_TAG
     - docker push $IMAGE_TAG
+    - export DEPLOYMENT_TAG="${IMAGE_TAG}-$(date '+%d-%b-%Y--%H-%M-%S')"
+    - echo Creating deployment tag ${DEPLOYMENT_TAG}
+    - docker tag $IMAGE_TAG $DEPLOYMENT_TAG
+    - docker push $DEPLOYMENT_TAG
 
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
@@ -115,7 +119,8 @@ deploy_to_staging:
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID_HX}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID_HX}~" k8s-deployment.yaml
-  - sed -i "s~<IMAGE_TAG>~${IMAGE_TAG}~" k8s-deployment.yaml
+  - export DEPLOYMENT_TAG="${IMAGE_TAG}-$(date '+%d-%b-%Y--%H-%M-%S')"
+  - sed -i "s~<IMAGE_TAG>~${DEPLOYMENT_TAG}~" k8s-deployment.yaml
   - sed -i "s~<NFS_MOUNT_PATH>~${NFS_MOUNT_PATH_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<NFS_FQDN>~${NFS_FQDN_HX}~" k8s-deployment.yaml
   - sed -i "s~<NFS_PATH>~${NFS_PATH_HX}~" k8s-deployment.yaml
