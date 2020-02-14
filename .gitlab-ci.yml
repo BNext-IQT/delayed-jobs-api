@@ -3,9 +3,9 @@ variables:
   GIT_STRATEGY: clone
   REGISTRY_USER: chembl/chembl
   SERVER_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-server
-  SERVER_IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$SERVER_APPLICATION:${CI_COMMIT_SHORT_SHA}
+  SERVER_IMAGE_TAG: ${CI_REGISTRY}/${REGISTRY_USER}/${SERVER_APPLICATION}:${CI_COMMIT_SHORT_SHA}
   JOB_STATUS_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-status-daemon
-  STATUS_DAEMON_IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$STATUS_DAEMON_IMAGE_TAG:${CI_COMMIT_SHORT_SHA}
+  STATUS_DAEMON_IMAGE_TAG: ${CI_REGISTRY}/${REGISTRY_USER}git/${JOB_STATUS_APPLICATION}:${CI_COMMIT_SHORT_SHA}
   DOCKER_DRIVER: overlay
 
 image: docker:latest
@@ -17,6 +17,7 @@ stages:
   - build
   - test_and_qa
   - deploy_to_staging
+  - test_staging
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -84,26 +85,6 @@ unit_tests:
 
 #  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
 
-functional_tests:
-  stage: test_and_qa
-  image:
-    name: $SERVER_IMAGE_TAG
-    entrypoint: [""]
-  script:
-  - echo 'Disabled temporarily'
-#  - rm -rf app/static/jobs_output || true
-#  - rm -rf jobs_run || true
-#  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
-#  - sleep 5
-#  - head functional_tests_run.log
-#  - SERVER_PID=$!
-#  - pushd app/functional_tests
-#  - ./run_functional_tests.py
-#  - popd
-#  - kill $SERVER_PID
-#  - rm -rf app/static/jobs_output
-#  - rm -rf jobs_run
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to staging
 # ----------------------------------------------------------------------------------------------------------------------
@@ -141,3 +122,26 @@ deploy_to_staging:
   - cat k8s-deployment.yaml
   - kubectl apply -n ${CHEMBL_NS_STAGING} -f k8s-deployment.yaml
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Test staging
+# ----------------------------------------------------------------------------------------------------------------------
+functional_tests:
+  stage: test_staging
+  image:
+    name: $SERVER_IMAGE_TAG
+    entrypoint: [""]
+  script:
+  - echo 'Disabled temporarily'
+#  - rm -rf app/static/jobs_output || true
+#  - rm -rf jobs_run || true
+#  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
+#  - sleep 5
+#  - head functional_tests_run.log
+#  - SERVER_PID=$!
+#  - pushd app/functional_tests
+#  - ./run_functional_tests.py
+#  - popd
+#  - kill $SERVER_PID
+#  - rm -rf app/static/jobs_output
+#  - rm -rf jobs_run
