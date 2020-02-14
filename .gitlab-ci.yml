@@ -4,6 +4,8 @@ variables:
   REGISTRY_USER: chembl/chembl
   SERVER_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-server
   SERVER_IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$SERVER_APPLICATION:${CI_COMMIT_SHORT_SHA}
+  JOB_STATUS_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-status-daemon
+  STATUS_DAEMON_IMAGE_TAG: $CI_REGISTRY/$REGISTRY_USER/$STATUS_DAEMON_IMAGE_TAG:${CI_COMMIT_SHORT_SHA}
   DOCKER_DRIVER: overlay
 
 image: docker:latest
@@ -19,7 +21,7 @@ stages:
 # ----------------------------------------------------------------------------------------------------------------------
 # build
 # ----------------------------------------------------------------------------------------------------------------------
-build_docker_image:
+build_docker_image_server:
   image:
     name: docker/compose:1.24.1
     entrypoint: ["/bin/sh", "-c"]
@@ -34,6 +36,22 @@ build_docker_image:
     - docker-compose build delayed-jobs-server-prod
     - echo Deploying $SERVER_IMAGE_TAG
     - docker push $SERVER_IMAGE_TAG
+
+build_docker_image_status_daemon:
+  image:
+    name: docker/compose:1.24.1
+    entrypoint: ["/bin/sh", "-c"]
+  stage: build
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+  script:
+    - set -x
+    - docker version # verify docker cli is there. Also prints server info
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - echo building $STATUS_DAEMON_IMAGE_TAG
+    - docker-compose build delayed-job-status-daemon-prod
+    - echo Deploying $STATUS_DAEMON_IMAGE_TAG
+    - docker push $STATUS_DAEMON_IMAGE_TAG
 
 # ----------------------------------------------------------------------------------------------------------------------
 # QA
