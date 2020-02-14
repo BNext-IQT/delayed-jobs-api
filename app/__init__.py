@@ -28,19 +28,6 @@ def create_app():
     if enable_cors:
         CORS(flask_app)
 
-    authorizations = {
-        'jobKey': {
-            'type': 'apiKey',
-            'in': 'header',
-            'name': 'X-Job-Key'
-        },
-        'adminKey': {
-            'type': 'apiKey',
-            'in': 'header',
-            'name': 'X-Admin-Key'
-        }
-    }
-
     with flask_app.app_context():
         DB.init_app(flask_app)
 
