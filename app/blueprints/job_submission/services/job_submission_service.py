@@ -316,6 +316,8 @@ def prepare_job_submission_script(job):
             RUN_DIR=get_job_run_dir(job)
 
         )
+        job.lsf_host = lsf_host
+        delayed_job_models.save_job(job)
 
         submit_file_path = get_job_submission_script_file_path(job)
         with open(submit_file_path, 'w') as submission_script_file:

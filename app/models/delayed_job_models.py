@@ -105,6 +105,7 @@ class DelayedJob(DB.Model):
     timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
     num_failures = DB.Column(DB.Integer, default=0) # How many times the job has failed.
     lsf_job_id = DB.Column(DB.Integer)
+    lsf_host = DB.Column(DB.Text)
     input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
