@@ -232,7 +232,6 @@ def get_job_by_params(job_type, job_params):
     job_id = generate_job_id(job_type, job_params)
     return get_job_by_id(job_id)
 
-
 def update_job_progress(job_id, progress, status_log):
     """
     Updates the job with new data passed in a dict
