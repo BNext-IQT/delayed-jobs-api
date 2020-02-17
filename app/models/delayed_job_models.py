@@ -71,7 +71,7 @@ class DelayedJob(DB.Model):
     Class that represents a delayed job in the database.
     """
     id = DB.Column(DB.String(length=60), primary_key=True)
-    type = DB.Column(DB.String(length=60), DB.ForeignKey('default_job_config.id'), nullable=False)
+    type = DB.Column(DB.String(length=60), DB.ForeignKey('default_job_config.job_type'), nullable=False)
     status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
     status_log = DB.Column(DB.Text)  # a comment about the status, for example 'Compressing file'
     progress = DB.Column(DB.Integer, default=0)
