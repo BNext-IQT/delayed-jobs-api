@@ -77,9 +77,9 @@ class TestExpiredJobDeletion(unittest.TestCase):
         """
 
         # create a job
-        job_type = delayed_job_models.JobTypes.SIMILARITY
+        job_type = 'SIMILARITY'
         params = {
-            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'search_type': 'SIMILARITY',
             'structure': ''.join(random.choice(string.ascii_lowercase) for i in range(10)),
             'threshold': '70'
         }

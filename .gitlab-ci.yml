@@ -77,7 +77,7 @@ unit_tests:
     entrypoint: [""]
   script:
   - env
-  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest app
+  - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to staging

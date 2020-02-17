@@ -34,9 +34,9 @@ class TestStatus(unittest.TestCase):
         Tests that the status of an existing job is returned correctly.
         """
 
-        job_type = delayed_job_models.JobTypes.SIMILARITY
+        job_type = 'SIMILARITY'
         params = {
-            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'search_type': 'SIMILARITY',
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -70,9 +70,9 @@ class TestStatus(unittest.TestCase):
         Tests that a job can not use its token to update another job's status
         """
 
-        job_type = delayed_job_models.JobTypes.SIMILARITY
+        job_type = 'SIMILARITY'
         params = {
-            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'search_type': 'SIMILARITY',
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -103,9 +103,9 @@ class TestStatus(unittest.TestCase):
         Tests that a job can update its status
         """
 
-        job_type = delayed_job_models.JobTypes.SIMILARITY
+        job_type = 'SIMILARITY'
         params = {
-            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'search_type': 'SIMILARITY',
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -147,9 +147,9 @@ class TestStatus(unittest.TestCase):
         Tests that a job can update its status without providing a status log
         """
 
-        job_type = delayed_job_models.JobTypes.SIMILARITY
+        job_type = 'SIMILARITY'
         params = {
-            'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            'search_type': 'SIMILARITY',
             'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             'threshold': '70'
         }
@@ -191,9 +191,9 @@ class TestStatus(unittest.TestCase):
             #     Tests that when the status is changed to running, the started_at time is calculated
             #     """
             #
-            #     job_type = delayed_job_models.JobTypes.SIMILARITY
+            #     job_type = 'SIMILARITY'
             #     params = {
-            #         'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            #         'search_type': 'SIMILARITY',
             #         'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             #         'threshold': '70'
             #     }
@@ -232,9 +232,9 @@ class TestStatus(unittest.TestCase):
             #     Tests that when a job status is set to FINISHED, the finished_at time, and expires_at time are calculated
             #     correctly
             #     """
-            #     job_type = delayed_job_models.JobTypes.SIMILARITY
+            #     job_type = 'SIMILARITY'
             #     params = {
-            #         'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            #         'search_type': 'SIMILARITY',
             #         'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             #         'threshold': '70'
             #     }
@@ -289,9 +289,9 @@ class TestStatus(unittest.TestCase):
             #     Tests that a job cannot upload files for another job
             #     """
             #
-            #     job_type = delayed_job_models.JobTypes.SIMILARITY
+            #     job_type = 'SIMILARITY'
             #     params = {
-            #         'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            #         'search_type': 'SIMILARITY',
             #         'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             #         'threshold': '70'
             #     }
@@ -318,9 +318,9 @@ class TestStatus(unittest.TestCase):
             #     Tests that a job can upload it's results file correctly.
             #     """
             #
-            #     job_type = delayed_job_models.JobTypes.SIMILARITY
+            #     job_type = 'SIMILARITY'
             #     params = {
-            #         'search_type': str(delayed_job_models.JobTypes.SIMILARITY),
+            #         'search_type': 'SIMILARITY',
             #         'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
             #         'threshold': '70'
             #     }

@@ -202,6 +202,14 @@ def generate_default_job_configs():
     DB.session.add(test_job_config)
     DB.session.commit()
 
+    similarity_job_config = DefaultJobConfig(
+        job_type='SIMILARITY',
+        docker_image_url='some_url'
+    )
+    DB.session.add(similarity_job_config)
+    DB.session.commit()
+
+
 def get_docker_image_url(job_type):
     """
     :param job_type: job type for which to get the image url
@@ -212,12 +220,7 @@ def get_docker_image_url(job_type):
     if docker_image is not None:
         return docker_image.docker_image_url
     else:
-        # return some default values when nothing is set up. This helps when developing locally and using a sqlite db
-        # in memory
-        if job_type == JobTypes.TEST:
-            return 'docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/test-job:d7fce8e8-13-Feb-2020--16-05-09'
-        else:
-            raise DockerImageNotSet(f'There is no image container url set for jobs of type {job_type}')
+        raise DockerImageNotSet(f'There is no image container url set for jobs of type {job_type}')
 
 
 def get_job_by_params(job_type, job_params):
