@@ -127,4 +127,5 @@ functional_tests:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   script:
+  - sleep 60 # Give some time for the deployment to take effect.
   - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING}
