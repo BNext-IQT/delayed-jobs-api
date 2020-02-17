@@ -97,7 +97,7 @@ deploy_to_staging:
   - staging
   environment:
     name: staging
-    url: http://hx-rke-wp-webadmin-04-worker-3.caas.ebi.ac.uk:31688/chembl/interface_api/delayed_jobs/
+    url: ${SERVER_URL_STAGING}
   script:
   - set -x
   - echo "$KUBE_CA_PEM_HX" > "$(pwd)/kube.ca.pem"
@@ -132,16 +132,4 @@ functional_tests:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   script:
-  - echo 'Disabled temporarily'
-#  - rm -rf app/static/jobs_output || true
-#  - rm -rf jobs_run || true
-#  - CONFIG_FILE_PATH='./configurations/ci_functional_tests_config.yml' FLASK_APP=app flask run > functional_tests_run.log 2>&1 &
-#  - sleep 5
-#  - head functional_tests_run.log
-#  - SERVER_PID=$!
-#  - pushd app/functional_tests
-#  - ./run_functional_tests.py
-#  - popd
-#  - kill $SERVER_PID
-#  - rm -rf app/static/jobs_output
-#  - rm -rf jobs_run
+  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING}
