@@ -108,6 +108,7 @@ deploy_to_staging:
   - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID}~" k8s-deployment.yaml
   - sed -i "s~<SERVER_IMAGE_TAG>~${SERVER_IMAGE_TAG}~" k8s-deployment.yaml
+  - sed -i "s~<STATUS_DAEMON_IMAGE_TAG>~${STATUS_DAEMON_IMAGE_TAG}~" k8s-deployment.yaml
   - sed -i "s~<NFS_MOUNT_PATH>~${NFS_MOUNT_PATH_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<NFS_FQDN>~${NFS_FQDN_HX}~" k8s-deployment.yaml
   - sed -i "s~<NFS_PATH>~${NFS_PATH_HX}~" k8s-deployment.yaml
