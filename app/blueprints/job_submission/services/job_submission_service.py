@@ -366,6 +366,7 @@ def submit_job_to_lsf(job):
         submission_err_file.write(submission_process.stderr)
 
     return_code = submission_process.returncode
+    app_logging.info(f'submission return code was: {return_code}')
     if return_code != 0:
         raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
 
