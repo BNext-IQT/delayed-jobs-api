@@ -57,7 +57,7 @@ class DockerImageNotSet(Exception):
     """Base class for exceptions."""
 
 
-class DefaultContainerImage(DB.Model):
+class DefaultJobConfig(DB.Model):
     """
     Class that represents a default container image for a job type
     """
@@ -214,7 +214,7 @@ def get_docker_image_url(job_type):
     :param job_type: job type for which to get the image url
     :return: the url of the docker image to use for this type of job
     """
-    docker_image = DefaultContainerImage.query.filter_by(job_type=job_type).first()
+    docker_image = DefaultJobConfig.query.filter_by(job_type=job_type).first()
 
     if docker_image is not None:
         return docker_image.docker_image_url
