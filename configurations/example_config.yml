@@ -13,3 +13,4 @@ logger: 'gunicorn.error' #Logger to use for the app logs
 server_public_host: some_server:30001 # The base url for the jobs to send feedback to the server, if unset,
 # it will be 0.0.0.0:5000
 enable_cors: True
+generate_default_config: True # Generates a default configuration for the jobs

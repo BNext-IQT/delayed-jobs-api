@@ -11,6 +11,6 @@ SUBMISSION_BLUEPRINT = Blueprint('job_submission', __name__)
 @SUBMISSION_BLUEPRINT.route('/test_job', methods = ['POST'])
 def submit_test_job():
 
-    job_type = delayed_job_models.JobTypes.TEST
+    job_type = 'TEST'
     response = job_submission_service.parse_args_and_submit_job(job_type, request.form, request.files)
     return jsonify(response)

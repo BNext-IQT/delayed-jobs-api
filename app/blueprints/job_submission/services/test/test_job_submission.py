@@ -98,7 +98,7 @@ class TestJobSubmitter(unittest.TestCase):
         Test that a job can be submitted
         """
         with self.flask_app.app_context():
-            job_type = delayed_job_models.JobTypes.TEST
+            job_type = 'TEST'
             docker_image_url = 'some_url'
 
             input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()

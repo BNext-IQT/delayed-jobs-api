@@ -7,6 +7,7 @@ from flask_cors import CORS
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
 from app.db import DB
+from app.models import delayed_job_models
 from app.blueprints.swagger_description.swagger_description_blueprint import SWAGGER_BLUEPRINT
 from app.blueprints.job_submission.controllers.job_submissions_controller import SUBMISSION_BLUEPRINT
 from app.blueprints.job_status.job_status_controller import JOB_STATUS_BLUEPRINT
@@ -34,6 +35,11 @@ def create_app():
         create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
         if create_tables:
             DB.create_all()
+
+        generate_default_config = RUN_CONFIG.get('generate_default_config', False)
+        if generate_default_config:
+            delayed_job_models.generate_default_job_configs()
+
 
         base_path = RUN_CONFIG.get('base_path', '')
 

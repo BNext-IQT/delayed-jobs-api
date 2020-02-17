@@ -15,24 +15,6 @@ DAYS_TO_LIVE = 7  # Days for which the results are kept
 
 
 # pylint: disable=no-member,too-few-public-methods
-class JobTypes(Enum):
-    """
-        Types of delayed jobs
-    """
-    TEST = 'TEST'
-    SIMILARITY = 'SIMILARITY'
-    SUBSTRUCTURE = 'SUBSTRUCTURE'
-    CONNECTIVITY = 'CONNECTIVITY'
-    BLAST = 'BLAST'
-    DOWNLOAD = 'DOWNLOAD'
-
-    def __repr__(self):
-        return self.name
-
-    def __str__(self):
-        return self.name
-
-
 class JobStatuses(Enum):
     """
         Possible statuses of delayed jobs
@@ -61,7 +43,7 @@ class DefaultJobConfig(DB.Model):
     """
     Class that represents a default container image for a job type
     """
-    job_type = DB.Column(DB.Enum(JobTypes), primary_key=True)
+    job_type = DB.Column(DB.String(length=60), primary_key=True)
     docker_image_url = DB.Column(DB.Text)
 
 
@@ -89,7 +71,7 @@ class DelayedJob(DB.Model):
     Class that represents a delayed job in the database.
     """
     id = DB.Column(DB.String(length=60), primary_key=True)
-    type = DB.Column(DB.Enum(JobTypes))
+    type = DB.Column(DB.String(length=60), DB.ForeignKey('default_job_config.id'), nullable=False)
     status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
     status_log = DB.Column(DB.Text)  # a comment about the status, for example 'Compressing file'
     progress = DB.Column(DB.Integer, default=0)
@@ -208,6 +190,17 @@ def get_job_by_id(job_id):
     if job is None:
         raise JobNotFoundError()
     return job
+
+def generate_default_job_configs():
+    """
+    Generates a default set of job configurations, useful for testing.
+    """
+    test_job_config = DefaultJobConfig(
+        job_type='TEST',
+        docker_image_url='docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/test-job:8d8ea512-17-Feb-2020--10-43-54'
+    )
+    DB.session.add(test_job_config)
+    DB.session.commit()
 
 def get_docker_image_url(job_type):
     """
