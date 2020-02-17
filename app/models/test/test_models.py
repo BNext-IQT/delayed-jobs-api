@@ -65,7 +65,7 @@ class TestModels(unittest.TestCase):
         base64_search_params_digest = base64.b64encode(search_params_digest).decode('utf-8').replace('/', '_').replace(
             '+', '-')
 
-        id_must_be = '{}-{}'.format(repr(job_type), base64_search_params_digest)
+        id_must_be = '{}-{}'.format(job_type, base64_search_params_digest)
         self.assertEqual(id_must_be, id_got, msg='The job id was not generated correctly!')
 
     def test_a_job_is_created(self):

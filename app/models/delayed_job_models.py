@@ -156,7 +156,7 @@ def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={
     base64_search_params_digest = base64.b64encode(search_params_digest).decode('utf-8').replace('/', '_').replace(
         '+', '-')
 
-    return '{}-{}'.format(repr(job_type), base64_search_params_digest)
+    return '{}-{}'.format(job_type, base64_search_params_digest)
 
 
 def get_or_create(job_type, job_params, docker_image_url, input_files_hashes={}):
