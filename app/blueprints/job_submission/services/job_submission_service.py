@@ -107,6 +107,9 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     """
 
     job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
+    delayed_job_models.delete_job(job) # delete jobs for now, later only test jobs will be deleted before running
+    job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
+
     app_logging.info(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
 

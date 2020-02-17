@@ -2,6 +2,9 @@
 Module that runs a normal simple job and expects it to run correctly.
 """
 import time
+from pathlib import Path
+import os
+import shutil
 
 import requests
 
@@ -16,18 +19,39 @@ def run_test(server_base_url):
     print('Going to test a successful job run')
     print('------------------------------------------------------------------------------------------------')
 
-    submit_url = f'{server_base_url}/submit/test_job/'
+    tmp_dir = Path().absolute().joinpath('tmp')
+    os.makedirs(tmp_dir, exist_ok=True)
+    files = {}
+    for i in range(0, 2):
+        file_name = f'input_{i}.txt'
+        test_file_i_path = tmp_dir.joinpath(file_name)
+        with open(test_file_i_path, 'wt') as test_file:
+            test_file.write(f'this is input file {i}')
+
+        files[file_name] = open(test_file_i_path, 'rb')
+
+    submit_url = f'{server_base_url}/submit/test_job'
     print('submit_url: ', submit_url)
     seconds = 6
     payload = {
         'instruction': 'RUN_NORMALLY',
-        'seconds': seconds
+        'seconds': seconds,
+        'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
     }
 
     print('payload: ', payload)
+    print('files: ', files)
 
-    submit_request = requests.post(submit_url, json=payload)
-    assert submit_request.status_code == 200, 'Job could not be submitted!'
+    shutil.rmtree(tmp_dir)
+
+
+    submit_request = requests.post(submit_url, data=payload, files=files)
+    submission_status_code = submit_request.status_code
+    print(f'submission_status_code: {submission_status_code}')
+    assert submission_status_code == 200, 'Job could not be submitted!'
+
+    return
+    #Continue here!!!
 
     submit_response = submit_request.json()
     job_id = submit_response.get('id')
