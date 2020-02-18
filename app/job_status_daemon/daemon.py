@@ -30,6 +30,7 @@ def check_jobs_status():
         print('There are no jobs to check')
         return
 
+    print(f'Checking status of jobs with lsf ids: {lsf_job_ids_to_check}')
     prepare_job_status_check_script(lsf_job_ids_to_check)
 
 
