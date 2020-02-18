@@ -54,6 +54,32 @@ class TestJobStatusDaemon(unittest.TestCase):
                     delayed_job_models.save_job(job)
                     i += 1
 
+    def create_test_jobs_1(self):
+        """
+        This will create:
+        - 2 Jobs in error state, each running in a different lsf cluster
+        - 2 Jobs in finished state, each running in a different lsf cluster
+        """
+        with self.flask_app.app_context():
+
+            i = 0
+            for status in [delayed_job_models.JobStatuses.FINISHED,
+                           delayed_job_models.JobStatuses.ERROR]:
+
+                lsf_config = RUN_CONFIG.get('lsf_submission')
+                lsf_host = lsf_config['lsf_host']
+
+                for assigned_host in [lsf_host, 'another_host']:
+                    job = delayed_job_models.DelayedJob(
+                        id=f'Job-{assigned_host}-{status}',
+                        type='TEST',
+                        lsf_job_id=i,
+                        status=status,
+                        lsf_host=assigned_host
+                    )
+                    delayed_job_models.save_job(job)
+                    i += 1
+
     def test_determines_for_which_jobs_check_status_0(self):
         """
         Given a set of jobs currently in the database, knows for which it is required to check the status.
@@ -78,6 +104,21 @@ class TestJobStatusDaemon(unittest.TestCase):
             lsf_ids_to_check_got = daemon.get_lsf_job_ids_to_check()
             self.assertListEqual(lsf_ids_to_check_status_must_be, lsf_ids_to_check_got,
                                  msg='The jobs for which to check the status were not created correctly!')
+
+
+    def test_determines_for_which_jobs_check_status_1(self):
+        """
+        Given a set of jobs currently in the database, knows for which it is required to check the status.
+        In this case, NO jobs require a check.
+        """
+        self.create_test_jobs_1()
+
+        with self.flask_app.app_context():
+            lsf_ids_to_check_status_must_be = []
+            lsf_ids_to_check_got = daemon.get_lsf_job_ids_to_check()
+            self.assertListEqual(lsf_ids_to_check_status_must_be, lsf_ids_to_check_got,
+                                 msg='The jobs for which to check the status were not created correctly!')
+
 
     def test_mapping_of_lsf_job_status(self):
 
