@@ -103,6 +103,7 @@ def prepare_job_status_check_script(lsf_job_ids):
         with open(status_script_path, 'w') as status_script_file:
             status_script_file.write(job_submission_script)
 
+        print(f'created script: {status_script_path}')
         # make sure file is executable
         file_stats = os.stat(status_script_path)
         os.chmod(status_script_path, file_stats.st_mode | stat.S_IEXEC)
