@@ -326,6 +326,7 @@ def get_lsf_job_ids_to_check(lsf_host):
     2. Are not in Error or Finished state.
     """
 
+    DB.session.commit()
     status_is_not_error_or_finished = DelayedJob.status.notin_(
         [JobStatuses.ERROR, JobStatuses.FINISHED]
     )
@@ -336,4 +337,7 @@ def get_lsf_job_ids_to_check(lsf_host):
         and_(lsf_host_is_my_host, status_is_not_error_or_finished)
     )
 
-    return [job.lsf_job_id for job in job_to_check_status]
+    ids = [job.lsf_job_id for job in job_to_check_status]
+    DB.session.commit()
+
+    return ids
