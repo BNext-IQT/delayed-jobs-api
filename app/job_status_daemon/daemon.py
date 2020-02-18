@@ -26,11 +26,11 @@ def check_jobs_status():
     """
     print('Checking for jobs to check...')
     lsf_job_ids_to_check = get_lsf_job_ids_to_check()
+    print(f'lsf_job_ids_to_check: {lsf_job_ids_to_check}')
+
     if len(lsf_job_ids_to_check) == 0:
-        print('There are no jobs to check')
         return
 
-    print(f'Checking status of jobs with lsf ids: {lsf_job_ids_to_check}')
     prepare_job_status_check_script(lsf_job_ids_to_check)
 
 
