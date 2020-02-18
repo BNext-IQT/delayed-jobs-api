@@ -15,3 +15,4 @@ server_public_host: some_server:30001 # The base url for the jobs to send feedba
 enable_cors: True
 generate_default_config: True # Generates a default configuration for the jobs
 status_agent_run_dir: 'Where the status agents will run their scripts'
+run_status_script: False # Sets if I should actually run the status script, if missing assumed true. Useful for testing

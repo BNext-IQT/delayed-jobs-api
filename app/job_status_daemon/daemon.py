@@ -32,7 +32,12 @@ def check_jobs_status():
     if len(lsf_job_ids_to_check) == 0:
         return
 
-    prepare_job_status_check_script(lsf_job_ids_to_check)
+    script_path = prepare_job_status_check_script(lsf_job_ids_to_check)
+    must_run_script = RUN_CONFIG.get('run_status_script', True)
+    if not must_run_script:
+        print('Not running script because run_status_script is False')
+        return
+
 
 
 def get_lsf_job_ids_to_check():
@@ -54,6 +59,11 @@ def get_lsf_job_ids_to_check():
     job_to_check_status = delayed_job_models.DelayedJob.query.filter(
         and_(lsf_host_is_my_host, status_is_not_error_or_finished)
     )
+
+    print('job_to_check_status: ')
+    print(str(job_to_check_status.statement.compile(compile_kwargs={"literal_binds": True})))
+    print([job for job in job_to_check_status])
+    print('^^^')
 
     return [job.lsf_job_id for job in job_to_check_status]
 
@@ -98,3 +108,11 @@ def prepare_job_status_check_script(lsf_job_ids):
         os.chmod(status_script_path, file_stats.st_mode | stat.S_IEXEC)
 
     return status_script_path
+
+
+def get_status_script_output(script_path):
+    """
+    Runs the status script and returns a text with the output obtained, if there is an error raises an execption
+    :param script_path: path of the script
+    :return: the text output of stdout
+    """
