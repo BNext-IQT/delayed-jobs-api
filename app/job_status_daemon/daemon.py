@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import socket
 from datetime import datetime
+import stat
 
 from sqlalchemy import and_
 
@@ -91,5 +92,9 @@ def prepare_job_status_check_script(lsf_job_ids):
         status_script_path.parent.mkdir(parents=True, exist_ok=True)
         with open(status_script_path, 'w') as status_script_file:
             status_script_file.write(job_submission_script)
+
+        # make sure file is executable
+        file_stats = os.stat(status_script_path)
+        os.chmod(status_script_path, file_stats.st_mode | stat.S_IEXEC)
 
     return status_script_path

@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from os import path
 import shutil
+import os
 
 from sqlalchemy import and_
 
@@ -152,3 +153,6 @@ class TestJobStatusDaemon(unittest.TestCase):
             lsf_ids_to_check = daemon.get_lsf_job_ids_to_check()
             script_path_got = daemon.prepare_job_status_check_script(lsf_ids_to_check)
             self.assertTrue(path.isfile(script_path_got), msg='The job status check script has not been created!')
+
+            self.assertTrue(os.access(script_path_got, os.X_OK),
+                            msg=f'The script file for the job ({script_path_got}) is not executable!')
