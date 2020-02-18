@@ -2,6 +2,9 @@
 This Module tests the basic functions of the status daemon
 """
 import unittest
+import socket
+from pathlib import Path
+from datetime import datetime
 
 from sqlalchemy import and_
 
@@ -120,6 +123,15 @@ class TestJobStatusDaemon(unittest.TestCase):
                                  msg='The jobs for which to check the status were not created correctly!')
 
 
-    def test_mapping_of_lsf_job_status(self):
+    def test_produces_a_correct_job_status_check_script_path(self):
 
-        print('TEST MAPPING OF JOB STATUS')
+        filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}_check_lsf_job_status.sh'
+        job_status_check_script_path_must_be = Path(daemon.AGENT_RUN_DIR).joinpath(socket.gethostname(), filename)
+        print('job_status_check_script_path_must_be: ', job_status_check_script_path_must_be)
+
+        job_status_check_script_path_got = daemon.get_check_job_status_script_path()
+        print('job_status_check_script_path_got: ', job_status_check_script_path_got)
+
+        self.assertEqual(job_status_check_script_path_must_be, job_status_check_script_path_got,
+                         msg='The path for the job status checking job was not produced correctly!')
+

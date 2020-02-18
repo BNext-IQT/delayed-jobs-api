@@ -1,10 +1,20 @@
 """
 Module that implements the daemon that checks the statuses of jobs in LSF
 """
+import os
+from pathlib import Path
+import socket
+from datetime import datetime
+
 from sqlalchemy import and_
 
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
+
+AGENT_RUN_DIR = RUN_CONFIG.get('status_agent_run_dir', str(Path().absolute()) + '/status_agents_run')
+if not os.path.isabs(AGENT_RUN_DIR):
+    AGENT_RUN_DIR = Path(AGENT_RUN_DIR).resolve()
+os.makedirs(AGENT_RUN_DIR, exist_ok=True)
 
 
 def get_lsf_job_ids_to_check():
@@ -28,3 +38,13 @@ def get_lsf_job_ids_to_check():
     )
 
     return [job.lsf_job_id for job in job_to_check_status]
+
+def get_check_job_status_script_path():
+    """
+    :return: the path to use for creating the job status script
+    """
+
+    filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}_check_lsf_job_status.sh'
+    job_status_check_script_path = Path(AGENT_RUN_DIR).joinpath(socket.gethostname(), filename)
+
+    return job_status_check_script_path
