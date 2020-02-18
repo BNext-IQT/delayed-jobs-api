@@ -5,6 +5,8 @@ import unittest
 import socket
 from pathlib import Path
 from datetime import datetime
+from os import path
+import shutil
 
 from sqlalchemy import and_
 
@@ -26,6 +28,7 @@ class TestJobStatusDaemon(unittest.TestCase):
     def tearDown(self):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
+            shutil.rmtree(daemon.AGENT_RUN_DIR, ignore_errors=True)
 
     def create_test_jobs_0(self):
         """
@@ -124,14 +127,28 @@ class TestJobStatusDaemon(unittest.TestCase):
 
 
     def test_produces_a_correct_job_status_check_script_path(self):
+        """
+        Test that produces a correct path for the job status script
+        """
 
         filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}_check_lsf_job_status.sh'
         job_status_check_script_path_must_be = Path(daemon.AGENT_RUN_DIR).joinpath(socket.gethostname(), filename)
-        print('job_status_check_script_path_must_be: ', job_status_check_script_path_must_be)
 
         job_status_check_script_path_got = daemon.get_check_job_status_script_path()
-        print('job_status_check_script_path_got: ', job_status_check_script_path_got)
 
-        self.assertEqual(job_status_check_script_path_must_be, job_status_check_script_path_got,
+        # remove the last character (the second) to avoid annoying false negatives
+        self.assertEqual(str(job_status_check_script_path_must_be)[:-1], str(job_status_check_script_path_got)[:-1],
                          msg='The path for the job status checking job was not produced correctly!')
 
+
+    def test_prepares_the_job_status_script(self):
+        """
+        Test that the job status script is created and can be executed.
+        """
+        self.create_test_jobs_0()
+
+        with self.flask_app.app_context():
+
+            lsf_ids_to_check = daemon.get_lsf_job_ids_to_check()
+            script_path_got = daemon.prepare_job_status_check_script(lsf_ids_to_check)
+            self.assertTrue(path.isfile(script_path_got), msg='The job status check script has not been created!')
