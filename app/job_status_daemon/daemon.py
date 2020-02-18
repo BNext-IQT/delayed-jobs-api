@@ -48,3 +48,9 @@ def get_check_job_status_script_path():
     job_status_check_script_path = Path(AGENT_RUN_DIR).joinpath(socket.gethostname(), filename)
 
     return job_status_check_script_path
+
+def prepare_job_status_check_script():
+    """
+
+    :return:
+    """
