@@ -20,6 +20,18 @@ print('-------------------------------------------------------------------------
 print(f'AGENT_RUN_DIR: {AGENT_RUN_DIR}')
 print('------------------------------------------------------------------------------')
 
+def check_jobs_status():
+    """
+    The main function of this module. Checks for jobs to check the status, and checks their status in lsf
+    """
+    print('Checking for jobs to check...')
+    lsf_job_ids_to_check = get_lsf_job_ids_to_check()
+    if len(lsf_job_ids_to_check) == 0:
+        print('There are no jobs to check')
+        return
+
+    prepare_job_status_check_script(lsf_job_ids_to_check)
+
 
 def get_lsf_job_ids_to_check():
     """
