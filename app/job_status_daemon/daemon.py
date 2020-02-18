@@ -60,11 +60,6 @@ def get_lsf_job_ids_to_check():
         and_(lsf_host_is_my_host, status_is_not_error_or_finished)
     )
 
-    print('job_to_check_status: ')
-    print(str(job_to_check_status.statement.compile(compile_kwargs={"literal_binds": True})))
-    print([job for job in job_to_check_status])
-    print('^^^')
-
     return [job.lsf_job_id for job in job_to_check_status]
 
 def get_check_job_status_script_path():
