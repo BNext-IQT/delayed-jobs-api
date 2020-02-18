@@ -48,19 +48,10 @@ def get_lsf_job_ids_to_check():
     2. Are not in Error or Finished state.
     """
 
-    status_is_not_error_or_finished = delayed_job_models.DelayedJob.status.notin_(
-        [delayed_job_models.JobStatuses.ERROR, delayed_job_models.JobStatuses.FINISHED]
-    )
-
     lsf_config = RUN_CONFIG.get('lsf_submission')
     lsf_host = lsf_config['lsf_host']
-    lsf_host_is_my_host = delayed_job_models.DelayedJob.lsf_host == lsf_host
 
-    job_to_check_status = delayed_job_models.DelayedJob.query.filter(
-        and_(lsf_host_is_my_host, status_is_not_error_or_finished)
-    )
-
-    return [job.lsf_job_id for job in job_to_check_status]
+    return delayed_job_models.get_lsf_job_ids_to_check(lsf_host)
 
 def get_check_job_status_script_path():
     """

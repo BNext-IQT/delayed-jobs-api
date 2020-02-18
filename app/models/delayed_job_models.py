@@ -7,6 +7,8 @@ import hashlib
 import json
 import shutil
 
+from sqlalchemy import and_
+
 from enum import Enum
 from app.db import DB
 
@@ -314,3 +316,24 @@ def delete_all_expired_jobs():
         num_deleted += 1
 
     return num_deleted
+
+def get_lsf_job_ids_to_check(lsf_host):
+    """
+    :param lsf_host: lsf host for which to return the jobs to check
+    :return: a list of LSF job IDs for which it is necessary check the status in the LSF cluster. The jobs that are
+    checked are the ones that:
+    1. Were submitted to the same LSF cluster that I am running with (defined in configuration)
+    2. Are not in Error or Finished state.
+    """
+
+    status_is_not_error_or_finished = DelayedJob.status.notin_(
+        [JobStatuses.ERROR, JobStatuses.FINISHED]
+    )
+
+    lsf_host_is_my_host = DelayedJob.lsf_host == lsf_host
+
+    job_to_check_status = DelayedJob.query.filter(
+        and_(lsf_host_is_my_host, status_is_not_error_or_finished)
+    )
+
+    return [job.lsf_job_id for job in job_to_check_status]
