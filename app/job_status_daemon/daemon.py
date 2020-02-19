@@ -6,8 +6,7 @@ from pathlib import Path
 import socket
 from datetime import datetime
 import stat
-
-from sqlalchemy import and_
+import subprocess
 
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
@@ -38,6 +37,7 @@ def check_jobs_status():
         print('Not running script because run_status_script is False')
         return
 
+    script_output = get_status_script_output(script_path)
 
 
 def get_lsf_job_ids_to_check():
@@ -99,7 +99,33 @@ def prepare_job_status_check_script(lsf_job_ids):
 
 def get_status_script_output(script_path):
     """
-    Runs the status script and returns a text with the output obtained, if there is an error raises an execption
+    Runs the status script and returns a text with the output obtained, if there is an error raises an exception
     :param script_path: path of the script
     :return: the text output of stdout
     """
+    lsf_config = RUN_CONFIG.get('lsf_submission')
+    id_rsa_path = lsf_config['id_rsa_file']
+    run_command = f'{script_path} {id_rsa_path}'
+    print(f'Going to run job status script, command: {run_command}')
+    status_check_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    print(f'Output: \n {status_check_process.stdout}')
+    print(f'Error: \n {status_check_process.stderr}')
+
+    return_code = status_check_process.returncode
+    print(f'script return code was: {return_code}')
+
+    if return_code != 0:
+        print('There was an error when running the job status script! Please check the logs')
+        status_output_path = f'{script_path}.out'
+        status_error_path = f'{script_path}.err'
+
+        with open(status_output_path, 'wb') as status_out_file:
+            status_out_file.write(status_check_process.stdout)
+
+        with open(status_error_path, 'wb') as status_err_file:
+            status_err_file.write(status_check_process.stderr)
+    else:
+        return str(status_check_process.stdout)
+
+
