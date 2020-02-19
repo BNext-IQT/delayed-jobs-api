@@ -4,7 +4,7 @@ Module that implements the daemon that checks the statuses of jobs in LSF
 import os
 from pathlib import Path
 import socket
-from datetime import datetime
+import datetime
 import stat
 import subprocess
 import re
@@ -67,7 +67,7 @@ def get_check_job_status_script_path():
     :return: the path to use for creating the job status script
     """
 
-    filename = f'{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}_check_lsf_job_status.sh'
+    filename = f'{datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}_check_lsf_job_status.sh'
     job_status_check_script_path = Path(AGENT_RUN_DIR).joinpath(socket.gethostname(), filename)
 
     return job_status_check_script_path
@@ -153,10 +153,47 @@ def parse_bjobs_output(script_output):
     match = re.search(r'START_REMOTE_SSH[\s\S]*FINISH_REMOTE_SSH', script_output)
     bjobs_output_str = re.split(r'(START_REMOTE_SSH\n|\nFINISH_REMOTE_SSH)', match.group(0))[2]
 
-    print('bjobs_output_str: ', bjobs_output_str)
     try:
         json_output = json.loads(bjobs_output_str)
+        read_bjobs_json_output(json_output)
     except json.decoder.JSONDecodeError as error:
         print('unable to decode output. Will try again later anyway')
+
+def read_bjobs_json_output(json_output):
+    """
+    Reads the dict obtained from the status script output, modifies the jobs accordingly
+    :param json_output: dict with the output parsed from running the command
+    """
+    for record in json_output['RECORDS']:
+        lsf_id = record['JOBID']
+        lsf_status = record['STAT']
+        new_status = map_lsf_status_to_job_status(lsf_status)
+        job = delayed_job_models.get_job_by_lsf_id(lsf_id)
+        job.status = new_status
+        if lsf_status == 'RUN':
+            lsf_date_str = record['START_TIME']
+            started_at = parse_bjobs_output_date(lsf_date_str)
+            job.started_at = started_at
+
+        delayed_job_models.save_job(job)
+
+def map_lsf_status_to_job_status(lsf_status):
+    """
+    maps the lsf status to a status defined in models
+    :param lsf_status: status obtained from lsf
+    :return: one of the status defined in the delayed_jobs_models module
+    """
+    if lsf_status == 'RUN':
+        return delayed_job_models.JobStatuses.RUNNING
+
+def parse_bjobs_output_date(lsf_date_str):
+    """
+    Parses the data obtained by the date provided by the bjobs output
+    :param lsf_date_str: the string received from bjobs
+    :return: a python datetime representing the date parsed
+    """
+    # Just return current date, to avoid date parsing issues. LSF is not responding to the -hms parameter
+    return datetime.datetime.now(tz=datetime.timezone.utc)
+
 
 

@@ -193,6 +193,18 @@ def get_job_by_id(job_id):
         raise JobNotFoundError()
     return job
 
+
+def get_job_by_lsf_id(lsf_job_id):
+    """
+    :param lsf_job_id: id of the job in the lsf cluster
+    :return: job given an lsf id, raises JobNotFoundError if it does not exist
+    """
+    job = DelayedJob.query.filter_by(lsf_job_id=lsf_job_id).first()
+    if job is None:
+        raise JobNotFoundError()
+    return job
+
+
 def generate_default_job_configs():
     """
     Generates a default set of job configurations, useful for testing.
