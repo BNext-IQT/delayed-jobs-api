@@ -157,7 +157,7 @@ def parse_bjobs_output(script_output):
         json_output = json.loads(bjobs_output_str)
         read_bjobs_json_output(json_output)
     except json.decoder.JSONDecodeError as error:
-        print('unable to decode output. Will try again later anyway')
+        print(f'unable to decode output. Will try again later anyway {error}')
 
 def read_bjobs_json_output(json_output):
     """
