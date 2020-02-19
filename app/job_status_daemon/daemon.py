@@ -70,6 +70,9 @@ def get_check_job_status_script_path():
 
     return job_status_check_script_path
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Preparing status script
+# ----------------------------------------------------------------------------------------------------------------------
 def prepare_job_status_check_script(lsf_job_ids):
     """
     Prepares the script that will check for the job status to LSF
@@ -103,7 +106,9 @@ def prepare_job_status_check_script(lsf_job_ids):
 
     return status_script_path
 
-
+# ----------------------------------------------------------------------------------------------------------------------
+# Parsing status script output
+# ----------------------------------------------------------------------------------------------------------------------
 def get_status_script_output(script_path):
     """
     Runs the status script and returns a text with the output obtained, if there is an error raises an exception
@@ -136,5 +141,11 @@ def get_status_script_output(script_path):
         raise JobStatusDaemonError('There was an error when running the job status script! Please check the logs')
     else:
         return status_check_process.stdout.decode()
+
+def parse_bjobs_output(script_output):
+    """
+    parses the output passed as parameter. Modifies the status of the job in the database accordingly
+    :param script_output: string output of the script that requests the status of the job
+    """
 
 

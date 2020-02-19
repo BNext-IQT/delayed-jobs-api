@@ -156,3 +156,44 @@ class TestJobStatusDaemon(unittest.TestCase):
 
             self.assertTrue(os.access(script_path_got, os.X_OK),
                             msg=f'The script file for the job ({script_path_got}) is not executable!')
+
+    def test_parses_the_output_of_bjobs_when_no_jobs_were_found(self):
+        """
+        Generates mock jobs, then sends a mock output to the the function to test that it interpreted the output
+        accordingly
+        """
+        self.create_test_jobs_0()
+        sample_output = 'I am going to check the status_must_be of the LSF jobs 123 456\n' \
+                        'START_REMOTE_SSH\n' \
+                        'Job <123> is not found\n' \
+                        'Job <456> is not found\n' \
+                        'FINISH_REMOTE_SSH'
+
+        with self.flask_app.app_context():
+            daemon.parse_bjobs_output(sample_output)
+            # No status should have changed
+
+            for status_must_be in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
+                           delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.FINISHED,
+                           delayed_job_models.JobStatuses.ERROR]:
+
+                lsf_config = RUN_CONFIG.get('lsf_submission')
+                lsf_host = lsf_config['lsf_host']
+
+                for assigned_host in [lsf_host, 'another_host']:
+
+                    id_to_check = f'Job-{assigned_host}-{status_must_be}'
+                    job = delayed_job_models.get_job_by_id(id_to_check)
+                    status_got = job.status
+                    self.assertEqual(status_got, status_must_be,
+                                     msg='The status was modified! This should have not modified the status')
+
+
+
+    def test_parses_the_output_of_bjobs_started_job(self):
+        """
+        Generates mock jobs, then sends a mock output to the the function to test that it interpreted the output
+        accordingly. This test focuses on a job that switched to running state.
+        """
+        self.create_test_jobs_0()
+
