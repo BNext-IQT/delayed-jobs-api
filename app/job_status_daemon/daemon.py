@@ -135,6 +135,6 @@ def get_status_script_output(script_path):
 
         raise JobStatusDaemonError('There was an error when running the job status script! Please check the logs')
     else:
-        return str(status_check_process.stdout)
+        return status_check_process.stdout.decode()
 
 
