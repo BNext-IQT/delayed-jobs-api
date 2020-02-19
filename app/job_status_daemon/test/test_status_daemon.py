@@ -163,30 +163,30 @@ class TestJobStatusDaemon(unittest.TestCase):
         accordingly
         """
         self.create_test_jobs_0()
-        sample_output = 'I am going to check the status_must_be of the LSF jobs 123 456\n' \
-                        'START_REMOTE_SSH\n' \
-                        'Job <123> is not found\n' \
-                        'Job <456> is not found\n' \
-                        'FINISH_REMOTE_SSH'
 
-        with self.flask_app.app_context():
-            daemon.parse_bjobs_output(sample_output)
-            # No status should have changed
+        sample_output_file_path = Path('app/job_status_daemon/test/data/sample_lsf_output_0.txt').resolve()
+        with open(sample_output_file_path, 'rt') as sample_output_file:
 
-            for status_must_be in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
-                           delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.FINISHED,
-                           delayed_job_models.JobStatuses.ERROR]:
+            sample_output = sample_output_file.read()
 
-                lsf_config = RUN_CONFIG.get('lsf_submission')
-                lsf_host = lsf_config['lsf_host']
+            with self.flask_app.app_context():
+                daemon.parse_bjobs_output(sample_output)
+                # No status should have changed
 
-                for assigned_host in [lsf_host, 'another_host']:
+                for status_must_be in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
+                               delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.FINISHED,
+                               delayed_job_models.JobStatuses.ERROR]:
 
-                    id_to_check = f'Job-{assigned_host}-{status_must_be}'
-                    job = delayed_job_models.get_job_by_id(id_to_check)
-                    status_got = job.status
-                    self.assertEqual(status_got, status_must_be,
-                                     msg='The status was modified! This should have not modified the status')
+                    lsf_config = RUN_CONFIG.get('lsf_submission')
+                    lsf_host = lsf_config['lsf_host']
+
+                    for assigned_host in [lsf_host, 'another_host']:
+
+                        id_to_check = f'Job-{assigned_host}-{status_must_be}'
+                        job = delayed_job_models.get_job_by_id(id_to_check)
+                        status_got = job.status
+                        self.assertEqual(status_got, status_must_be,
+                                         msg='The status was modified! This should have not modified the status')
 
 
 

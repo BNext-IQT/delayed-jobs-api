@@ -7,6 +7,8 @@ import socket
 from datetime import datetime
 import stat
 import subprocess
+import re
+import json
 
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
@@ -147,5 +149,14 @@ def parse_bjobs_output(script_output):
     parses the output passed as parameter. Modifies the status of the job in the database accordingly
     :param script_output: string output of the script that requests the status of the job
     """
+
+    match = re.search(r'START_REMOTE_SSH[\s\S]*FINISH_REMOTE_SSH', script_output)
+    bjobs_output_str = re.split(r'(START_REMOTE_SSH\n|\nFINISH_REMOTE_SSH)', match.group(0))[2]
+
+    print('bjobs_output_str: ', bjobs_output_str)
+    try:
+        json_output = json.loads(bjobs_output_str)
+    except json.decoder.JSONDecodeError as error:
+        print('unable to decode output. Will try again later anyway')
 
 
