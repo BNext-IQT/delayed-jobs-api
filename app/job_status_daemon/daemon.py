@@ -156,11 +156,11 @@ def parse_bjobs_output(script_output):
 
     try:
         json_output = json.loads(bjobs_output_str)
-        read_bjobs_json_output(json_output)
+        react_to_bjobs_json_output(json_output)
     except json.decoder.JSONDecodeError as error:
         print(f'unable to decode output. Will try again later anyway {error}')
 
-def read_bjobs_json_output(json_output):
+def react_to_bjobs_json_output(json_output):
     """
     Reads the dict obtained from the status script output, modifies the jobs accordingly
     :param json_output: dict with the output parsed from running the command
