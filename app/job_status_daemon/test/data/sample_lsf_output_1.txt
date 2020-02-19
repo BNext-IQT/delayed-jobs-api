@@ -1,0 +1,27 @@
+I am going to check the status of the LSF jobs 2963131 2962926
+START_REMOTE_SSH
+{
+  "COMMAND":"bjobs",
+  "JOBS":3,
+  "RECORDS":[
+    {
+      "JOBID":"0",
+      "STAT":"RUN",
+      "START_TIME":"Feb 19 11:30",
+      "FINISH_TIME":"Feb 19 11:30 L"
+    },
+    {
+      "JOBID":"2",
+      "STAT":"DONE",
+      "START_TIME":"Feb 19 11:27",
+      "FINISH_TIME":"Feb 19 11:27 L"
+    },
+    {
+      "JOBID":"4",
+      "STAT":"DONE",
+      "START_TIME":"Feb 19 11:27",
+      "FINISH_TIME":"Feb 19 11:27 L"
+    }
+  ]
+}
+FINISH_REMOTE_SSH

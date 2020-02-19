@@ -189,7 +189,6 @@ class TestJobStatusDaemon(unittest.TestCase):
                                          msg='The status was modified! This should have not modified the status')
 
 
-
     def test_parses_the_output_of_bjobs_started_job(self):
         """
         Generates mock jobs, then sends a mock output to the the function to test that it interpreted the output
