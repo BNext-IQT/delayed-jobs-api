@@ -43,6 +43,7 @@ def check_jobs_status():
     try:
         script_output = get_status_script_output(script_path)
         os.remove(script_path)  # Remove the script after running so it doesn't fill up the NFS
+        print(f'deleted script: {script_path}')
     except JobStatusDaemonError as error:
         print(error)
 
