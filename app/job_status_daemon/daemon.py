@@ -170,10 +170,14 @@ def read_bjobs_json_output(json_output):
         new_status = map_lsf_status_to_job_status(lsf_status)
         job = delayed_job_models.get_job_by_lsf_id(lsf_id)
         job.status = new_status
-        if lsf_status == 'RUN':
+        if new_status == delayed_job_models.JobStatuses.RUNNING:
             lsf_date_str = record['START_TIME']
             started_at = parse_bjobs_output_date(lsf_date_str)
             job.started_at = started_at
+        elif new_status == delayed_job_models.JobStatuses.FINISHED:
+            lsf_date_str = record['FINISH_TIME']
+            finished_at = parse_bjobs_output_date(lsf_date_str)
+            job.finished_at = finished_at
 
         delayed_job_models.save_job(job)
 
@@ -189,6 +193,8 @@ def map_lsf_status_to_job_status(lsf_status):
         return delayed_job_models.JobStatuses.QUEUED
     elif lsf_status == 'EXIT':
         return delayed_job_models.JobStatuses.ERROR
+    elif lsf_status == 'DONE':
+        return delayed_job_models.JobStatuses.FINISHED
     else:
         return delayed_job_models.JobStatuses.UNKNOWN
 
