@@ -251,7 +251,7 @@ class TestJobStatusDaemon(unittest.TestCase):
             self.assertEqual(status_got, status_must_be, msg='The status of the job was not changed accordingly!')
 
 
-    def test_parses_the_output_of_bjobs_error_job(self):
+    def test_parses_the_output_of_bjobs_finished_job(self):
         """
         Generates mock jobs, then sends a mock output to the the function to test that it interpreted the output
         accordingly. This test focuses on a job that switched to finished state.
