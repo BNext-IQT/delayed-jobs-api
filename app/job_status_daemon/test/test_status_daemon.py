@@ -196,7 +196,7 @@ class TestJobStatusDaemon(unittest.TestCase):
                                      msg='The status was modified! This should have not modified the status')
 
 
-    def test_parses_the_output_of_bjobs_started_job(self):
+    def test_parses_the_output_of_bjobs_running_job(self):
         """
         Generates mock jobs, then sends a mock output to the the function to test that it interpreted the output
         accordingly. This test focuses on a job that switched to running state.
@@ -230,4 +230,22 @@ class TestJobStatusDaemon(unittest.TestCase):
             job = delayed_job_models.get_job_by_lsf_id(lsf_job_id)
             status_got = job.status
             status_must_be = delayed_job_models.JobStatuses.QUEUED
+            self.assertEqual(status_got, status_must_be, msg='The status of the job was not changed accordingly!')
+
+    def test_parses_the_output_of_bjobs_error_job(self):
+        """
+        Generates mock jobs, then sends a mock output to the the function to test that it interpreted the output
+        accordingly. This test focuses on a job that switched to error state.
+        """
+        self.create_test_jobs_0()
+
+        sample_output = self.load_sample_file('app/job_status_daemon/test/data/sample_lsf_output_1.txt')
+
+        with self.flask_app.app_context():
+            daemon.parse_bjobs_output(sample_output)
+            # job with lsf id 0 should be in running state now
+            lsf_job_id = 2
+            job = delayed_job_models.get_job_by_lsf_id(lsf_job_id)
+            status_got = job.status
+            status_must_be = delayed_job_models.JobStatuses.ERROR
             self.assertEqual(status_got, status_must_be, msg='The status of the job was not changed accordingly!')

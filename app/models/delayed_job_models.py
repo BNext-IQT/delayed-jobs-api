@@ -26,6 +26,7 @@ class JobStatuses(Enum):
     RUNNING = 'RUNNING'
     ERROR = 'ERROR'
     FINISHED = 'FINISHED'
+    UNKNOWN = 'UNKNOWN'
 
     def __repr__(self):
         return self.name

@@ -187,6 +187,10 @@ def map_lsf_status_to_job_status(lsf_status):
         return delayed_job_models.JobStatuses.RUNNING
     elif lsf_status == 'PEND':
         return delayed_job_models.JobStatuses.QUEUED
+    elif lsf_status == 'EXIT':
+        return delayed_job_models.JobStatuses.ERROR
+    else:
+        return delayed_job_models.JobStatuses.UNKNOWN
 
 def parse_bjobs_output_date(lsf_date_str):
     """
