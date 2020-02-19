@@ -180,7 +180,7 @@ def read_bjobs_json_output(json_output):
             job.finished_at = finished_at
 
         delayed_job_models.save_job(job)
-        print(f'Job {job.id} with lsf id {job.lsf_id} new state is {new_status}')
+        print(f'Job {job.id} with lsf id {job.lsf_job_id} new state is {new_status}')
 
 def map_lsf_status_to_job_status(lsf_status):
     """
