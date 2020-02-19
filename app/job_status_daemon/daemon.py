@@ -16,6 +16,9 @@ if not os.path.isabs(AGENT_RUN_DIR):
     AGENT_RUN_DIR = Path(AGENT_RUN_DIR).resolve()
 os.makedirs(AGENT_RUN_DIR, exist_ok=True)
 
+class JobStatusDaemonError(Exception):
+    """Base class for exceptions in this module."""
+
 print('------------------------------------------------------------------------------')
 print(f'AGENT_RUN_DIR: {AGENT_RUN_DIR}')
 print('------------------------------------------------------------------------------')
@@ -37,8 +40,11 @@ def check_jobs_status():
         print('Not running script because run_status_script is False')
         return
 
-    script_output = get_status_script_output(script_path)
-
+    try:
+        script_output = get_status_script_output(script_path)
+        os.remove(script_path)  # Remove the script after running so it doesn't fill up the NFS
+    except JobStatusDaemonError as error:
+        print(error)
 
 def get_lsf_job_ids_to_check():
     """
@@ -116,7 +122,7 @@ def get_status_script_output(script_path):
     print(f'script return code was: {return_code}')
 
     if return_code != 0:
-        print('There was an error when running the job status script! Please check the logs')
+
         status_output_path = f'{script_path}.out'
         status_error_path = f'{script_path}.err'
 
@@ -125,6 +131,8 @@ def get_status_script_output(script_path):
 
         with open(status_error_path, 'wb') as status_err_file:
             status_err_file.write(status_check_process.stderr)
+
+        raise JobStatusDaemonError('There was an error when running the job status script! Please check the logs')
     else:
         return str(status_check_process.stdout)
 
