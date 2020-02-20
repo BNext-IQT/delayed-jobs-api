@@ -8,6 +8,7 @@ from app.config import RUN_CONFIG
 from app.config import RunEnvs
 from app.db import DB
 from app.models import delayed_job_models
+from app.blueprints.job_submission.services import job_submission_service
 from app.blueprints.swagger_description.swagger_description_blueprint import SWAGGER_BLUEPRINT
 from app.blueprints.job_submission.controllers.job_submissions_controller import SUBMISSION_BLUEPRINT
 from app.blueprints.job_status.job_status_controller import JOB_STATUS_BLUEPRINT
@@ -19,7 +20,8 @@ def create_app():
     :return: Delayed jobs flask app
     """
 
-    flask_app = Flask(__name__)
+    base_path = RUN_CONFIG.get('base_path', '')
+    flask_app = Flask(__name__, static_url_path=f'{base_path}/outputs', static_folder=job_submission_service.JOBS_OUTPUT_DIR)
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')
@@ -39,9 +41,6 @@ def create_app():
         generate_default_config = RUN_CONFIG.get('generate_default_config', False)
         if generate_default_config:
             delayed_job_models.generate_default_job_configs()
-
-
-        base_path = RUN_CONFIG.get('base_path', '')
 
         flask_app.register_blueprint(SWAGGER_BLUEPRINT, url_prefix=f'{base_path}/swagger')
         flask_app.register_blueprint(SUBMISSION_BLUEPRINT, url_prefix=f'{base_path}/submit')

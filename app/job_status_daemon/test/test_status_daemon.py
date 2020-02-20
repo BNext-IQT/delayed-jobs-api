@@ -268,3 +268,9 @@ class TestJobStatusDaemon(unittest.TestCase):
             status_got = job.status
             status_must_be = delayed_job_models.JobStatuses.FINISHED
             self.assertEqual(status_got, status_must_be, msg='The status of the job was not changed accordingly!')
+
+    def test_collects_the_urls_for_the_outputs_of_a_finished_job(self):
+        """
+        Generates some mock jobs, then sends a mock output to the function to test that it interprets that it finished.
+        The finished job should have now the output files set
+        """
