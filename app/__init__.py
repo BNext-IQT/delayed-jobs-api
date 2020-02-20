@@ -21,7 +21,12 @@ def create_app():
     """
 
     base_path = RUN_CONFIG.get('base_path', '')
-    flask_app = Flask(__name__, static_url_path=f'{base_path}/outputs', static_folder=job_submission_service.JOBS_OUTPUT_DIR)
+    outputs_base_path = RUN_CONFIG.get('outputs_base_path', 'outputs')
+    flask_app = Flask(__name__,
+                      static_url_path=f'{base_path}/{outputs_base_path}',
+                      static_folder=job_submission_service.JOBS_OUTPUT_DIR)
+
+    flask_app.config['SERVER_NAME'] = RUN_CONFIG.get('server_public_host')
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = RUN_CONFIG.get('sql_alchemy').get('database_uri')
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = RUN_CONFIG.get('sql_alchemy').get('track_modifications')
     flask_app.config['SECRET_KEY'] = RUN_CONFIG.get('server_secret_key')

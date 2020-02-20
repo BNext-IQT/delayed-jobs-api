@@ -10,11 +10,13 @@ import shutil
 import os
 
 from sqlalchemy import and_
+import flask
 
 from app import create_app
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.job_status_daemon import daemon
+from app.blueprints.job_submission.services import job_submission_service
 
 
 class TestJobStatusDaemon(unittest.TestCase):
@@ -56,8 +58,10 @@ class TestJobStatusDaemon(unittest.TestCase):
                         type='TEST',
                         lsf_job_id=i,
                         status=status,
-                        lsf_host=assigned_host
+                        lsf_host=assigned_host,
                     )
+                    job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
+                    os.makedirs(job.output_dir_path, exist_ok=True)
                     delayed_job_models.save_job(job)
                     i += 1
 
@@ -84,6 +88,8 @@ class TestJobStatusDaemon(unittest.TestCase):
                         status=status,
                         lsf_host=assigned_host
                     )
+                    job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
+                    os.makedirs(job.output_dir_path, exist_ok=True)
                     delayed_job_models.save_job(job)
                     i += 1
 
@@ -274,3 +280,56 @@ class TestJobStatusDaemon(unittest.TestCase):
         Generates some mock jobs, then sends a mock output to the function to test that it interprets that it finished.
         The finished job should have now the output files set
         """
+        self.create_test_jobs_0()
+
+        sample_output = self.load_sample_file('app/job_status_daemon/test/data/sample_lsf_output_1.txt')
+
+        with self.flask_app.app_context():
+            # Prepare the test scenario
+            lsf_job_id = 4
+            job = delayed_job_models.get_job_by_lsf_id(lsf_job_id)
+            print('output_dir_path: ', job.output_dir_path)
+            daemon.parse_bjobs_output(sample_output)
+
+            output_urls_must_be = []
+
+            for i in range(0, 2):
+
+                for subdir in ['', 'subdir/']:
+
+                    out_file_name = f'output_{i}.txt'
+                    out_file_path = f'{job.output_dir_path}/{subdir}{out_file_name}'
+                    print('out_file_path ', out_file_path)
+                    os.makedirs(Path(out_file_path).parent, exist_ok=True)
+                    with open(out_file_path, 'wt') as out_file:
+                        out_file.write(f'This is output file {i}')
+
+                    server_base_path = RUN_CONFIG.get('base_path', '')
+                    if server_base_path == '':
+                        server_base_path_with_slash = ''
+                    else:
+                        server_base_path_with_slash = f'{server_base_path}/'
+
+                    outputs_base_path = RUN_CONFIG.get('outputs_base_path')
+                    output_url_must_be = f'{RUN_CONFIG.get("server_public_host")}/' \
+                                         f'{server_base_path_with_slash}{outputs_base_path}/' \
+                                         f'{job.id}/{subdir}{out_file_name}'
+
+                    output_urls_must_be.append(output_url_must_be)
+                    print('output_url_must_be: ', output_url_must_be)
+                    print('---')
+            print('output_urls_must_be: ', output_urls_must_be)
+
+
+            # FINISH to prepare the test scenario
+            job_outputs_got = job.output_files
+            print('job_outputs_got: ', job_outputs_got)
+            self.assertEqual(len(job_outputs_got), 4, msg='There must be 2 outputs for this job!')
+
+
+
+            base_path = RUN_CONFIG.get('base_path', '')
+            base_static_path = f'{base_path}/outputs'
+
+            print('base_static_path: ', base_static_path)
+            print('jobs output: ', flask.url_for('static', filename='some_file.txt'))

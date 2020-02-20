@@ -12,6 +12,7 @@ import json
 
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
+from app.blueprints.job_submission.services import job_submission_service
 
 AGENT_RUN_DIR = RUN_CONFIG.get('status_agent_run_dir', str(Path().absolute()) + '/status_agents_run')
 if not os.path.isabs(AGENT_RUN_DIR):
@@ -179,6 +180,8 @@ def react_to_bjobs_json_output(json_output):
             lsf_date_str = record['FINISH_TIME']
             finished_at = parse_bjobs_output_date(lsf_date_str)
             job.finished_at = finished_at
+            save_job_outputs(job)
+
 
         delayed_job_models.save_job(job)
         print(f'Job {job.id} with lsf id {job.lsf_job_id} new state is {new_status}')
@@ -209,5 +212,57 @@ def parse_bjobs_output_date(lsf_date_str):
     # Just return current date, to avoid date parsing issues. LSF is not responding to the -hms parameter
     return datetime.datetime.now(tz=datetime.timezone.utc)
 
+def save_job_outputs(job):
+    """
+    Lists the files of the output dir of the job and saves the corresponding output objects
+    :param job: job that is finished
+    """
+    print('SAVE JOB OUTPUTS ', job.id)
+    job_outputs_dir = job.output_dir_path
+    print('job_outputs_dir: ', job_outputs_dir)
+
+    paths_list = []
+    append_files_in_dir(job_outputs_dir, paths_list)
+
+    print('paths_list: ', paths_list)
+
+    for path in paths_list:
+        relative_path = path.replace(f'{job_submission_service.JOBS_OUTPUT_DIR}/', '', 1)
+        print('relative_path: ', relative_path)
+        output_url = get_output_file_url(relative_path)
+        print('output_url: ', output_url)
+    print('--------------')
+
+def append_files_in_dir(path, paths_list):
+    """
+    Appends to the lists all the paths of the files in path and subdirectories recursively
+    :param path: base directory for which to list the files
+    :param paths_list: list where to accumulate the paths
+    """
+    for item in os.listdir(path):
+        abs_path = Path(path).joinpath(item).resolve()
+        print('abs_path: ',  abs_path)
+        if os.path.isfile(abs_path):
+            paths_list.append(str(abs_path))
+        else:
+            append_files_in_dir(abs_path, paths_list)
+
+def get_output_file_url(file_relative_path):
+    """
+    :param file_relative_path: the relative path from the job outputs dir.
+    For example: Job-1/subdir/output_0.txt
+    :return: the url of an output file given a path from the job outputs dir
+    """
+    server_name = RUN_CONFIG.get("server_public_host")
+
+    server_base_path = RUN_CONFIG.get('base_path', '')
+    if server_base_path == '':
+        server_base_path_with_slash = ''
+    else:
+        server_base_path_with_slash = f'{server_base_path}/'
+
+    outputs_base_path = RUN_CONFIG.get('outputs_base_path')
+
+    return f'{server_name}/{server_base_path_with_slash}{outputs_base_path}/{file_relative_path}'
 
 

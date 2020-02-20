@@ -75,6 +75,12 @@ except FileNotFoundError:
 if not RUN_CONFIG.get('server_public_host'):
     RUN_CONFIG['server_public_host'] = '0.0.0.0:5000'
 
+if not RUN_CONFIG.get('base_path'):
+    RUN_CONFIG['base_path'] = ''
+
+if not RUN_CONFIG.get('outputs_base_path'):
+    RUN_CONFIG['outputs_base_path'] = 'outputs'
+
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
 
