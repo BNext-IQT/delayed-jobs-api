@@ -254,10 +254,12 @@ def get_output_file_url(file_relative_path):
     if server_base_path == '':
         server_base_path_with_slash = ''
     else:
-        server_base_path_with_slash = f'{server_base_path}'
+        server_base_path_with_slash = f'{server_base_path}/'
+        if server_base_path_with_slash.startswith('//'):
+            server_base_path_with_slash = server_base_path_with_slash[1:]
 
     outputs_base_path = RUN_CONFIG.get('outputs_base_path')
 
-    return f'{server_name}/{server_base_path_with_slash}{outputs_base_path}/{file_relative_path}'
+    return f'{server_name}{server_base_path_with_slash}{outputs_base_path}/{file_relative_path}'
 
 
