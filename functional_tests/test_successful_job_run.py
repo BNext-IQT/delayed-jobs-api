@@ -54,6 +54,8 @@ def run_test(server_base_url):
     print('submission_response: ', submission_response)
     job_id = submission_response.get('id')
 
+    return
+
     print('wait some time until it starts, it should be running...')
     time.sleep(seconds/2)
 
