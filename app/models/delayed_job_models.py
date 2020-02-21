@@ -107,7 +107,7 @@ class DelayedJob(DB.Model):
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
                                                          'timezone']}
 
-        output_files_urls = []
+        output_files_urls = [output_file.public_url for output_file in self.output_files]
 
         return {
             **plain_properties,
