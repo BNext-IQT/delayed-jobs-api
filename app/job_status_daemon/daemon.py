@@ -226,6 +226,7 @@ def save_job_outputs(job):
         relative_path = absolute_path.replace(f'{job_submission_service.JOBS_OUTPUT_DIR}/', '', 1)
         output_url = get_output_file_url(relative_path)
         delayed_job_models.add_output_to_job(job, absolute_path, output_url)
+        print(f'Added output file {absolute_path} with url {output_url} to job {job.id}')
 
 
 def append_files_in_dir(path, paths_list):
