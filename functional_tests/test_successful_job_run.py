@@ -82,8 +82,7 @@ def run_test(server_base_url):
 
     output_files_urls = status_response.get('output_files_urls')
     print('output_files_urls: ', output_files_urls)
-    return
-    full_output_file_url = f'{server_base_url}{output_file_url}'
-    print(f'full_output_file_url: {full_output_file_url}')
-    file_request = requests.get(full_output_file_url)
-    assert file_request.status_code == 200, 'The results file could not be downloaded!!'
+
+    for url in output_files_urls:
+        file_request = requests.get(url)
+        assert file_request.status_code == 200, 'A results file could not be downloaded!!'
