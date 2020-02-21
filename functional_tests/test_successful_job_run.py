@@ -70,19 +70,19 @@ def run_test(server_base_url):
     print(f'progress:  {progress}')
     assert progress > 0, 'The job progress is not increasing'
 
-    return
-
     print('wait some time until it should have finished...')
-    time.sleep((seconds / 2) + 1)
+    time.sleep(seconds)
 
-    status_request = requests.get(f'{server_base_url}/status/{job_id}')
+    status_request = requests.get(status_url)
     status_response = status_request.json()
 
     job_status = status_response.get('status')
     print(f'job_status: {job_status}')
     assert job_status == 'FINISHED', 'Job should have finished already!'
 
-    output_file_url = status_response.get('output_file_url')
+    output_files_urls = status_response.get('output_files_urls')
+    print('output_files_urls: ', output_files_urls)
+    return
     full_output_file_url = f'{server_base_url}{output_file_url}'
     print(f'full_output_file_url: {full_output_file_url}')
     file_request = requests.get(full_output_file_url)
