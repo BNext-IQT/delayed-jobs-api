@@ -254,7 +254,7 @@ def get_output_file_url(file_relative_path):
     if server_base_path == '':
         server_base_path_with_slash = ''
     else:
-        server_base_path_with_slash = f'{server_base_path}/'
+        server_base_path_with_slash = f'{server_base_path}'
 
     outputs_base_path = RUN_CONFIG.get('outputs_base_path')
 
