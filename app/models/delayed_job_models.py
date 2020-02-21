@@ -354,3 +354,18 @@ def get_lsf_job_ids_to_check(lsf_host):
     DB.session.commit()
 
     return ids
+
+def add_output_to_job(job, internal_path, public_url):
+    """
+    Adds an output to the job given as a parameter
+    :param job: job for which to add the output file
+    :param internal_path: internal absolute path of the output file
+    :param public_url: public url to access the file
+    """
+    print('ADDING OUTPUT TO JOB')
+    output_file = OutputFile(
+        internal_path=internal_path,
+        public_url=public_url
+    )
+    job.output_files.append(output_file)
+    save_job(job)

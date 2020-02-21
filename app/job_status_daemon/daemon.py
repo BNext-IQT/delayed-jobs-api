@@ -217,21 +217,16 @@ def save_job_outputs(job):
     Lists the files of the output dir of the job and saves the corresponding output objects
     :param job: job that is finished
     """
-    print('SAVE JOB OUTPUTS ', job.id)
     job_outputs_dir = job.output_dir_path
-    print('job_outputs_dir: ', job_outputs_dir)
 
     paths_list = []
     append_files_in_dir(job_outputs_dir, paths_list)
 
-    print('paths_list: ', paths_list)
-
-    for path in paths_list:
-        relative_path = path.replace(f'{job_submission_service.JOBS_OUTPUT_DIR}/', '', 1)
-        print('relative_path: ', relative_path)
+    for absolute_path in paths_list:
+        relative_path = absolute_path.replace(f'{job_submission_service.JOBS_OUTPUT_DIR}/', '', 1)
         output_url = get_output_file_url(relative_path)
-        print('output_url: ', output_url)
-    print('--------------')
+        delayed_job_models.add_output_to_job(job, absolute_path, output_url)
+
 
 def append_files_in_dir(path, paths_list):
     """
@@ -241,7 +236,6 @@ def append_files_in_dir(path, paths_list):
     """
     for item in os.listdir(path):
         abs_path = Path(path).joinpath(item).resolve()
-        print('abs_path: ',  abs_path)
         if os.path.isfile(abs_path):
             paths_list.append(str(abs_path))
         else:

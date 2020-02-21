@@ -288,8 +288,6 @@ class TestJobStatusDaemon(unittest.TestCase):
             # Prepare the test scenario
             lsf_job_id = 4
             job = delayed_job_models.get_job_by_lsf_id(lsf_job_id)
-            print('output_dir_path: ', job.output_dir_path)
-            daemon.parse_bjobs_output(sample_output)
 
             output_urls_must_be = []
 
@@ -299,7 +297,6 @@ class TestJobStatusDaemon(unittest.TestCase):
 
                     out_file_name = f'output_{i}.txt'
                     out_file_path = f'{job.output_dir_path}/{subdir}{out_file_name}'
-                    print('out_file_path ', out_file_path)
                     os.makedirs(Path(out_file_path).parent, exist_ok=True)
                     with open(out_file_path, 'wt') as out_file:
                         out_file.write(f'This is output file {i}')
@@ -316,20 +313,13 @@ class TestJobStatusDaemon(unittest.TestCase):
                                          f'{job.id}/{subdir}{out_file_name}'
 
                     output_urls_must_be.append(output_url_must_be)
-                    print('output_url_must_be: ', output_url_must_be)
-                    print('---')
-            print('output_urls_must_be: ', output_urls_must_be)
-
 
             # FINISH to prepare the test scenario
+
+            daemon.parse_bjobs_output(sample_output)
             job_outputs_got = job.output_files
-            print('job_outputs_got: ', job_outputs_got)
             self.assertEqual(len(job_outputs_got), 4, msg='There must be 2 outputs for this job!')
 
-
-
-            base_path = RUN_CONFIG.get('base_path', '')
-            base_static_path = f'{base_path}/outputs'
-
-            print('base_static_path: ', base_static_path)
-            print('jobs output: ', flask.url_for('static', filename='some_file.txt'))
+            for output_file in job.output_files:
+                output_url_got = output_file.public_url
+                self.assertIn(output_url_got, output_urls_must_be, msg='The output url was not set correctly')
