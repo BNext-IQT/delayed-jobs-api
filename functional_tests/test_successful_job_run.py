@@ -32,7 +32,7 @@ def run_test(server_base_url):
 
     submit_url = f'{server_base_url}/submit/test_job'
     print('submit_url: ', submit_url)
-    seconds = 6
+    seconds = 20
     payload = {
         'instruction': 'RUN_NORMALLY',
         'seconds': seconds,
@@ -44,7 +44,6 @@ def run_test(server_base_url):
 
     shutil.rmtree(tmp_dir)
 
-
     submit_request = requests.post(submit_url, data=payload, files=files)
     submission_status_code = submit_request.status_code
     print(f'submission_status_code: {submission_status_code}')
@@ -52,14 +51,15 @@ def run_test(server_base_url):
 
     submission_response = submit_request.json()
     print('submission_response: ', submission_response)
-    job_id = submission_response.get('id')
-
-    return
+    job_id = submission_response.get('job_id')
 
     print('wait some time until it starts, it should be running...')
-    time.sleep(seconds/2)
+    time.sleep(10)
 
-    status_request = requests.get(f'{server_base_url}/status/{job_id}')
+    status_url = f'{server_base_url}/status/{job_id}'
+    print('status_url: ', status_url)
+
+    status_request = requests.get(status_url)
     status_response = status_request.json()
 
     job_status = status_response.get('status')
@@ -69,6 +69,8 @@ def run_test(server_base_url):
     progress = int(status_response.get('progress'))
     print(f'progress:  {progress}')
     assert progress > 0, 'The job progress is not increasing'
+
+    return
 
     print('wait some time until it should have finished...')
     time.sleep((seconds / 2) + 1)
