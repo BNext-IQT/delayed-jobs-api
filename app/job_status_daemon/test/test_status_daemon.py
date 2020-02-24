@@ -341,5 +341,14 @@ class TestJobStatusDaemon(unittest.TestCase):
 
     def test_agent_respects_a_lock(self):
         """
-        Tests that when a lock has been created with some
+        Tests that when a lock has been created for another host, the agent respects it. This means that
+        the agent does not check anything in lsf
         """
+        with self.flask_app.app_context():
+            current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
+            delayed_job_models.lock_lsf_status_daemon(current_lsf_host, 'another_owner')
+
+            sleep_time_got = daemon.check_jobs_status()
+            self.assertNotAlmostEqual(sleep_time_got % daemon.DEFAULT_SLEEP_TIME, 0, places=4,
+                            msg='The sleep time must be greater than the default time and not a multiple of it '
+                                'because there was a lock')

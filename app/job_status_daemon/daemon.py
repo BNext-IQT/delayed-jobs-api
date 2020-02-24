@@ -9,10 +9,13 @@ import stat
 import subprocess
 import re
 import json
+import random
 
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.blueprints.job_submission.services import job_submission_service
+
+DEFAULT_SLEEP_TIME = 1
 
 AGENT_RUN_DIR = RUN_CONFIG.get('status_agent_run_dir', str(Path().absolute()) + '/status_agents_run')
 if not os.path.isabs(AGENT_RUN_DIR):
@@ -32,28 +35,38 @@ def check_jobs_status():
     :return: the amount of seconds to wait for the next run
     """
     lsf_config = RUN_CONFIG.get('lsf_submission')
-    lsf_host = lsf_config['lsf_host']
+    current_lsf_host = lsf_config['lsf_host']
+    my_hostname = socket.gethostname()
 
-    delayed_job_models.lock_lsf_status_daemon(lsf_host, socket.gethostname())
+    existing_lock = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
+    if existing_lock is not None:
+        i_must_respect_lock = existing_lock.lsf_host == current_lsf_host and existing_lock.lock_owner != my_hostname
+        if i_must_respect_lock:
+            sleep_time = DEFAULT_SLEEP_TIME + random.random()
+            return sleep_time
+
+
+    delayed_job_models.lock_lsf_status_daemon(current_lsf_host, my_hostname)
+
     print('Checking for jobs to check...')
     lsf_job_ids_to_check = get_lsf_job_ids_to_check()
     print(f'lsf_job_ids_to_check: {lsf_job_ids_to_check}')
 
     if len(lsf_job_ids_to_check) == 0:
-        return 1
+        return DEFAULT_SLEEP_TIME
 
     script_path = prepare_job_status_check_script(lsf_job_ids_to_check)
     must_run_script = RUN_CONFIG.get('run_status_script', True)
     if not must_run_script:
         print('Not running script because run_status_script is False')
-        return 1
+        return DEFAULT_SLEEP_TIME
 
     try:
         script_output = get_status_script_output(script_path)
         os.remove(script_path)  # Remove the script after running so it doesn't fill up the NFS
         print(f'deleted script: {script_path}')
         parse_bjobs_output(script_output)
-        return 1
+        return DEFAULT_SLEEP_TIME
     except JobStatusDaemonError as error:
         print(error)
 

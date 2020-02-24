@@ -12,8 +12,8 @@ def run():
     flask_app = create_app()
     with flask_app.app_context():
         while True:
-            daemon.check_jobs_status()
-            time.sleep(1)
+            sleep_time = daemon.check_jobs_status()
+            time.sleep(sleep_time)
 
 if __name__ == "__main__":
     run()
