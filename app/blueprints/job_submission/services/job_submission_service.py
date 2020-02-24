@@ -313,9 +313,9 @@ def prepare_job_submission_script(job):
         job_config = delayed_job_models.get_job_config(job.type)
 
         if (job_config.docker_registry_username is not None) and (job_config.docker_registry_password is not None):
-            set_username = f"export SINGULARITY_DOCKER_USERNAME='{job_config.docker_registry_username}'"
-            set_password = f"export SINGULARITY_DOCKER_USERNAME='{job_config.docker_registry_password}'"
-            set_docker_registry_credentials = f'{set_username}\n{set_password}\n'
+            set_username = f"SINGULARITY_DOCKER_USERNAME='{job_config.docker_registry_username}'"
+            set_password = f"SINGULARITY_DOCKER_USERNAME='{job_config.docker_registry_password}'"
+            set_docker_registry_credentials = f'{set_username};{set_password};'
         else:
             set_docker_registry_credentials = ''
 
