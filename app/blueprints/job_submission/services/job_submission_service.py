@@ -311,18 +311,13 @@ def prepare_job_submission_script(job):
         run_params_path = get_job_run_params_file_path(job)
 
         job_config = delayed_job_models.get_job_config(job.type)
-        docker_registry_username = ''
-        if job_config.docker_registry_username is not None:
-            docker_registry_username = job_config.docker_registry_username
-
-        docker_registry_password=''
-        if job_config.docker_registry_password is not None:
-            docker_registry_password = job_config.docker_registry_password
 
         if (job_config.docker_registry_username is not None) and (job_config.docker_registry_password is not None):
-            use_docker_registry_credentials = 'true'
+            set_username = f"export SINGULARITY_DOCKER_USERNAME='{job_config.docker_registry_username}'"
+            set_password = f"export SINGULARITY_DOCKER_USERNAME='{job_config.docker_registry_password}'"
+            set_docker_registry_credentials = f'{set_username}\n{set_password}\n'
         else:
-            use_docker_registry_credentials = 'false'
+            set_docker_registry_credentials = ''
 
         job_submission_script = submit_job_template.format(
             JOB_ID=job.id,
@@ -330,9 +325,7 @@ def prepare_job_submission_script(job):
             LSF_HOST=lsf_host,
             RUN_PARAMS_FILE=run_params_path,
             DOCKER_IMAGE_URL=job.docker_image_url,
-            DOCKER_REGISTRY_USERNAME=docker_registry_username,
-            DOCKER_REGISTRY_PASSWORD=docker_registry_password,
-            USE_DOCKER_REGISTRY_CREDENTIALS=use_docker_registry_credentials,
+            SET_DOCKER_REGISTRY_CREDENTIALS=set_docker_registry_credentials,
             RUN_DIR=get_job_run_dir(job)
 
         )
