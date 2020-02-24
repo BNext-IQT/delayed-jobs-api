@@ -15,3 +15,4 @@ class MMVJobSchema(Schema):
     """
     Class that defines the schema for the MMV job
     """
+    standardise = fields.Boolean(required=True)

@@ -17,7 +17,7 @@ tags:
 - name: 'submission'
   description: 'Endpoints related to the submission of jobs'
 schemes:
-- "https"
+#- "https"
 - "http"
 tags:
 - name: Example Job
@@ -156,6 +156,11 @@ paths:
           description: 'Input File 1'
           required: true
           type: 'file'
+        - name: 'standardise'
+          in: 'formData'
+          description: 'Standardise or not'
+          required: true
+          type: 'boolean'
       responses:
         "200":
           description: "successful operation"
