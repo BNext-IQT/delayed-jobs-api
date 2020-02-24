@@ -31,6 +31,7 @@ class TestJobStatusDaemon(unittest.TestCase):
     def tearDown(self):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
+            delayed_job_models.delete_all_lsf_locks()
             shutil.rmtree(daemon.AGENT_RUN_DIR, ignore_errors=True)
 
     def create_test_jobs_0(self):
@@ -337,3 +338,8 @@ class TestJobStatusDaemon(unittest.TestCase):
             print('current_lsf_host: ', current_lsf_host)
             print('lock_got: ', lock_got)
             self.assertIsNotNone(lock_got, msg='The LSF lock was not created!')
+
+    def test_agent_respects_a_lock(self):
+        """
+        Tests that when a lock has been created with some
+        """

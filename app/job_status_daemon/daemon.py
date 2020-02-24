@@ -29,6 +29,7 @@ print('-------------------------------------------------------------------------
 def check_jobs_status():
     """
     The main function of this module. Checks for jobs to check the status, and checks their status in lsf
+    :return: the amount of seconds to wait for the next run
     """
     lsf_config = RUN_CONFIG.get('lsf_submission')
     lsf_host = lsf_config['lsf_host']
@@ -39,19 +40,20 @@ def check_jobs_status():
     print(f'lsf_job_ids_to_check: {lsf_job_ids_to_check}')
 
     if len(lsf_job_ids_to_check) == 0:
-        return
+        return 1
 
     script_path = prepare_job_status_check_script(lsf_job_ids_to_check)
     must_run_script = RUN_CONFIG.get('run_status_script', True)
     if not must_run_script:
         print('Not running script because run_status_script is False')
-        return
+        return 1
 
     try:
         script_output = get_status_script_output(script_path)
         os.remove(script_path)  # Remove the script after running so it doesn't fill up the NFS
         print(f'deleted script: {script_path}')
         parse_bjobs_output(script_output)
+        return 1
     except JobStatusDaemonError as error:
         print(error)
 

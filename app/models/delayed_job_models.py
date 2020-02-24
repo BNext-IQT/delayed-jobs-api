@@ -188,6 +188,13 @@ def get_lock_for_lsf_host(lsf_host):
     return StatusAgentLock.query.filter_by(lsf_host=lsf_host).first()
 
 
+def delete_all_lsf_locks():
+    """
+    Deletes all lsf locks in the database.
+    """
+    StatusAgentLock.query.filter_by().delete()
+
+
 def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={}):
     """
     Generates a job id from a sha 256 hash of the string version of the job params in base 64
