@@ -319,6 +319,11 @@ def prepare_job_submission_script(job):
         if job_config.docker_registry_password is not None:
             docker_registry_password = job_config.docker_registry_password
 
+        if (job_config.docker_registry_username is not None) and (job_config.docker_registry_password is not None):
+            use_docker_registry_credentials = 'true'
+        else:
+            use_docker_registry_credentials = 'false'
+
         job_submission_script = submit_job_template.format(
             JOB_ID=job.id,
             LSF_USER=lsf_user,
@@ -327,6 +332,7 @@ def prepare_job_submission_script(job):
             DOCKER_IMAGE_URL=job.docker_image_url,
             DOCKER_REGISTRY_USERNAME=docker_registry_username,
             DOCKER_REGISTRY_PASSWORD=docker_registry_password,
+            USE_DOCKER_REGISTRY_CREDENTIALS=use_docker_registry_credentials,
             RUN_DIR=get_job_run_dir(job)
 
         )
