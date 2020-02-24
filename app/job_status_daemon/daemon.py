@@ -30,6 +30,10 @@ def check_jobs_status():
     """
     The main function of this module. Checks for jobs to check the status, and checks their status in lsf
     """
+    lsf_config = RUN_CONFIG.get('lsf_submission')
+    lsf_host = lsf_config['lsf_host']
+
+    delayed_job_models.lock_lsf_status_daemon(lsf_host, socket.gethostname())
     print('Checking for jobs to check...')
     lsf_job_ids_to_check = get_lsf_job_ids_to_check()
     print(f'lsf_job_ids_to_check: {lsf_job_ids_to_check}')

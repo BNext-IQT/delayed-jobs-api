@@ -11,6 +11,7 @@ from sqlalchemy import and_
 
 from enum import Enum
 from app.db import DB
+from app.config import RUN_CONFIG
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept
@@ -34,7 +35,9 @@ class JobStatuses(Enum):
     def __str__(self):
         return self.name
 
-
+# ----------------------------------------------------------------------------------------------------------------------
+# Exceptions
+# ----------------------------------------------------------------------------------------------------------------------
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
@@ -43,6 +46,17 @@ class DockerImageNotSet(Exception):
 
 class JobConfigNotFoundError(Exception):
     """Base class for exceptions."""
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Models
+# ----------------------------------------------------------------------------------------------------------------------
+class StatusAgentLock(DB.Model):
+    """
+    Class that represents a lock used by the job status daemon
+    """
+    lsf_host = DB.Column(DB.String(length=120), primary_key=True)
+    lock_owner = DB.Column(DB.String(length=120))
+    expires_at = DB.Column(DB.DateTime)
 
 
 class DefaultJobConfig(DB.Model):
@@ -140,6 +154,38 @@ class DelayedJob(DB.Model):
         :return: how many times a job has been executed
         """
         return len(self.executions)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------------------------------------------------------
+def lock_lsf_status_daemon(lsf_host,
+                           lock_owner,
+                           seconds_valid=RUN_CONFIG.get('status_agent').get('lock_validity_seconds')):
+    """
+    Creates a lock on the lsf_host given as parameter in the name of the owner given as parameter
+    :param lsf_host: cluster to lock
+    :param lock_owner: identifier (normally a hostname) of the process that owns the lock
+    :param seconds_valid: the amount of seconds the lock is valid
+    """
+    expiration_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=seconds_valid)
+    new_lock = StatusAgentLock(
+        lsf_host=lsf_host,
+        lock_owner=lock_owner,
+        expires_at=expiration_time
+    )
+    DB.session.add(new_lock)
+    DB.session.commit()
+    return new_lock
+
+
+def get_lock_for_lsf_host(lsf_host):
+    """
+    Returns a lock for a lsf host if it exists
+    :param lsf_host: lsf host for which get the lock
+    :return: StatusAgentLock object for the lsf_host given as parameter, None if it doesn't exist
+    """
+    DB.session.commit()
+    return StatusAgentLock.query.filter_by(lsf_host=lsf_host).first()
 
 
 def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={}):
@@ -387,7 +433,6 @@ def add_output_to_job(job, internal_path, public_url):
     :param internal_path: internal absolute path of the output file
     :param public_url: public url to access the file
     """
-    print('ADDING OUTPUT TO JOB')
     output_file = OutputFile(
         internal_path=internal_path,
         public_url=public_url

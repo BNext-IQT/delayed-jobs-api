@@ -325,3 +325,15 @@ class TestJobStatusDaemon(unittest.TestCase):
             for output_file in job.output_files:
                 output_url_got = output_file.public_url
                 self.assertIn(output_url_got, output_urls_must_be, msg='The output url was not set correctly')
+
+    def test_daemon_creates_lock_when_checking_lsf(self):
+        """
+        Tests that the daemon creates a lock while checking LSF
+        """
+        with self.flask_app.app_context():
+            daemon.check_jobs_status()
+            current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
+            lock_got = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
+            print('current_lsf_host: ', current_lsf_host)
+            print('lock_got: ', lock_got)
+            self.assertIsNotNone(lock_got, msg='The LSF lock was not created!')
