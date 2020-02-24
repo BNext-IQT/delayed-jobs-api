@@ -224,6 +224,13 @@ def generate_default_job_configs():
     DB.session.add(similarity_job_config)
     DB.session.commit()
 
+    mmv_job_config = DefaultJobConfig(
+        job_type='MMV',
+        docker_image_url='docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job:0b0382da-21-Feb-2020--15-50-32'
+    )
+    DB.session.add(mmv_job_config)
+    DB.session.commit()
+
 
 def get_docker_image_url(job_type):
     """

@@ -19,6 +19,17 @@ tags:
 schemes:
 - "https"
 - "http"
+tags:
+- name: Example Job
+  description: A Job that tests the system
+  externalDocs:
+    description: Example repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/test-job
+- name: MMV Job
+  description: A Job for the Malaria Data
+  externalDocs:
+    description: Source Repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job
 paths:
   /status/{jobId}:
     get:
@@ -85,7 +96,7 @@ paths:
   /submit/test_job:
     post:
       tags:
-        - 'submission'
+        - 'Example Job'
       summary: 'Submits a Job that tests the system'
       operationId: 'submit_test_job'
       consumes:
@@ -122,6 +133,27 @@ paths:
         - name: 'input2'
           in: 'formData'
           description: 'Input File 2'
+          required: true
+          type: 'file'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
+  /submit/mmv_job:
+    post:
+      tags:
+        - 'MMV Job'
+      summary: 'Submits a MMV Job'
+      operationId: 'submit_mmv_job'
+      consumes:
+        - 'multipart/form-data'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'input1'
+          in: 'formData'
+          description: 'Input File 1'
           required: true
           type: 'file'
       responses:

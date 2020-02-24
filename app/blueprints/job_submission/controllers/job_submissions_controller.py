@@ -30,3 +30,12 @@ def submit_test_job():
     form_files = request.files
     validation_schema = marshmallow_schemas.TestJobSchema
     return submit_job(job_type, form_data, form_files, validation_schema)
+
+@SUBMISSION_BLUEPRINT.route('/mmv_job', methods = ['POST'])
+def submit_mmv_job():
+
+    job_type = 'MMV'
+    form_data = request.form
+    form_files = request.files
+    validation_schema = marshmallow_schemas.MMVJobSchema
+    return submit_job(job_type, form_data, form_files, validation_schema)

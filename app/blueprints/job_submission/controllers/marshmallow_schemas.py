@@ -10,3 +10,8 @@ class TestJobSchema(Schema):
     instruction = fields.String(required=True, validate=validate.OneOf(['RUN_NORMALLY', 'FAIL']))
     seconds = fields.Number(required=True, validate=validate.Range(min=0, max=512))
     api_url = fields.String(required=True)
+
+class MMVJobSchema(Schema):
+    """
+    Class that defines the schema for the MMV job
+    """
