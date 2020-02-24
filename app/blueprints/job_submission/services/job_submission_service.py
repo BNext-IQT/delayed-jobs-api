@@ -310,12 +310,23 @@ def prepare_job_submission_script(job):
         lsf_host = lsf_config['lsf_host']
         run_params_path = get_job_run_params_file_path(job)
 
+        job_config = delayed_job_models.get_job_config(job.type)
+        docker_registry_username = ''
+        if job_config.docker_registry_username is not None:
+            docker_registry_username = job_config.docker_registry_username
+
+        docker_registry_password=''
+        if job_config.docker_registry_password is not None:
+            docker_registry_password = job_config.docker_registry_password
+
         job_submission_script = submit_job_template.format(
             JOB_ID=job.id,
             LSF_USER=lsf_user,
             LSF_HOST=lsf_host,
             RUN_PARAMS_FILE=run_params_path,
             DOCKER_IMAGE_URL=job.docker_image_url,
+            DOCKER_REGISTRY_USERNAME=docker_registry_username,
+            DOCKER_REGISTRY_PASSWORD=docker_registry_password,
             RUN_DIR=get_job_run_dir(job)
 
         )

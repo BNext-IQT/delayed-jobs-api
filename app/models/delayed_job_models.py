@@ -41,6 +41,9 @@ class JobNotFoundError(Exception):
 class DockerImageNotSet(Exception):
     """Base class for exceptions."""
 
+class JobConfigNotFoundError(Exception):
+    """Base class for exceptions."""
+
 
 class DefaultJobConfig(DB.Model):
     """
@@ -48,6 +51,8 @@ class DefaultJobConfig(DB.Model):
     """
     job_type = DB.Column(DB.String(length=60), primary_key=True)
     docker_image_url = DB.Column(DB.Text)
+    docker_registry_username = DB.Column(DB.Text) # Username for the container registry (optional)
+    docker_registry_password = DB.Column(DB.Text)  # Password for the container registry (optional)
 
 
 class InputFile(DB.Model):
@@ -161,6 +166,17 @@ def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={
 
     return '{}-{}'.format(job_type, base64_search_params_digest)
 
+def get_job_config(job_type):
+    """
+    returns the job config for the job whose type is received as parameter
+    :param job_type: type of job for which get the config
+    :return: config object corresponding to the type given
+    """
+    job_config = DefaultJobConfig.query.filter_by(job_type=job_type).first()
+    if job_config is None:
+        raise JobConfigNotFoundError(f'No configuration was found for {job_type} jobs')
+    return job_config
+
 
 def get_or_create(job_type, job_params, docker_image_url, input_files_hashes={}):
     """
@@ -226,7 +242,9 @@ def generate_default_job_configs():
 
     mmv_job_config = DefaultJobConfig(
         job_type='MMV',
-        docker_image_url='docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job:0b0382da-21-Feb-2020--15-50-32'
+        docker_image_url='docker://dockerhub.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job:0b0382da-21-Feb-2020--15-50-32',
+        docker_registry_username='some_user',
+        docker_registry_password='some_password'
     )
     DB.session.add(mmv_job_config)
     DB.session.commit()
