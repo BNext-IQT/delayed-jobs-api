@@ -40,13 +40,23 @@ def check_jobs_status():
 
     existing_lock = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
     if existing_lock is not None:
-        i_must_respect_lock = existing_lock.lsf_host == current_lsf_host and existing_lock.lock_owner != my_hostname
+
+        lock_expired = existing_lock.expires_at < datetime.datetime.utcnow()
+        i_must_respect_lock = existing_lock.lsf_host == current_lsf_host and \
+                              existing_lock.lock_owner != my_hostname and \
+                              not lock_expired
+
         if i_must_respect_lock:
             sleep_time = DEFAULT_SLEEP_TIME + random.random()
+            print(f'I ({my_hostname}) found a lock, waiting {sleep_time} seconds before checking again')
             return sleep_time
-
-
-    delayed_job_models.lock_lsf_status_daemon(current_lsf_host, my_hostname)
+        else:
+            print(f'I ({my_hostname}) found a lock, but it expired, I will disrespect it.')
+            delayed_job_models.delete_lock(existing_lock)
+            delayed_job_models.lock_lsf_status_daemon(current_lsf_host, my_hostname)
+    else:
+        print(f'Locking LSF status check for {current_lsf_host}, I am {my_hostname}')
+        delayed_job_models.lock_lsf_status_daemon(current_lsf_host, my_hostname)
 
     print('Checking for jobs to check...')
     lsf_job_ids_to_check = get_lsf_job_ids_to_check()

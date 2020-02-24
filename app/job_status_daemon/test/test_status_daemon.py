@@ -335,8 +335,6 @@ class TestJobStatusDaemon(unittest.TestCase):
             daemon.check_jobs_status()
             current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
             lock_got = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
-            print('current_lsf_host: ', current_lsf_host)
-            print('lock_got: ', lock_got)
             self.assertIsNotNone(lock_got, msg='The LSF lock was not created!')
 
     def test_agent_respects_a_lock(self):
@@ -352,3 +350,19 @@ class TestJobStatusDaemon(unittest.TestCase):
             self.assertNotAlmostEqual(sleep_time_got % daemon.DEFAULT_SLEEP_TIME, 0, places=4,
                             msg='The sleep time must be greater than the default time and not a multiple of it '
                                 'because there was a lock')
+
+    def test_agent_does_not_respect_an_expired_lock(self):
+        """
+        Tests that when a lock has been created for another host, the agent does not respect it and creates its own lock
+        """
+        with self.flask_app.app_context():
+            current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
+            delayed_job_models.lock_lsf_status_daemon(current_lsf_host, 'another_owner', seconds_valid=-1)
+
+            sleep_time_got = daemon.check_jobs_status()
+            self.assertEquals(sleep_time_got, daemon.DEFAULT_SLEEP_TIME,
+                              msg='The lock must not be respected because it expired!')
+
+            my_hostname = socket.gethostname()
+            lock_got = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
+            self.assertEquals(lock_got.lock_owner, my_hostname, msg='A new lock must have been created owned by me!')

@@ -188,6 +188,15 @@ def get_lock_for_lsf_host(lsf_host):
     return StatusAgentLock.query.filter_by(lsf_host=lsf_host).first()
 
 
+def delete_lock(lock):
+    """
+    Deletes a lock from the database, making sure to commit the changes.
+    :param lock: lock to delete.
+    """
+    DB.session.delete(lock)
+    DB.session.commit()
+
+
 def delete_all_lsf_locks():
     """
     Deletes all lsf locks in the database.
