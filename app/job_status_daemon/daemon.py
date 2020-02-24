@@ -171,6 +171,12 @@ def react_to_bjobs_json_output(json_output):
         lsf_status = record['STAT']
         new_status = map_lsf_status_to_job_status(lsf_status)
         job = delayed_job_models.get_job_by_lsf_id(lsf_id)
+
+        old_status = job.status
+        status_changed = old_status != new_status
+        if not status_changed:
+            continue
+
         job.status = new_status
         if new_status == delayed_job_models.JobStatuses.RUNNING:
             lsf_date_str = record['START_TIME']
@@ -181,7 +187,6 @@ def react_to_bjobs_json_output(json_output):
             finished_at = parse_bjobs_output_date(lsf_date_str)
             job.finished_at = finished_at
             save_job_outputs(job)
-
 
         delayed_job_models.save_job(job)
         print(f'Job {job.id} with lsf id {job.lsf_job_id} new state is {new_status}')
