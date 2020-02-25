@@ -135,6 +135,12 @@ paths:
           description: 'Input File 2'
           required: true
           type: 'file'
+        - name: 'dl__ignore_cache'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
+          required: true
+          type: 'boolean'
       responses:
         "200":
           description: "successful operation"
@@ -161,9 +167,10 @@ paths:
           description: 'Standardise or not'
           required: true
           type: 'boolean'
-        - name: '__ignore_cache__'
+        - name: 'dl__ignore_cache'
           in: 'formData'
-          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
           required: true
           type: 'boolean'
       responses:

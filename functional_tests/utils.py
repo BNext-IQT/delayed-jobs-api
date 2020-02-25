@@ -23,7 +23,8 @@ def prepare_test_job_1(tmp_dir):
     payload = {
         'instruction': 'RUN_NORMALLY',
         'seconds': seconds,
-        'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
+        'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json',
+        'dl__ignore_cache': True
     }
 
     print('payload: ', payload)

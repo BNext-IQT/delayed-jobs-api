@@ -111,13 +111,17 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
         app_logging.info(f'Job {job.id} already exists')
+        must_ignore_cache = job_params.get('dl__ignore_cache', False)
+        if must_ignore_cache:
+            delayed_job_models.delete_job(job)
+            job = create_and_submit_job(job_type, job_params, docker_image_url, input_files_hashes)
+            return get_job_submission_response(job)
+
         return get_job_submission_response(job)
 
     except delayed_job_models.JobNotFoundError:
 
-        job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
-        app_logging.info(f'Submitting Job: {job.id}')
-        prepare_job_and_submit(job, input_files_desc)
+        job = create_and_submit_job(job_type, job_params, docker_image_url, input_files_hashes)
         return get_job_submission_response(job)
 
 
@@ -144,6 +148,21 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         prepare_job_and_run(job)
 
     return job.public_dict()
+
+def create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
+    """
+    Creates a job and submits if to LSF
+    :param job_type: type of job to submit
+    :param input_files_desc: dict with the paths of the input files
+    :param input_files_hashes: dict with the hashes of the input files
+    :param docker_image_url: image of the container to use
+    :param job_params: parameters of the job
+    :return: the job object created
+    """
+    job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
+    app_logging.info(f'Submitting Job: {job.id}')
+    prepare_job_and_submit(job, input_files_desc)
+    return job
 
 def get_job_submission_response(job):
     """
