@@ -8,7 +8,7 @@ import shutil
 
 import requests
 
-from . import utils
+import utils
 
 
 def run_test(server_base_url):
