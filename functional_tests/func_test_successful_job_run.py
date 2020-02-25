@@ -3,7 +3,6 @@ Module that runs a normal simple job and expects it to run correctly.
 """
 import time
 from pathlib import Path
-import os
 import shutil
 
 import requests

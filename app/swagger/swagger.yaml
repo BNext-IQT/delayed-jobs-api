@@ -161,6 +161,11 @@ paths:
           description: 'Standardise or not'
           required: true
           type: 'boolean'
+        - name: '__ignore_cache__'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again'
+          required: true
+          type: 'boolean'
       responses:
         "200":
           description: "successful operation"

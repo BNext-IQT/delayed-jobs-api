@@ -3,7 +3,7 @@
     Script that runs the functional tests for the app
 """
 import argparse
-import test_successful_job_run
+import fun_test_successful_job_run
 import test_job_cache
 
 PARSER = argparse.ArgumentParser()
