@@ -114,14 +114,14 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         must_ignore_cache = job_params.get('dl__ignore_cache', False)
         if must_ignore_cache:
             delayed_job_models.delete_job(job)
-            job = create_and_submit_job(job_type, job_params, docker_image_url, input_files_hashes)
+            job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
             return get_job_submission_response(job)
 
         return get_job_submission_response(job)
 
     except delayed_job_models.JobNotFoundError:
 
-        job = create_and_submit_job(job_type, job_params, docker_image_url, input_files_hashes)
+        job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
         return get_job_submission_response(job)
 
 
