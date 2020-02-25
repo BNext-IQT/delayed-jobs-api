@@ -113,6 +113,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         app_logging.info(f'Job {job.id} already exists')
         must_ignore_cache = job_params.get('dl__ignore_cache', False)
         if must_ignore_cache:
+            app_logging.info(f'I was told to ignore cache so I will delete and submit again {job.id}')
             delayed_job_models.delete_job(job)
             job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
             return get_job_submission_response(job)
