@@ -325,13 +325,15 @@ def get_docker_image_url(job_type):
         raise DockerImageNotSet(f'There is no image container url set for jobs of type {job_type}')
 
 
-def get_job_by_params(job_type, job_params):
+def get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes={}):
     """
     :param job_type: type of the job
     :param job_params: parameters of the job
+    :param docker_image_url: docker image used for the job
+    :param input_files_hashes:dict of  hashes of the input files of the job
     :return: job given a type and params, raises JobNotFoundError if it does not exist
     """
-    job_id = generate_job_id(job_type, job_params)
+    job_id = generate_job_id(job_type, job_params, docker_image_url, input_files_hashes)
     return get_job_by_id(job_id)
 
 def update_job_progress(job_id, progress, status_log):

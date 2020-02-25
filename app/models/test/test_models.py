@@ -58,7 +58,6 @@ class TestModels(unittest.TestCase):
             'docker_image_url': docker_image_url
         }
 
-        print('ALL PARAMS: ', all_params)
 
         stable_raw_search_params = json.dumps(all_params, sort_keys=True)
         search_params_digest = hashlib.sha256(stable_raw_search_params.encode('utf-8')).digest()
@@ -129,6 +128,30 @@ class TestModels(unittest.TestCase):
             self.assertEqual(job_0.id, job_1.id, msg='A job with the same params was created twice!')
             self.assertEqual(job_1.status, status_must_be, msg='A job with the same params was created twice!')
 
+    def test_2_jobs_with_the_same_params_are_actually_the_same_job(self):
+        """
+        test that when getting a job with some params, they point the exactly to the same job
+        """
+        with self.flask_app.app_context():
+            job_type = 'SIMILARITY'
+            params = {
+                'search_type': 'SIMILARITY',
+                'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+                'threshold': '70'
+            }
+
+            input_files_hashes = {
+                'input1': 'hash1-hash1-hash1-hash1-hash1-hash1-hash1',
+                'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
+            }
+            docker_image_url = 'some_url'
+
+            job_0 = delayed_job_models.get_or_create(job_type, params, docker_image_url, input_files_hashes)
+            id_must_be = job_0.id
+
+            job_got = delayed_job_models.get_job_by_params(job_type, params, docker_image_url, input_files_hashes)
+            id_got = job_got.id
+            self.assertEqual(id_must_be, id_got, msg='The job was not found searching from its params!')
 
 if __name__ == '__main__':
     unittest.main()

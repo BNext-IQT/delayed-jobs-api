@@ -106,6 +106,10 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     :param job_params: dict with the job parameters
     """
 
+    # try:
+    #     # See if the job already exists
+    #     job = delayed_job_models.get_job_by_params(job_type, job_params)
+
     job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
     delayed_job_models.delete_job(job) # delete jobs for now, later only test jobs will be deleted before running
     job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
