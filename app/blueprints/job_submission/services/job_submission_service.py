@@ -106,20 +106,20 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     :param job_params: dict with the job parameters
     """
 
-    # try:
-    #     # See if the job already exists
-    #     job = delayed_job_models.get_job_by_params(job_type, job_params)
+    try:
 
-    job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
-    delayed_job_models.delete_job(job) # delete jobs for now, later only test jobs will be deleted before running
-    job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
+        # See if the job already exists
+        job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
+        app_logging.info(f'Job {job.id} already exists')
+        return get_job_submission_response(job)
 
-    app_logging.info(f'Submitting Job: {job.id}')
-    prepare_job_and_submit(job, input_files_desc)
+    except delayed_job_models.JobNotFoundError:
 
-    return {
-        'job_id': job.id
-    }
+        job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
+        app_logging.info(f'Submitting Job: {job.id}')
+        prepare_job_and_submit(job, input_files_desc)
+        return get_job_submission_response(job)
+
 
     return
     try:
@@ -145,6 +145,14 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
     return job.public_dict()
 
+def get_job_submission_response(job):
+    """
+    :param job: the job object for which get the submission response
+    :return: a dict with the response of a submission
+    """
+    return {
+        'job_id': job.id
+    }
 
 def get_job_run_dir(job):
     """

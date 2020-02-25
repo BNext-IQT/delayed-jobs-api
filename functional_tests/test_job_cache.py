@@ -19,6 +19,7 @@ def run_test(server_base_url):
     print('Going to test the job caching')
     print('------------------------------------------------------------------------------------------------')
 
+    return
     submit_url = f'{server_base_url}/submit/test_job/'
     print('submit_url: ', submit_url)
     seconds = 1
