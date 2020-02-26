@@ -40,7 +40,10 @@ def run_test(server_base_url):
     print('Waiting until job finishes')
     time.sleep(10)
 
-    status_request = requests.get(f'{server_base_url}/status/{job_id}')
+    status_url = utils.get_status_url(server_base_url, job_id)
+    print('status_url: ', status_url)
+
+    status_request = requests.get(status_url)
     status_response = status_request.json()
     started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
     timestamp_0 = started_at_0.timestamp()

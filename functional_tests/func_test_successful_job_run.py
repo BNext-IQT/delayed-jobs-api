@@ -38,7 +38,7 @@ def run_test(server_base_url):
     print('wait some time until it starts, it should be running...')
     time.sleep(10)
 
-    status_url = f'{server_base_url}/status/{job_id}'
+    status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
 
     status_request = requests.get(status_url)

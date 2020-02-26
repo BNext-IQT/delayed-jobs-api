@@ -73,3 +73,11 @@ def get_submit_url(server_base_url):
     :return: the url used to submit jobs
     """
     return f'{server_base_url}/submit/test_job'
+
+def get_status_url(server_base_url, job_id):
+    """
+    Returns the status url to check a job given its ID
+    :param server_base_url: the base url of the server
+    :param job_id: job id to check
+    """
+    return f'{server_base_url}/status/{job_id}'
