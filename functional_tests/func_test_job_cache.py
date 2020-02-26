@@ -35,7 +35,7 @@ def run_test(server_base_url):
     print(f'submission_status_code: {submission_status_code}')
     assert submission_status_code == 200, 'Job could not be submitted!'
     submit_response = submit_request.json()
-    job_id = submit_response.get('id')
+    job_id = submit_response.get('job_id')
 
     print('Waiting until job finishes')
     time.sleep(10)
