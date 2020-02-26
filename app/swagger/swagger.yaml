@@ -30,6 +30,8 @@ tags:
   externalDocs:
     description: Source Repository
     url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job
+- name: Admin
+  description: Administrative tasks for the system
 paths:
   /status/{jobId}:
     get:
@@ -178,18 +180,44 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/SubmissionResponse"
+  /admin/login:
+    get:
+      tags:
+        - 'Admin'
+      summary: 'Allow to login to the administration of the system.'
+      description: 'If the correct password is given, it will return a token that is valid for 1 hour'
+      operationId: 'admin_login'
+      produces:
+        - 'application/json'
+      responses:
+        "200":
+          description: "login successful"
+          schema:
+            $ref: '#/definitions/AdminToken'
+        "401":
+          description: 'Could not verify username and password'
+      security:
+        - adminAuth: []
 securityDefinitions:
   JobKeyAuth:        # arbitrary name for the security scheme
     type: apiKey
     in: header       # can be "header", "query" or "cookie"
     name: X-Job-Key  # name of the header, query parameter or cookie
+  adminAuth:
+    type: basic
 security:
   - JobKeyAuth: []
+  - adminAuth: []
 definitions:
   SubmissionResponse:
     type: 'object'
     properties:
       job_id:
+        type: 'string'
+  AdminToken:
+    type: "object"
+    properties:
+      token:
         type: 'string'
   JobStatus:
     type: "object"
