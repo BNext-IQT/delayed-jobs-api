@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import json
 import shutil
+import copy
 
 from sqlalchemy import and_
 
@@ -212,9 +213,13 @@ def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={
     :param input_files_hashes: a dict with the contents of the input files.
     :return: The id that the job must have
 '    """
+    parsed_job_params = copy.deepcopy(job_params)
+    # Do not take into account cache parameter for job id
+    if parsed_job_params.get('dl__ignore_cache') is not None:
+        del parsed_job_params['dl__ignore_cache']
 
     all_params = {
-        **job_params,
+        **parsed_job_params,
         'job_input_files_hashes': {
             **input_files_hashes
         },
