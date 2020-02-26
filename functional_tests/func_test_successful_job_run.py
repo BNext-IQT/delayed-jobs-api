@@ -22,7 +22,6 @@ def run_test(server_base_url):
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_1(tmp_dir)
-
     shutil.rmtree(tmp_dir)
 
     submit_url = utils.get_submit_url(server_base_url)

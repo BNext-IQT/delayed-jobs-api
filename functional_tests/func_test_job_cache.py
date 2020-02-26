@@ -3,8 +3,12 @@
 """
 import time
 import datetime
+import shutil
+from pathlib import Path
 
 import requests
+
+import utils
 
 
 # pylint: disable=R0914
@@ -19,22 +23,19 @@ def run_test(server_base_url):
     print('Going to test the job caching')
     print('------------------------------------------------------------------------------------------------')
 
-    return
+    tmp_dir = Path().absolute().joinpath('tmp')
+    test_job_to_submit = utils.prepare_test_job_2(tmp_dir)
+    shutil.rmtree(tmp_dir)
+
     submit_url = f'{server_base_url}/submit/test_job/'
     print('submit_url: ', submit_url)
-    seconds = 1
-    payload = {
-        'instruction': 'RUN_NORMALLY',
-        'seconds': seconds
-    }
 
-    print('payload: ', payload)
-    submit_request = requests.post(submit_url, json=payload)
+    submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
     submit_response = submit_request.json()
     job_id = submit_response.get('id')
 
     print('Waiting until job finishes')
-    time.sleep(seconds + 1)
+    time.sleep(10)
 
     status_request = requests.get(f'{server_base_url}/status/{job_id}')
     status_response = status_request.json()
@@ -44,12 +45,12 @@ def run_test(server_base_url):
     print(f'started_at_0: {started_at_0}')
 
     print('Now I will submit the same job again')
-    submit_request = requests.post(submit_url, json=payload)
+    submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
     submit_response = submit_request.json()
     job_id = submit_response.get('id')
 
     print('Waiting until job finishes')
-    time.sleep(seconds + 1)
+    time.sleep(1)
 
     status_request = requests.get(f'{server_base_url}/status/{job_id}')
     status_response = status_request.json()
@@ -60,8 +61,3 @@ def run_test(server_base_url):
 
     assert started_at_0 == started_at_1, 'The job must have not started again'
 
-    output_file_url = status_response.get('output_file_url')
-    full_output_file_url = f'{server_base_url}{output_file_url}'
-    print(f'full_output_file_url: {full_output_file_url}')
-    file_request = requests.get(full_output_file_url)
-    assert file_request.status_code == 200, 'The results file could not be downloaded!!'

@@ -4,7 +4,7 @@
 """
 import argparse
 import func_test_successful_job_run
-import test_job_cache
+import func_test_job_cache
 
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument('server_base_path', help='server base path to run the tests against',
@@ -18,7 +18,7 @@ def run():
     """
     print(f'Running functional tests on {ARGS.server_base_path}')
 
-    for test_module in [func_test_successful_job_run, test_job_cache]:
+    for test_module in [func_test_successful_job_run, func_test_job_cache]:
         test_module.run_test(ARGS.server_base_path)
 
 if __name__ == "__main__":
