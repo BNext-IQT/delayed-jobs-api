@@ -54,7 +54,7 @@ def run_test(server_base_url):
     assert progress > 0, 'The job progress is not increasing'
 
     print('wait some time until it should have finished...')
-    time.sleep(seconds + 10)
+    time.sleep(30)
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
