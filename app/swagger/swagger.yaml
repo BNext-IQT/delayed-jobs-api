@@ -184,7 +184,7 @@ paths:
     get:
       tags:
         - 'Admin'
-      summary: 'Allow to login to the administration of the system.'
+      summary: 'Allows to login to the administration of the system.'
       description: 'If the correct password is given, it will return a token that is valid for 1 hour'
       operationId: 'admin_login'
       produces:
