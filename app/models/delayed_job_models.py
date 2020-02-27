@@ -424,6 +424,23 @@ def delete_all_expired_jobs():
 
     return num_deleted
 
+def delete_all_jobs_by_type(job_type):
+    """
+    Deletes all the jobs that have expired
+    :return: the number of jobs that were deleted.
+    """
+    jobs_to_delete = DelayedJob.query.filter_by(type=job_type)
+    num_deleted = 0
+    for job in jobs_to_delete:
+        run_dir_path = job.run_dir_path
+        output_dir_path = job.output_dir_path
+        delete_job(job)
+        shutil.rmtree(run_dir_path, ignore_errors=True)
+        shutil.rmtree(output_dir_path, ignore_errors=True)
+        num_deleted += 1
+
+    return num_deleted
+
 def get_lsf_job_ids_to_check(lsf_host):
     """
     :param lsf_host: lsf host for which to return the jobs to check

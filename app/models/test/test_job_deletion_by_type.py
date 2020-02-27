@@ -1,24 +1,22 @@
 """
-Tests for the job deletion
+Tests for deleting jobs of a certain type
 """
-import datetime
-import os
-import random
-import shutil
-import string
 import unittest
 from pathlib import Path
+import os
+import shutil
+import random
+import string
 
 from app import create_app
 from app.models import delayed_job_models
 from app.models.test import utils
 
 
-class TestExpiredJobDeletion(unittest.TestCase):
+class TestJobDeletionByType(unittest.TestCase):
     """
-    Class to test the deletion of expired jobs
+    Class to test deletion of jobs by a given type
     """
-
     TEST_RUN_DIR_NAME = 'test_run_dir'
     ABS_RUN_DIR_PATH = str(Path(TEST_RUN_DIR_NAME).resolve())
     OUT_RUN_DIR_NAME = 'test_out_dir'
@@ -32,26 +30,21 @@ class TestExpiredJobDeletion(unittest.TestCase):
         os.makedirs(self.ABS_OUT_DIR_PATH, exist_ok=True)
 
     def tearDown(self):
-
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
 
         shutil.rmtree(self.ABS_RUN_DIR_PATH)
         shutil.rmtree(self.ABS_OUT_DIR_PATH)
 
-
-    def simulate_finished_job(self, expires_at):
+    def simulate_finished_job_of_a_type(self, job_type):
         """
-        Creates a database a job that is finished. It will expire at the date passed as parameter.
-        :param expires_at: Expiration date that you want for the job
+        Creates a database a job that is finished. It will be of the type given as parameter.
+        There will be some randomness in the parameters to generate some random ids
+        :param type: type that you want the job to be
         """
 
-        # create a job
-        job_type = 'SIMILARITY'
         params = {
-            'search_type': 'SIMILARITY',
             'structure': ''.join(random.choice(string.ascii_lowercase) for i in range(10)),
-            'threshold': '70'
         }
         docker_image_url = 'some_url'
 
@@ -73,33 +66,34 @@ class TestExpiredJobDeletion(unittest.TestCase):
         utils.simulate_outputs_of_job(job, output_dir)
 
         job.status = delayed_job_models.JobStatuses.FINISHED
-        job.expires_at = expires_at
         delayed_job_models.save_job(job)
 
         return job
 
-    def test_deletes_expired_jobs(self):
+
+    def test_deletes_all_jobs_of_a_given_type(self):
         """
-        Test that it deletes expired jobs correctly.
+        Tests that the operation of deleting a job of a certain type is executed correctly.
         """
 
         with self.flask_app.app_context():
 
-            expired_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            non_expired_time = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+            type_to_delete = 'FOR_DELETION'
+            type_to_not_delete = 'DO_NOT_DELETE'
+            job_per_type = 6
 
-            for time in [expired_time, non_expired_time]:
-                self.simulate_finished_job(time)
-                self.simulate_finished_job(time)
+            for job_type in [type_to_delete, type_to_not_delete]:
+                for i in range(0, job_per_type):
+                    self.simulate_finished_job_of_a_type(job_type)
 
-            num_deleted_got = delayed_job_models.delete_all_expired_jobs()
-            current_time = datetime.datetime.utcnow()
+            num_deleted_got = delayed_job_models.delete_all_jobs_by_type(type_to_delete)
+            self.assertEqual(job_per_type, num_deleted_got, msg='The correct amount of jobs was not deleted!')
+
             num_dirs_to_keep = 0
             for job in delayed_job_models.DelayedJob.query.all():
-                expires_at_got = job.expires_at
-                should_have_been_deleted = expires_at_got < current_time
+                should_have_been_deleted = job.type == type_to_delete
                 self.assertFalse(should_have_been_deleted,
-                                 msg='The expired jobs were not deleted correctly')
+                                 msg='A job was not deleted correctly')
 
                 run_dir = job.run_dir_path
                 self.assertTrue(os.path.exists(run_dir),
@@ -112,11 +106,8 @@ class TestExpiredJobDeletion(unittest.TestCase):
                 num_dirs_to_keep += 1
 
             num_run_dirs_got = len(os.listdir(self.ABS_RUN_DIR_PATH))
-            self.assertEqual(num_run_dirs_got, num_dirs_to_keep, msg='Some expired run dirs were not deleted!')
+            self.assertEqual(num_run_dirs_got, num_dirs_to_keep, msg='Some run dirs were not deleted!')
 
             num_out_dirs_got = len(os.listdir(self.ABS_OUT_DIR_PATH))
-            self.assertEqual(num_out_dirs_got, num_dirs_to_keep, msg='Some expired output dirs were not deleted!')
+            self.assertEqual(num_out_dirs_got, num_dirs_to_keep, msg='Some output dirs were not deleted!')
 
-            num_deleted_must_be = 2
-            self.assertEqual(num_deleted_must_be, num_deleted_got,
-                             msg='The number of deleted jobs was not calculated correctly')

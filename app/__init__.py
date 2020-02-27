@@ -13,6 +13,7 @@ from app.blueprints.swagger_description.swagger_description_blueprint import SWA
 from app.blueprints.job_submission.controllers.job_submissions_controller import SUBMISSION_BLUEPRINT
 from app.blueprints.job_status.job_status_controller import JOB_STATUS_BLUEPRINT
 from app.blueprints.admin.controllers.authorisation_controller import ADMIN_AUTH_BLUEPRINT
+from app.blueprints.admin.controllers.admin_tasks_controller import ADMIN_TASKS_BLUEPRINT
 
 
 def create_app():
@@ -52,6 +53,7 @@ def create_app():
         flask_app.register_blueprint(SUBMISSION_BLUEPRINT, url_prefix=f'{base_path}/submit')
         flask_app.register_blueprint(JOB_STATUS_BLUEPRINT, url_prefix=f'{base_path}/status')
         flask_app.register_blueprint(ADMIN_AUTH_BLUEPRINT, url_prefix=f'{base_path}/admin')
+        flask_app.register_blueprint(ADMIN_TASKS_BLUEPRINT, url_prefix=f'{base_path}/admin')
 
         return flask_app
 

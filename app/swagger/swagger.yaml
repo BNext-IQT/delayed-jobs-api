@@ -203,7 +203,8 @@ paths:
       tags:
         - 'Admin'
       summary: 'Deletes all jobs of the type passed as parameter.'
-      description: 'Deletes all jobs of the type passed as parameter. Fails if the job type does not exist'
+      description: "Deletes all jobs of the type passed as parameter. If the job type does not exist it doesn't delete
+      anything"
       operationId: 'admin_delete_all_jobs_by_type'
       produces:
         - 'application/json'
@@ -220,8 +221,6 @@ paths:
             $ref: '#/definitions/AdminOperationResult'
         "401":
           description: 'Invalid Admin token supplied'
-        '400':
-          description: 'The given type does not exist!'
       security:
         - adminTokenAuth: []
 securityDefinitions:
