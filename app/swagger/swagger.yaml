@@ -198,16 +198,47 @@ paths:
           description: 'Could not verify username and password'
       security:
         - adminAuth: []
+  /admin/delete_all_jobs_by_type:
+    post:
+      tags:
+        - 'Admin'
+      summary: 'Deletes all jobs of the type passed as parameter.'
+      description: 'Deletes all jobs of the type passed as parameter. Fails if the job type does not exist'
+      operationId: 'admin_delete_all_jobs_by_type'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'job_type'
+          in: 'formData'
+          description: 'Type of job to delete'
+          required: true
+          type: 'string'
+      responses:
+        "200":
+          description: 'All jobs of the given type were deleted!'
+          schema:
+            $ref: '#/definitions/AdminOperationResult'
+        "401":
+          description: 'Invalid Admin token supplied'
+        '400':
+          description: 'The given type does not exist!'
+      security:
+        - adminTokenAuth: []
 securityDefinitions:
   JobKeyAuth:        # arbitrary name for the security scheme
     type: apiKey
     in: header       # can be "header", "query" or "cookie"
     name: X-Job-Key  # name of the header, query parameter or cookie
+  adminTokenAuth:
+    type: apiKey
+    in: header
+    name: X-Admin-Key
   adminAuth:
     type: basic
 security:
   - JobKeyAuth: []
   - adminAuth: []
+  - adminTokenAuth: []
 definitions:
   SubmissionResponse:
     type: 'object'
@@ -218,6 +249,11 @@ definitions:
     type: "object"
     properties:
       token:
+        type: 'string'
+  AdminOperationResult:
+    type: "object"
+    properties:
+      operation_result:
         type: 'string'
   JobStatus:
     type: "object"
