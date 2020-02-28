@@ -76,7 +76,8 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'timestamp_1: {timestamp_1}')
     print(f'started_at_1: {started_at_1}')
 
-    assert started_at_0 == started_at_1, 'The job must have not started again'
+    assert started_at_0 == started_at_1, f'The job must have not started again. ' \
+                                         f'started_at_0:{started_at_0}, started_at_1:{started_at_1}'
 
     output_files_urls = status_response.get('output_files_urls')
     print('output_files_urls: ', output_files_urls)
