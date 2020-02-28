@@ -461,7 +461,10 @@ def get_lsf_job_ids_to_check(lsf_host):
         and_(lsf_host_is_my_host, status_is_not_error_or_finished)
     )
 
-    ids = [job.lsf_job_id for job in job_to_check_status]
+    # Make sure there are no None value. This can happen when the server has created a job and is submitting it, and the
+    # same time the daemon asks for jobs to check. This makes the daemon crash.
+    ids = [job.lsf_job_id for job in job_to_check_status if job.lsf_job_id is not None]
+
     DB.session.commit()
 
     return ids

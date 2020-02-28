@@ -2,6 +2,7 @@
 Module with utils functions for the functional tests
 """
 import os
+import time
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -104,10 +105,11 @@ def request_all_test_jobs_deletion(server_base_url, admin_username, admin_passwo
 
     if login_request.status_code != 200:
         raise ServerAdminError(f'There was a problem when logging into the administration of the system! '
-                               f'(Status code: {login_request.status_code}')
+                               f'(Status code: {login_request.status_code})')
 
     login_response = login_request.json()
     print('Token obtained')
+
     admin_token = login_response.get('token')
     headers = {'X-Admin-Key': admin_token}
 
@@ -115,7 +117,7 @@ def request_all_test_jobs_deletion(server_base_url, admin_username, admin_passwo
     jobs_deletion_request = requests.post(jobs_deletion_url, data={'job_type': 'TEST'}, headers=headers)
     if jobs_deletion_request.status_code != 200:
         raise ServerAdminError(f'There was a problem when requesting the deletion of test jobs! '
-                               f'(Status code: {jobs_deletion_request.status_code}')
+                               f'(Status code: {jobs_deletion_request.status_code})')
     jobs_deletion_response = jobs_deletion_request.json()
 
     print('jobs_deletion_response: ', jobs_deletion_response)
