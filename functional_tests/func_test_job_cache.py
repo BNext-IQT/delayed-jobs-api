@@ -12,7 +12,7 @@ import utils
 
 
 # pylint: disable=R0914
-def run_test(server_base_url):
+def run_test(server_base_url, admin_username, admin_password):
     """
     Test that when a job that is submitted is has exactly the same parameters of a previously run job, the job is not
     run again. It just returns the existing job.
@@ -22,6 +22,8 @@ def run_test(server_base_url):
     print('------------------------------------------------------------------------------------------------')
     print('Going to test the job caching')
     print('------------------------------------------------------------------------------------------------')
+
+    return
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_2(tmp_dir)

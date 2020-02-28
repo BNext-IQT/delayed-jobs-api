@@ -3,6 +3,10 @@ Module with utils functions for the functional tests
 """
 import os
 
+import requests
+from requests.auth import HTTPBasicAuth
+
+
 def prepare_test_job_1(tmp_dir):
     """
     create some inputs, some parameters for a test job
@@ -81,3 +85,37 @@ def get_status_url(server_base_url, job_id):
     :param job_id: job id to check
     """
     return f'{server_base_url}/status/{job_id}'
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Server Administration Helpers
+# ----------------------------------------------------------------------------------------------------------------------
+class ServerAdminError(Exception):
+    """Base class for exceptions in the admin functions."""
+
+
+def request_all_test_jobs_deletion(server_base_url, admin_username, admin_password):
+    """
+    Requests the server to delete all test jobs. Useful to run before the start of a test.
+    """
+
+    admin_login_url = f'{server_base_url}/admin/login'
+    print('admin_login_url: ', admin_login_url)
+    login_request = requests.get(admin_login_url, auth=HTTPBasicAuth(admin_username, admin_password))
+
+    if login_request.status_code != 200:
+        raise ServerAdminError(f'There was a problem when logging into the administration of the system! '
+                               f'(Status code: {login_request.status_code}')
+
+    login_response = login_request.json()
+    print('Token obtained')
+    admin_token = login_response.get('token')
+    headers = {'X-Admin-Key': admin_token}
+
+    jobs_deletion_url = f'{server_base_url}/admin/delete_all_jobs_by_type'
+    jobs_deletion_request = requests.post(jobs_deletion_url, data={'job_type': 'TEST'}, headers=headers)
+    if jobs_deletion_request.status_code != 200:
+        raise ServerAdminError(f'There was a problem when requesting the deletion of test jobs! '
+                               f'(Status code: {jobs_deletion_request.status_code}')
+    jobs_deletion_response = jobs_deletion_request.json()
+
+    print('jobs_deletion_response: ', jobs_deletion_response)

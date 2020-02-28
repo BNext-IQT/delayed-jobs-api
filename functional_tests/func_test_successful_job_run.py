@@ -10,7 +10,7 @@ import requests
 import utils
 
 
-def run_test(server_base_url):
+def run_test(server_base_url, admin_username, admin_password):
     """
     Tests that a job can run normally.
     :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
@@ -19,6 +19,9 @@ def run_test(server_base_url):
     print('------------------------------------------------------------------------------------------------')
     print('Going to test a successful job run')
     print('------------------------------------------------------------------------------------------------')
+
+    utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
+    return
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_1(tmp_dir)
