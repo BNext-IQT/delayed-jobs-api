@@ -23,7 +23,7 @@ def run_test(server_base_url, admin_username, admin_password):
     print('Going to test the job caching')
     print('------------------------------------------------------------------------------------------------')
 
-    return
+    utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_2(tmp_dir)

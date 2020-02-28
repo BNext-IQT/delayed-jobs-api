@@ -21,7 +21,6 @@ def run_test(server_base_url, admin_username, admin_password):
     print('------------------------------------------------------------------------------------------------')
 
     utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
-    return
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_1(tmp_dir)
