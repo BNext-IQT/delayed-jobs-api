@@ -126,6 +126,11 @@ functional_tests:
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
+  only:
+  - staging
+  environment:
+    name: staging
+    url: ${SERVER_URL_STAGING}
   script:
   - sleep 30 # Give some time for the deployment to take effect.
-  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING}
+  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
