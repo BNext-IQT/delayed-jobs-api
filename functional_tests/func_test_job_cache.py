@@ -48,7 +48,7 @@ def run_test(server_base_url, admin_username, admin_password):
     status_request = requests.get(status_url)
     status_response = status_request.json()
 
-    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
+    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
     timestamp_0 = started_at_0.timestamp()
     print(f'timestamp_0: {timestamp_0}')
     print(f'started_at_0: {started_at_0}')
@@ -58,12 +58,12 @@ def run_test(server_base_url, admin_username, admin_password):
     submit_response = submit_request.json()
     job_id = submit_response.get('id')
 
-    print('Waiting until job finishes')
+    print('Waiting until job "starts"')
     time.sleep(1)
 
-    status_request = requests.get(f'{server_base_url}/status/{job_id}')
+    status_request = requests.get(status_url)
     status_response = status_request.json()
-    started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
+    started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
     timestamp_1 = started_at_1.timestamp()
     print(f'timestamp_1: {timestamp_1}')
     print(f'started_at_1: {started_at_1}')

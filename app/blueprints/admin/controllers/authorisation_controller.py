@@ -12,6 +12,10 @@ def login():
 
     auth = request.authorization
 
+    if auth is None:
+        return make_response('No login credentials were provided!', 400,
+                             {'WWW-Authenticate': 'Basic realm="Login Required'})
+
     try:
         token = authorisation_service.get_admin_token(auth.username, auth.password)
         return jsonify({'token': token})
