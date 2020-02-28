@@ -98,6 +98,17 @@ def parse_args_and_submit_job(job_type, form_args, file_args):
 
     return submit_job(job_type, job_inputs_only, input_files_hashes, docker_image_url, job_params_only)
 
+def parse_ignore_cache_param(job_params):
+    """
+    parses the dl__ignore_cache parameter from the job params
+    :param job_params: the dict with the job parametes
+    :return: True if must ignore cache, False otherwise
+    """
+    must_ignore_cache = job_params.get('dl__ignore_cache', False)
+    if must_ignore_cache == 'True':
+        return True
+    elif must_ignore_cache == 'False':
+        return False
 
 def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
     """
@@ -111,20 +122,21 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
         app_logging.info(f'Job {job.id} already exists')
-        app_logging.info(f'job_params: {job_params}')
-        must_ignore_cache = job_params.get('dl__ignore_cache', False)
-        app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
 
-        if must_ignore_cache == 'True':
-            must_ignore_cache = True
-        elif must_ignore_cache == 'False':
-            must_ignore_cache = False
+        if job.status in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
+                          delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.UNKNOWN]:
 
-        if must_ignore_cache:
-            app_logging.info(f'I was told to ignore cache so I will delete and submit again {job.id}')
-            delayed_job_models.delete_job(job)
-            job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
             return get_job_submission_response(job)
+
+        elif job.status in delayed_job_models.JobStatuses.FINISHED:
+
+            must_ignore_cache = parse_ignore_cache_param(job_params)
+
+            if must_ignore_cache:
+                app_logging.info(f'I was told to ignore cache so I will delete and submit again {job.id}')
+                delayed_job_models.delete_job(job)
+                job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
+                return get_job_submission_response(job)
 
         return get_job_submission_response(job)
 

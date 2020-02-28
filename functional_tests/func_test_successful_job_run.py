@@ -24,7 +24,6 @@ def run_test(server_base_url, admin_username, admin_password):
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_1(tmp_dir)
-    shutil.rmtree(tmp_dir)
 
     submit_url = utils.get_submit_url(server_base_url)
     print('submit_url: ', submit_url)
@@ -70,3 +69,5 @@ def run_test(server_base_url, admin_username, admin_password):
     for url in output_files_urls:
         file_request = requests.get(url)
         assert file_request.status_code == 200, 'A results file could not be downloaded!!'
+
+    shutil.rmtree(tmp_dir)
