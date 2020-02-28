@@ -17,7 +17,7 @@ tags:
 - name: 'submission'
   description: 'Endpoints related to the submission of jobs'
 schemes:
-#- "https"
+- "https"
 - "http"
 tags:
 - name: Example Job
