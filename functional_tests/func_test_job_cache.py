@@ -56,11 +56,13 @@ def run_test(server_base_url, admin_username, admin_password):
     print('Now I will submit the same job again')
     submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
     submit_response = submit_request.json()
-    job_id = submit_response.get('id')
+    job_id = submit_response.get('job_id')
 
     print('Waiting until job "starts"')
     time.sleep(1)
 
+    status_url = utils.get_status_url(server_base_url, job_id)
+    print('status_url: ', status_url)
     status_request = requests.get(status_url)
     status_response = status_request.json()
     started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
