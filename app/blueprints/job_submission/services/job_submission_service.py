@@ -107,6 +107,13 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     """
 
     try:
+        app_logging.info(f'Checking if job already exists: ')
+        app_logging.info(f'input_files_hashes:')
+        app_logging.info(json.dumps(input_files_hashes))
+        app_logging.info(f'docker_image_url:')
+        app_logging.info(json.dumps(docker_image_url))
+        app_logging.info(f'input_files_hashes:')
+        app_logging.info(json.dumps(input_files_hashes))
 
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)

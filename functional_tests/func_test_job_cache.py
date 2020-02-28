@@ -27,7 +27,6 @@ def run_test(server_base_url, admin_username, admin_password):
 
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_2(tmp_dir)
-    shutil.rmtree(tmp_dir)
 
     submit_url = utils.get_submit_url(server_base_url)
     print('submit_url: ', submit_url)
@@ -47,6 +46,7 @@ def run_test(server_base_url, admin_username, admin_password):
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
+    print('status_response: ', status_response)
 
     started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
     timestamp_0 = started_at_0.timestamp()
@@ -65,6 +65,8 @@ def run_test(server_base_url, admin_username, admin_password):
     print('status_url: ', status_url)
     status_request = requests.get(status_url)
     status_response = status_request.json()
+
+    print('status_response: ', status_response)
     started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
     timestamp_1 = started_at_1.timestamp()
     print(f'timestamp_1: {timestamp_1}')
@@ -78,4 +80,6 @@ def run_test(server_base_url, admin_username, admin_password):
     for url in output_files_urls:
         file_request = requests.get(url)
         assert file_request.status_code == 200, 'A results file could not be downloaded!!'
+
+    shutil.rmtree(tmp_dir)
 
