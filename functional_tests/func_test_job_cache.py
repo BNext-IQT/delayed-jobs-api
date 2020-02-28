@@ -36,6 +36,7 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'submission_status_code: {submission_status_code}')
     assert submission_status_code == 200, 'Job could not be submitted!'
     submit_response = submit_request.json()
+    print('submit_response: ', submit_response)
     job_id = submit_response.get('job_id')
 
     print('Waiting until job finishes')
@@ -54,14 +55,17 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'started_at_0: {started_at_0}')
 
     print('Now I will submit the same job again')
+    test_job_to_submit = utils.prepare_test_job_2(tmp_dir)
     submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
     submit_response = submit_request.json()
-    job_id = submit_response.get('job_id')
+    job_id_1 = submit_response.get('job_id')
+
+    assert job_id == job_id_1, 'The job ids must be the same!'
 
     print('Waiting until job "starts"')
     time.sleep(1)
 
-    status_url = utils.get_status_url(server_base_url, job_id)
+    status_url = utils.get_status_url(server_base_url, job_id_1)
     print('status_url: ', status_url)
     status_request = requests.get(status_url)
     status_response = status_request.json()

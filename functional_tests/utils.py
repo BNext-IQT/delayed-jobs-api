@@ -6,16 +6,11 @@ import os
 import requests
 from requests.auth import HTTPBasicAuth
 
+def create_mock_input_files_for_job(tmp_dir, filename_prefix):
 
-def prepare_test_job_1(tmp_dir):
-    """
-    create some inputs, some parameters for a test job
-    :return: a dict with the test job properties
-    """
-    os.makedirs(tmp_dir, exist_ok=True)
     files = {}
     for i in range(0, 2):
-        file_name = f'input_{i}.txt'
+        file_name = f'{filename_prefix}_input_{i}.txt'
         test_file_i_path = tmp_dir.joinpath(file_name)
 
         if os.path.isfile(test_file_i_path):
@@ -25,6 +20,16 @@ def prepare_test_job_1(tmp_dir):
             test_file.write(f'this is input file {i}')
 
         files[file_name] = open(test_file_i_path, 'rb')
+
+    return files
+
+def prepare_test_job_1(tmp_dir):
+    """
+    create some inputs, some parameters for a test job
+    :return: a dict with the test job properties
+    """
+    os.makedirs(tmp_dir, exist_ok=True)
+    files = create_mock_input_files_for_job(tmp_dir, 'job1')
 
     seconds = 20
     payload = {
@@ -48,18 +53,7 @@ def prepare_test_job_2(tmp_dir):
     :return: a dict with the test job properties
     """
     os.makedirs(tmp_dir, exist_ok=True)
-    files = {}
-    for i in range(0, 2):
-        file_name = f'input_{i}.txt'
-        test_file_i_path = tmp_dir.joinpath(file_name)
-
-        if os.path.isfile(test_file_i_path):
-            os.remove(test_file_i_path)
-
-        with open(test_file_i_path, 'wt') as test_file:
-            test_file.write(f'Input file {i}')
-
-        files[file_name] = open(test_file_i_path, 'rb')
+    files = create_mock_input_files_for_job(tmp_dir, 'job2')
 
     seconds = 5
     payload = {
