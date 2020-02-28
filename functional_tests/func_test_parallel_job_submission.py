@@ -4,6 +4,7 @@
 import time
 import datetime
 from pathlib import Path
+import shutil
 
 import requests
 
@@ -72,3 +73,5 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'started_at_1: {started_at_1}')
 
     assert started_at_0 == started_at_1, 'The job must have not started again'
+
+    shutil.rmtree(tmp_dir)
