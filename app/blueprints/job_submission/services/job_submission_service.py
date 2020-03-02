@@ -171,8 +171,8 @@ def create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker
     """
     job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
     job.progress = 0
-    job.started_at = 0
-    job.finished_at = 0
+    job.started_at = None
+    job.finished_at = None
     delayed_job_models.save_job(job)
     app_logging.info(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
