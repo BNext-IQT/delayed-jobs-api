@@ -51,7 +51,7 @@ class TestStatus(unittest.TestCase):
             resp_data = json.loads(response.data.decode('utf-8'))
 
             for prop in ['type', 'status', 'status_log', 'progress', 'created_at', 'started_at', 'finished_at',
-                         'raw_params', 'expires_at', 'api_initial_url', 'docker_image_url', 'timezone']:
+                         'raw_params', 'expires_at', 'api_initial_url', 'docker_image_url', 'timezone', 'num_failures']:
                 type_must_be = str(getattr(job_must_be, prop))
                 type_got = resp_data[prop]
                 self.assertEqual(type_must_be, type_got, msg=f'The returned job {prop} is not correct.')

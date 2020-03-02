@@ -208,9 +208,19 @@ def react_to_bjobs_json_output(json_output):
 
         job.status = new_status
         if new_status == delayed_job_models.JobStatuses.RUNNING:
+
             lsf_date_str = record['START_TIME']
             started_at = parse_bjobs_output_date(lsf_date_str)
             job.started_at = started_at
+        elif new_status == delayed_job_models.JobStatuses.ERROR:
+
+            lsf_date_str = record['FINISH_TIME']
+            finished_at = parse_bjobs_output_date(lsf_date_str)
+            job.finished_at = finished_at
+            if job.num_failures is None:
+                job.num_failures = 0
+            job.num_failures += 1
+
         elif new_status == delayed_job_models.JobStatuses.FINISHED:
             lsf_date_str = record['FINISH_TIME']
             finished_at = parse_bjobs_output_date(lsf_date_str)

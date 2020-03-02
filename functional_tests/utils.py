@@ -72,6 +72,30 @@ def prepare_test_job_2(tmp_dir):
         'files': files
     }
 
+def prepare_test_job_3(tmp_dir):
+    """
+    create some inputs, some parameters for a test job
+    :return: a dict with the test job properties
+    """
+    os.makedirs(tmp_dir, exist_ok=True)
+    files = create_mock_input_files_for_job(tmp_dir, 'job2')
+
+    seconds = 1
+    payload = {
+        'instruction': 'FAIL',
+        'seconds': seconds,
+        'api_url': 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json',
+        'dl__ignore_cache': False
+    }
+
+    print('payload: ', payload)
+    print('files: ', files)
+
+    return {
+        'payload': payload,
+        'files': files
+    }
+
 def get_submit_url(server_base_url):
     """
     :param server_base_url: the base url of the server

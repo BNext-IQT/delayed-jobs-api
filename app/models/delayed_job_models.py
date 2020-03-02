@@ -125,7 +125,7 @@ class DelayedJob(DB.Model):
         plain_properties = {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
                                                          'created_at', 'started_at', 'finished_at', 'raw_params',
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
-                                                         'timezone']}
+                                                         'timezone', 'num_failures']}
 
         output_files_urls = [output_file.public_url for output_file in self.output_files]
 

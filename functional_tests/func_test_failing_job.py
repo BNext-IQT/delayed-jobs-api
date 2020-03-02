@@ -3,13 +3,16 @@ Tests that a failing job is restarted up to n times when it is submitted again
 """
 import time
 import datetime
+from pathlib import Path
 
 import requests
+
+import utils
 
 
 # pylint: disable=R0914
 # pylint: disable=R0915
-def run_test(server_base_url):
+def run_test(server_base_url, admin_username, admin_password):
     """
     Submits a job that will always fail and tests that it is restarted when submitted again. But only up to n times
     :param server_base_url: base url of the running server. E.g. http://127.0.0.1:5000
@@ -19,26 +22,30 @@ def run_test(server_base_url):
     print('Going to test the a job that always fails')
     print('------------------------------------------------------------------------------------------------')
 
-    submit_url = f'{server_base_url}/submit/test_job/'
+    utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
+    tmp_dir = Path().absolute().joinpath('tmp')
+    test_job_to_submit = utils.prepare_test_job_3(tmp_dir)
+
+    submit_url = utils.get_submit_url(server_base_url)
     print('submit_url: ', submit_url)
-    seconds = 1
-    payload = {
-        'instruction': 'FAIL',
-        'seconds': seconds
-    }
+    submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
+    submission_status_code = submit_request.status_code
+    print(f'submission_status_code: {submission_status_code}')
+    assert submission_status_code == 200, 'Job could not be submitted!'
 
-    print('payload: ', payload)
-
-    submit_request = requests.post(submit_url, json=payload)
-    submit_response = submit_request.json()
-    job_id = submit_response.get('id')
+    submission_response = submit_request.json()
+    print('submission_response: ', submission_response)
+    job_id = submission_response.get('job_id')
 
     print('Waiting until job finishes')
-    time.sleep(seconds + 1)
+    time.sleep(15)
 
-    status_request = requests.get(f'{server_base_url}/status/{job_id}')
+    status_url = utils.get_status_url(server_base_url, job_id)
+    print('status_url: ', status_url)
+
+    status_request = requests.get(status_url)
     status_response = status_request.json()
-    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
+    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
     timestamp_0 = started_at_0.timestamp()
     print(f'timestamp_0: {timestamp_0}')
     print(f'started_at_0: {started_at_0}')
@@ -46,6 +53,8 @@ def run_test(server_base_url):
     job_status = status_response.get('status')
     print(f'job_status: {job_status}')
     assert job_status == 'ERROR', 'Job should have failed!'
+
+    return
 
     max_retries = 6
     retries = 0
