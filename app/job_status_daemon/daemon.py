@@ -209,26 +209,50 @@ def react_to_bjobs_json_output(json_output):
         job.status = new_status
         if new_status == delayed_job_models.JobStatuses.RUNNING:
 
-            lsf_date_str = record['START_TIME']
-            started_at = parse_bjobs_output_date(lsf_date_str)
-            job.started_at = started_at
+            parse_job_started_at_time_if_not_set(job, record)
+
         elif new_status == delayed_job_models.JobStatuses.ERROR:
 
-            lsf_date_str = record['FINISH_TIME']
-            finished_at = parse_bjobs_output_date(lsf_date_str)
-            job.finished_at = finished_at
+            # If the job ran too fast, the started at could have not been captured by my previous run.
+            parse_job_started_at_time_if_not_set(job, record)
+            parse_job_finished_at_time_if_not_set(job, record)
             if job.num_failures is None:
                 job.num_failures = 0
             job.num_failures += 1
 
         elif new_status == delayed_job_models.JobStatuses.FINISHED:
-            lsf_date_str = record['FINISH_TIME']
-            finished_at = parse_bjobs_output_date(lsf_date_str)
-            job.finished_at = finished_at
+
+            parse_job_started_at_time_if_not_set(job, record)
+            parse_job_finished_at_time_if_not_set(job, record)
             save_job_outputs(job)
 
         delayed_job_models.save_job(job)
         print(f'Job {job.id} with lsf id {job.lsf_job_id} new state is {new_status}')
+
+
+def parse_job_started_at_time_if_not_set(job, lsf_record):
+    """
+    saves the started at time of the job from the lsf record obtained if it was not set before
+    :param job: job object to which save the started at time
+    :param lsf_record: record obtained from bjobs output
+    """
+    if job.started_at is None:
+        lsf_date_str = lsf_record['START_TIME']
+        started_at = parse_bjobs_output_date(lsf_date_str)
+        job.started_at = started_at
+
+
+def parse_job_finished_at_time_if_not_set(job, lsf_record):
+    """
+    saves the started at time of the job from the lsf record obtained if it was not set before
+    :param job: job object to which save the started at time
+    :param lsf_record: record obtained from bjobs output
+    """
+    if job.finished_at is None:
+        lsf_date_str = lsf_record['FINISH_TIME']
+        finished_at = parse_bjobs_output_date(lsf_date_str)
+        job.finished_at = finished_at
+
 
 def map_lsf_status_to_job_status(lsf_status):
     """

@@ -60,7 +60,7 @@ def run_test(server_base_url, admin_username, admin_password):
     original_job_id = job_id
     while retries < max_retries:
 
-        print(f'Now I will submit the same job again. Retry number {retries}')
+        print(f'Now I will submit the same job again. Retry number {retries + 1}')
         test_job_to_submit = utils.prepare_test_job_3(tmp_dir)
 
         submit_url = utils.get_submit_url(server_base_url)
@@ -77,15 +77,17 @@ def run_test(server_base_url, admin_username, admin_password):
 
         assert original_job_id == job_id, 'The job id must be the same!'
 
-        status_url = utils.get_status_url(server_base_url, job_id)
-        print('status_url: ', status_url)
-
         print('Waiting until job finishes')
         time.sleep(20)
+
+        status_url = utils.get_status_url(server_base_url, job_id)
+        print('status_url: ', status_url)
 
         status_request = requests.get(status_url)
 
         status_response = status_request.json()
+        print('status_response: ', status_response)
+
         started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
         timestamp_1 = started_at_1.timestamp()
         job_status = status_response.get('status')
