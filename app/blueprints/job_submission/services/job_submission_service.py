@@ -128,7 +128,20 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
             return get_job_submission_response(job)
 
-        elif job.status in delayed_job_models.JobStatuses.FINISHED:
+        elif job.status == delayed_job_models.JobStatuses.ERROR:
+
+            if job.num_failures <= MAX_RETRIES:
+                app_logging.info(f'{job.id} has failed {job.num_failures}. Max retries is {MAX_RETRIES}. '
+                                 f'I will submit it again')
+                job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
+                                            job_params)
+                return get_job_submission_response(job)
+            else:
+                app_logging.info(f'{job.id} has failed {job.num_failures}. Max retries is {MAX_RETRIES}. '
+                                 f'NOT submitting it again')
+                return get_job_submission_response(job)
+
+        elif job.status == delayed_job_models.JobStatuses.FINISHED:
 
             must_ignore_cache = parse_ignore_cache_param(job_params)
 
@@ -145,30 +158,6 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
         return get_job_submission_response(job)
 
-
-    return
-    try:
-        # See if the job existed before
-        job = delayed_job_models.get_job_by_params(job_type, job_params)
-
-        if job.status == delayed_job_models.JobStatuses.ERROR:
-            if job.get_executions_count() < (MAX_RETRIES + 1):
-                prepare_job_and_run(job)
-
-        job_status = job.status
-        output_file_path = job.output_file_path
-        results_file_is_not_accessible = (output_file_path is None) or (not os.path.exists(output_file_path))
-        if (job_status == delayed_job_models.JobStatuses.FINISHED) and results_file_is_not_accessible:
-            prepare_job_and_run(job)
-
-    except delayed_job_models.JobNotFoundError:
-        # It doesn't exist, so I submit it
-
-
-        job = delayed_job_models.get_or_create(job_type, job_params)
-        prepare_job_and_run(job)
-
-    return job.public_dict()
 
 def create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
     """

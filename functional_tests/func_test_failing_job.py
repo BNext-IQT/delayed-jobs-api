@@ -38,7 +38,7 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submission_response.get('job_id')
 
     print('Waiting until job finishes')
-    time.sleep(15)
+    time.sleep(20)
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
@@ -54,34 +54,41 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'job_status: {job_status}')
     assert job_status == 'ERROR', 'Job should have failed!'
 
-    return
-
     max_retries = 6
     retries = 0
+    previous_started_at_time = started_at_0
     while retries < max_retries:
 
         print(f'Now I will submit the same job again. Retry number {retries}')
-        submit_request = requests.post(submit_url, json=payload)
-        submit_response = submit_request.json()
-        job_id = submit_response.get('id')
+        test_job_to_submit = utils.prepare_test_job_3(tmp_dir)
+
+        submit_url = utils.get_submit_url(server_base_url)
+        print('submit_url: ', submit_url)
+        submit_request = requests.post(submit_url, data=test_job_to_submit['payload'],
+                                       files=test_job_to_submit['files'])
+        submission_status_code = submit_request.status_code
+        print(f'submission_status_code: {submission_status_code}')
+        assert submission_status_code == 200, 'Job could not be submitted!'
 
         print('Waiting until job finishes')
-        time.sleep(seconds + 1)
+        time.sleep(20)
 
         status_request = requests.get(f'{server_base_url}/status/{job_id}')
         status_response = status_request.json()
         started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
         timestamp_1 = started_at_1.timestamp()
-        print(f'started_at_0: {started_at_0}')
+        print(f'previous_started_at_time: {previous_started_at_time}')
         print(f'timestamp_1: {timestamp_1}')
         print(f'started_at_1: {started_at_1}')
 
-        assert started_at_0 != started_at_1, 'The job must have started again'
+        assert previous_started_at_time != started_at_1, 'The job must have started again'
 
         job_status = status_response.get('status')
-        started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
+        previous_started_at_time = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
         print(f'job_status: {job_status}')
         retries += 1
+
+    return
 
     print(f'Now I will submit the same job again. Retry number {retries}')
     submit_request = requests.post(submit_url, json=payload)
