@@ -240,6 +240,7 @@ def parse_job_started_at_time_if_not_set(job, lsf_record):
         lsf_date_str = lsf_record['START_TIME']
         started_at = parse_bjobs_output_date(lsf_date_str)
         job.started_at = started_at
+        print(f'Job {job.id} started at time is {started_at}')
 
 
 def parse_job_finished_at_time_if_not_set(job, lsf_record):
@@ -252,6 +253,7 @@ def parse_job_finished_at_time_if_not_set(job, lsf_record):
         lsf_date_str = lsf_record['FINISH_TIME']
         finished_at = parse_bjobs_output_date(lsf_date_str)
         job.finished_at = finished_at
+        print(f'Job {job.id} finished at time is {finished_at}')
 
 
 def map_lsf_status_to_job_status(lsf_status):
