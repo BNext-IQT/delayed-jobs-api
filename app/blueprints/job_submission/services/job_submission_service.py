@@ -427,6 +427,7 @@ def submit_job_to_lsf(job):
 
     lsf_job_id = get_lsf_job_id(str(submission_process.stdout))
     job.lsf_job_id = lsf_job_id
+    job.status = delayed_job_models.JobStatuses.QUEUED
     delayed_job_models.save_job(job)
     app_logging.info(f'LSF Job ID is: {lsf_job_id}')
 
