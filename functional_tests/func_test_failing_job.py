@@ -57,6 +57,7 @@ def run_test(server_base_url, admin_username, admin_password):
     max_retries = 6
     retries = 0
     previous_started_at_time = started_at_0
+    original_job_id = job_id
     while retries < max_retries:
 
         print(f'Now I will submit the same job again. Retry number {retries}')
@@ -70,22 +71,38 @@ def run_test(server_base_url, admin_username, admin_password):
         print(f'submission_status_code: {submission_status_code}')
         assert submission_status_code == 200, 'Job could not be submitted!'
 
+        submission_response = submit_request.json()
+        print('submission_response: ', submission_response)
+        job_id = submission_response.get('job_id')
+
+        assert original_job_id == job_id, 'The job id must be the same!'
+
+        status_url = utils.get_status_url(server_base_url, job_id)
+        print('status_url: ', status_url)
+
         print('Waiting until job finishes')
         time.sleep(20)
 
-        status_request = requests.get(f'{server_base_url}/status/{job_id}')
+        status_request = requests.get(status_url)
+
         status_response = status_request.json()
-        started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
+        started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
         timestamp_1 = started_at_1.timestamp()
+        job_status = status_response.get('status')
+        print(f'job_status: {job_status}')
+        assert job_status == 'ERROR', 'Job should have failed!'
+
         print(f'previous_started_at_time: {previous_started_at_time}')
         print(f'timestamp_1: {timestamp_1}')
         print(f'started_at_1: {started_at_1}')
 
         assert previous_started_at_time != started_at_1, 'The job must have started again'
+        previous_started_at_time = started_at_1
 
         job_status = status_response.get('status')
-        previous_started_at_time = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
         print(f'job_status: {job_status}')
+        assert job_status == 'ERROR', 'Job should have failed!'
+
         retries += 1
 
     return

@@ -137,7 +137,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
                                             job_params)
                 return get_job_submission_response(job)
             else:
-                app_logging.info(f'{job.id} has failed {job.num_failures}. Max retries is {MAX_RETRIES}. '
+                app_logging.info(f'{job.id} has failed {job.num_failures} times. Max retries is {MAX_RETRIES}. '
                                  f'NOT submitting it again')
                 return get_job_submission_response(job)
 
@@ -170,6 +170,10 @@ def create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker
     :return: the job object created
     """
     job = delayed_job_models.get_or_create(job_type, job_params, docker_image_url, input_files_hashes)
+    job.progress = 0
+    job.started_at = 0
+    job.finished_at = 0
+    delayed_job_models.save_job(job)
     app_logging.info(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
     return job
