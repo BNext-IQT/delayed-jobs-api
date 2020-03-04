@@ -24,8 +24,9 @@ def run():
     """
     print(f'Running functional tests on {ARGS.server_base_path}')
 
-    # for test_module in [func_test_successful_job_run, func_test_job_cache, func_test_parallel_job_submission, func_test_failing_job]:
-    for test_module in [func_test_failing_job]:
+    for test_module in [func_test_successful_job_run, func_test_job_cache, func_test_parallel_job_submission,
+                        func_test_failing_job]:
+
         test_module.run_test(ARGS.server_base_path, ARGS.admin_username, ARGS.admin_password)
 
 if __name__ == "__main__":

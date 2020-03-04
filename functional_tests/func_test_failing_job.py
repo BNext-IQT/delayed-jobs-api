@@ -26,9 +26,56 @@ def run_test(server_base_url, admin_username, admin_password):
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_3(tmp_dir)
 
+    job_id = submit_job_and_confirm(server_base_url, test_job_to_submit)
+
+    print('Waiting until job finishes')
+    time.sleep(20)
+
+    started_at_0, job_status = get_job_started_at_and_status(server_base_url, job_id)
+    assert job_status == 'ERROR', 'Job should have failed!'
+
+    max_retries = 7 # The server only allows to retry a job 6 times
+    retries = 0
+    previous_started_at_time = started_at_0
+    original_job_id = job_id
+    while retries < max_retries:
+
+        print(f'Now I will submit the same job again. Retry number {retries + 1}')
+        if retries == (max_retries - 1):
+            print('This time the job should not run again')
+
+        test_job_to_submit = utils.prepare_test_job_3(tmp_dir)
+
+        job_id = submit_job_and_confirm(server_base_url, test_job_to_submit)
+
+        assert original_job_id == job_id, 'The job id must be the same!'
+
+        print('Waiting until job finishes')
+        time.sleep(20)
+
+        started_at_1, job_status = get_job_started_at_and_status(server_base_url, job_id)
+        assert job_status == 'ERROR', 'Job should have failed!'
+
+        print(f'previous_started_at_time: {previous_started_at_time}')
+        print(f'started_at_1: {started_at_1}')
+
+        if retries < (max_retries - 1):
+            assert previous_started_at_time != started_at_1, 'The job must have started again'
+        else:
+            assert previous_started_at_time == started_at_1, 'The job must have NOT started again, ' \
+                                                             'max retries have been reached'
+
+        previous_started_at_time = started_at_1
+
+        retries += 1
+
+
+def submit_job_and_confirm(server_base_url, test_job_to_submit):
+
     submit_url = utils.get_submit_url(server_base_url)
     print('submit_url: ', submit_url)
-    submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
+    submit_request = requests.post(submit_url, data=test_job_to_submit['payload'],
+                                   files=test_job_to_submit['files'])
     submission_status_code = submit_request.status_code
     print(f'submission_status_code: {submission_status_code}')
     assert submission_status_code == 200, 'Job could not be submitted!'
@@ -37,91 +84,20 @@ def run_test(server_base_url, admin_username, admin_password):
     print('submission_response: ', submission_response)
     job_id = submission_response.get('job_id')
 
-    print('Waiting until job finishes')
-    time.sleep(20)
+    return job_id
+
+def get_job_started_at_and_status(server_base_url, job_id):
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
-    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
-    timestamp_0 = started_at_0.timestamp()
-    print(f'timestamp_0: {timestamp_0}')
-    print(f'started_at_0: {started_at_0}')
+
+    started_at = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
+    print(f'started_at: {started_at}')
 
     job_status = status_response.get('status')
     print(f'job_status: {job_status}')
-    assert job_status == 'ERROR', 'Job should have failed!'
 
-    max_retries = 6
-    retries = 0
-    previous_started_at_time = started_at_0
-    original_job_id = job_id
-    while retries < max_retries:
-
-        print(f'Now I will submit the same job again. Retry number {retries + 1}')
-        test_job_to_submit = utils.prepare_test_job_3(tmp_dir)
-
-        submit_url = utils.get_submit_url(server_base_url)
-        print('submit_url: ', submit_url)
-        submit_request = requests.post(submit_url, data=test_job_to_submit['payload'],
-                                       files=test_job_to_submit['files'])
-        submission_status_code = submit_request.status_code
-        print(f'submission_status_code: {submission_status_code}')
-        assert submission_status_code == 200, 'Job could not be submitted!'
-
-        submission_response = submit_request.json()
-        print('submission_response: ', submission_response)
-        job_id = submission_response.get('job_id')
-
-        assert original_job_id == job_id, 'The job id must be the same!'
-
-        print('Waiting until job finishes')
-        time.sleep(20)
-
-        status_url = utils.get_status_url(server_base_url, job_id)
-        print('status_url: ', status_url)
-
-        status_request = requests.get(status_url)
-
-        status_response = status_request.json()
-        print('status_response: ', status_response)
-
-        started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
-        timestamp_1 = started_at_1.timestamp()
-        job_status = status_response.get('status')
-        print(f'job_status: {job_status}')
-        assert job_status == 'ERROR', 'Job should have failed!'
-
-        print(f'previous_started_at_time: {previous_started_at_time}')
-        print(f'timestamp_1: {timestamp_1}')
-        print(f'started_at_1: {started_at_1}')
-
-        assert previous_started_at_time != started_at_1, 'The job must have started again'
-        previous_started_at_time = started_at_1
-
-        job_status = status_response.get('status')
-        print(f'job_status: {job_status}')
-        assert job_status == 'ERROR', 'Job should have failed!'
-
-        retries += 1
-
-    return
-
-    print(f'Now I will submit the same job again. Retry number {retries}')
-    submit_request = requests.post(submit_url, json=payload)
-    submit_response = submit_request.json()
-    job_id = submit_response.get('id')
-
-    print('Waiting until job finishes')
-    time.sleep(seconds + 1)
-
-    status_request = requests.get(f'{server_base_url}/status/{job_id}')
-    status_response = status_request.json()
-    started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
-    timestamp_1 = started_at_1.timestamp()
-    print(f'timestamp_1: {timestamp_1}')
-    print(f'started_at_1: {started_at_1}')
-
-    assert started_at_0 == started_at_1, 'The job must have not started again, the max retries limit was reached.'
+    return started_at, job_status
