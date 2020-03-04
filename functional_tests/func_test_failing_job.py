@@ -4,6 +4,7 @@ Tests that a failing job is restarted up to n times when it is submitted again
 import time
 import datetime
 from pathlib import Path
+import shutil
 
 import requests
 
@@ -69,6 +70,7 @@ def run_test(server_base_url, admin_username, admin_password):
 
         retries += 1
 
+    shutil.rmtree(tmp_dir)
 
 def submit_job_and_confirm(server_base_url, test_job_to_submit):
 
