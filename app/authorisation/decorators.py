@@ -9,7 +9,6 @@ import jwt
 from app.config import RUN_CONFIG
 
 
-# pylint: disable=W0702
 def token_required_for_job_id(func):
     """
     Checks the token provided, the job_id in the token must match the job id that the function aims receives as

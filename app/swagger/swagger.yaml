@@ -223,6 +223,32 @@ paths:
           description: 'Invalid Admin token supplied'
       security:
         - adminTokenAuth: []
+  /admin/delete_output_files_for_job/{jobId}:
+    get:
+      tags:
+        - 'Admin'
+      summary: 'Deletes the output files for the job whose id is given as parameter'
+      description: 'Deletes all the output files of a finished job. Useful for testing, debugging and other admin tasks'
+      operationId: 'admin_delete_output_files_for_job'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "jobId"
+          in: "path"
+          description: "ID of job for which I will delete the output files"
+          required: true
+          type: 'string'
+      responses:
+        "200":
+          description: "Result of the operation"
+          schema:
+            $ref: '#/definitions/AdminOperationResult'
+        "400":
+          description: 'Invalid ID supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - adminTokenAuth: []
 securityDefinitions:
   JobKeyAuth:        # arbitrary name for the security scheme
     type: apiKey
