@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 
 from app.blueprints.job_submission.services import job_submission_service
 from app.blueprints.job_submission.controllers import marshmallow_schemas
-from app.request_validation.decorators import validate_with
+from app.request_validation.decorators import validate_form_with
 
 SUBMISSION_BLUEPRINT = Blueprint('job_submission', __name__)
 
@@ -20,7 +20,7 @@ def submit_job(job_type, form_data, form_files):
 # Job submission endpoints
 # ----------------------------------------------------------------------------------------------------------------------
 @SUBMISSION_BLUEPRINT.route('/test_job', methods = ['POST'])
-@validate_with(marshmallow_schemas.TestJobSchema)
+@validate_form_with(marshmallow_schemas.TestJobSchema)
 def submit_test_job():
 
     job_type = 'TEST'
@@ -29,7 +29,7 @@ def submit_test_job():
     return submit_job(job_type, form_data, form_files)
 
 @SUBMISSION_BLUEPRINT.route('/mmv_job', methods = ['POST'])
-@validate_with(marshmallow_schemas.MMVJobSchema)
+@validate_form_with(marshmallow_schemas.MMVJobSchema)
 def submit_mmv_job():
 
     job_type = 'MMV'
