@@ -119,7 +119,10 @@ def check_if_job_output_was_lost(job):
     """
     outputs = job.output_files
     for output in outputs:
-        if not os.path.isfile(output.internal_path):
+        internal_path = output.internal_path
+        app_logging.info(f'internal_path: {internal_path}')
+        app_logging.info(f'is file: {os.path.isfile(internal_path)}')
+        if not os.path.isfile(internal_path):
             return False
     return True
 
