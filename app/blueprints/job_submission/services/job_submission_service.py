@@ -160,8 +160,8 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             must_ignore_cache = parse_ignore_cache_param(job_params)
             output_was_lost = job_output_was_lost(job)
 
-            app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
-            app_logging.info(f'output_was_lost: {output_was_lost}')
+            app_logging.info(f'{job.id}: must_ignore_cache: {must_ignore_cache}')
+            app_logging.info(f'{job.id}: output_was_lost: {output_was_lost}')
 
             if must_ignore_cache or job_output_was_lost:
                 app_logging.info(f'I will delete and submit again {job.id}')
