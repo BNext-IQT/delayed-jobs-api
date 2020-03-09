@@ -160,7 +160,9 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             job_output_was_lost = check_if_job_output_was_lost(job)
 
             if must_ignore_cache or job_output_was_lost:
-                app_logging.info(f'I was told to ignore cache so I will delete and submit again {job.id}')
+                app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
+                app_logging.info(f'job_output_was_lost: {job_output_was_lost}')
+                app_logging.info(f'I will delete and submit again {job.id}')
                 delayed_job_models.delete_job(job)
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
                 return get_job_submission_response(job)

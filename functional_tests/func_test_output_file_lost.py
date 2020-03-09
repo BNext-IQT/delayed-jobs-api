@@ -17,7 +17,7 @@ def run_test(server_base_url, admin_username, admin_password):
     """
 
     print('------------------------------------------------------------------------------------------------')
-    print('Going to test the lost of a results file')
+    print('Going to test the loss of a results file')
     print('------------------------------------------------------------------------------------------------')
 
     utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
