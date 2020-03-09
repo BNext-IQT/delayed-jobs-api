@@ -134,7 +134,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
-        app_logging.info(f'Job {job.id} already exists')
+        app_logging.info(f'Job {job.id} already exists, status: {job.status}')
 
         if job.status in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
                           delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.UNKNOWN]:
@@ -159,9 +159,10 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             must_ignore_cache = parse_ignore_cache_param(job_params)
             job_output_was_lost = check_if_job_output_was_lost(job)
 
+            app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
+            app_logging.info(f'job_output_was_lost: {job_output_was_lost}')
+
             if must_ignore_cache or job_output_was_lost:
-                app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
-                app_logging.info(f'job_output_was_lost: {job_output_was_lost}')
                 app_logging.info(f'I will delete and submit again {job.id}')
                 delayed_job_models.delete_job(job)
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)

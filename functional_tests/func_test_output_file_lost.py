@@ -4,6 +4,7 @@
 import time
 import datetime
 from pathlib import Path
+import shutil
 
 import requests
 
@@ -37,7 +38,7 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submission_response.get('job_id')
 
     print('wait some time until it finishes')
-    time.sleep(20)
+    time.sleep(25)
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
@@ -68,7 +69,7 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submit_response.get('job_id')
 
     print('Wait a bit again')
-    time.sleep(20)
+    time.sleep(25)
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
@@ -81,3 +82,5 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'started_at_1: {started_at_1}')
 
     assert started_at_0 != started_at_1, 'The job must have started again'
+
+    shutil.rmtree(tmp_dir)
