@@ -111,7 +111,7 @@ def parse_ignore_cache_param(job_params):
     elif must_ignore_cache == 'False':
         return False
 
-def check_if_job_output_was_lost(job):
+def job_output_was_lost(job):
     """
     Checks if the outputs any of the jobs were lost, useful to check if there was an issue with the nfs sync
     :param job: job object for which to fo the check
@@ -120,11 +120,9 @@ def check_if_job_output_was_lost(job):
     outputs = job.output_files
     for output in outputs:
         internal_path = output.internal_path
-        app_logging.info(f'internal_path: {internal_path}')
-        app_logging.info(f'is file: {os.path.isfile(internal_path)}')
         if not os.path.isfile(internal_path):
-            return False
-    return True
+            return True
+    return False
 
 def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
     """
@@ -160,7 +158,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         elif job.status == delayed_job_models.JobStatuses.FINISHED:
 
             must_ignore_cache = parse_ignore_cache_param(job_params)
-            job_output_was_lost = check_if_job_output_was_lost(job)
+            job_output_was_lost = job_output_was_lost(job)
 
             app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
             app_logging.info(f'job_output_was_lost: {job_output_was_lost}')
