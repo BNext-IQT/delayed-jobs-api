@@ -33,7 +33,7 @@ tags:
 - name: Admin
   description: Administrative tasks for the system
 paths:
-  /status/{jobId}:
+  /status/{job_id}:
     get:
       tags:
         - 'status'
@@ -43,7 +43,7 @@ paths:
       produces:
         - 'application/json'
       parameters:
-        - name: "jobId"
+        - name: "job_id"
           in: "path"
           description: "ID of job to return"
           required: true
@@ -66,7 +66,7 @@ paths:
       produces:
         - 'application/json'
       parameters:
-        - name: "jobId"
+        - name: "job_id"
           in: "path"
           description: "ID of job to return"
           required: true
@@ -223,7 +223,7 @@ paths:
           description: 'Invalid Admin token supplied'
       security:
         - adminTokenAuth: []
-  /admin/delete_output_files_for_job/{jobId}:
+  /admin/delete_output_files_for_job/{job_id}:
     get:
       tags:
         - 'Admin'
@@ -233,7 +233,7 @@ paths:
       produces:
         - 'application/json'
       parameters:
-        - name: "jobId"
+        - name: "job_id"
           in: "path"
           description: "ID of job for which I will delete the output files"
           required: true

@@ -11,3 +11,11 @@ def delete_all_jobs_by_type(job_type):
     """
     num_deleted = delayed_job_models.delete_all_jobs_by_type(job_type)
     return f'All {num_deleted} jobs of type {job_type} were deleted!'
+
+def delete_all_outputs_of_jobs(job_id):
+    """
+    Deletes all the outputs of the job of the job given as parameter. The job must be in FINISHED state
+    :param job_id: id of the job for which the outputs will be deleted.
+    :return:
+    """
+    return f'All outputs of the job {job_id} were deleted!'

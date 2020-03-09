@@ -5,11 +5,14 @@ from flask import Blueprint, jsonify, request
 
 from app.blueprints.admin.services import admin_tasks_service
 from app.authorisation.decorators import admin_token_required
+from app.blueprints.admin.controllers import marshmallow_schemas
+from app.request_validation.decorators import validate_with
 
 ADMIN_TASKS_BLUEPRINT = Blueprint('admin_tasks', __name__)
 
 @ADMIN_TASKS_BLUEPRINT.route('/delete_all_jobs_by_type', methods = ['POST'])
 @admin_token_required
+@validate_with(marshmallow_schemas.DeleteAllJobsByTypeOperation)
 def delete_all_jobs_by_type():
 
     form_data = request.form
@@ -19,6 +22,8 @@ def delete_all_jobs_by_type():
 
 @ADMIN_TASKS_BLUEPRINT.route('/delete_output_files_for_job/<job_id>', methods = ['GET'])
 @admin_token_required
+@validate_with(marshmallow_schemas.DeleteAllOutputsOfJobOperation)
 def delete_output_files_for_job(job_id):
 
-    return jsonify({'operation_result': 'success!'})
+    operation_result = admin_tasks_service.delete_all_outputs_of_jobs(job_id)
+    return jsonify({'operation_result': operation_result})
