@@ -25,5 +25,5 @@ def delete_all_jobs_by_type():
 @validate_with(marshmallow_schemas.DeleteAllOutputsOfJobOperation)
 def delete_output_files_for_job(job_id):
 
-    operation_result = admin_tasks_service.delete_all_outputs_of_jobs(job_id)
+    operation_result = admin_tasks_service.delete_all_outputs_of_job(job_id)
     return jsonify({'operation_result': operation_result})
