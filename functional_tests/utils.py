@@ -145,3 +145,36 @@ def request_all_test_jobs_deletion(server_base_url, admin_username, admin_passwo
     jobs_deletion_response = jobs_deletion_request.json()
 
     print('jobs_deletion_response: ', jobs_deletion_response)
+
+def request_all_job_outputs_deletion(job_id, server_base_url, admin_username, admin_password):
+    """
+    Requests the deletion of the outputs of a job
+    :param job_id: the id of the job for which delete the outputs
+    :param server_base_url: base url of the server
+    :param admin_username: admin username
+    :param admin_password: admin password
+    """
+    admin_login_url = f'{server_base_url}/admin/login'
+    print('admin_login_url: ', admin_login_url)
+    login_request = requests.get(admin_login_url, auth=HTTPBasicAuth(admin_username, admin_password))
+
+    if login_request.status_code != 200:
+        raise ServerAdminError(f'There was a problem when logging into the administration of the system! '
+                               f'(Status code: {login_request.status_code})')
+
+    login_response = login_request.json()
+    print('Token obtained')
+
+    admin_token = login_response.get('token')
+    headers = {'X-Admin-Key': admin_token}
+
+    jobs_output_deletion_url = f'{server_base_url}/admin/delete_output_files_for_job/{job_id}'
+    job_output_deletion_request = requests.get(jobs_output_deletion_url, headers=headers)
+    if job_output_deletion_request.status_code != 200:
+        raise ServerAdminError(f'There was a problem when requesting the deletion of the output of the job: {job_id}'
+                               f'(Status code: {job_output_deletion_request.status_code})')
+    jobs_deletion_response = job_output_deletion_request.json()
+
+    print('jobs_deletion_response: ', jobs_deletion_response)
+
+

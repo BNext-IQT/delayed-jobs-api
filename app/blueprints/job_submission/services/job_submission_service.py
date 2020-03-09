@@ -10,6 +10,7 @@ import stat
 import subprocess
 from pathlib import Path
 import re
+import os.path
 
 import yaml
 
@@ -110,6 +111,18 @@ def parse_ignore_cache_param(job_params):
     elif must_ignore_cache == 'False':
         return False
 
+def check_if_job_output_was_lost(job):
+    """
+    Checks if the outputs any of the jobs were lost, useful to check if there was an issue with the nfs sync
+    :param job: job object for which to fo the check
+    :return: True if outputs were lost, False otherwise
+    """
+    outputs = job.output_files
+    for output in outputs:
+        if not os.path.isfile(output.internal_path):
+            return False
+    return True
+
 def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
     """
     Submits job to the queue, and runs it in background
@@ -144,8 +157,9 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         elif job.status == delayed_job_models.JobStatuses.FINISHED:
 
             must_ignore_cache = parse_ignore_cache_param(job_params)
+            job_output_was_lost = check_if_job_output_was_lost(job)
 
-            if must_ignore_cache:
+            if must_ignore_cache or job_output_was_lost:
                 app_logging.info(f'I was told to ignore cache so I will delete and submit again {job.id}')
                 delayed_job_models.delete_job(job)
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
