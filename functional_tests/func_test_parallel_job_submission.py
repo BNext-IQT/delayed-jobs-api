@@ -69,7 +69,6 @@ def run_test(server_base_url, admin_username, admin_password):
 
     status_response = status_request.json()
     print('status_response: ', status_response)
-    return
 
     started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
     timestamp_1 = started_at_1.timestamp()

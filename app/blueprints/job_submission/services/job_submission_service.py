@@ -158,10 +158,10 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         elif job.status == delayed_job_models.JobStatuses.FINISHED:
 
             must_ignore_cache = parse_ignore_cache_param(job_params)
-            job_output_was_lost = job_output_was_lost(job)
+            output_was_lost = job_output_was_lost(job)
 
             app_logging.info(f'must_ignore_cache: {must_ignore_cache}')
-            app_logging.info(f'job_output_was_lost: {job_output_was_lost}')
+            app_logging.info(f'output_was_lost: {output_was_lost}')
 
             if must_ignore_cache or job_output_was_lost:
                 app_logging.info(f'I will delete and submit again {job.id}')
