@@ -420,6 +420,8 @@ def prepare_job_submission_script(job):
         else:
             set_docker_registry_credentials = ''
 
+        resources_params = get_job_resources_params(job)
+
         job_submission_script = submit_job_template.format(
             JOB_ID=job.id,
             LSF_USER=lsf_user,
@@ -428,7 +430,7 @@ def prepare_job_submission_script(job):
             DOCKER_IMAGE_URL=job.docker_image_url,
             SET_DOCKER_REGISTRY_CREDENTIALS=set_docker_registry_credentials,
             RUN_DIR=get_job_run_dir(job),
-            RESOURCES_PARAMS=''
+            RESOURCES_PARAMS=resources_params
 
         )
         job.lsf_host = lsf_host
