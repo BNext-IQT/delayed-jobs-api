@@ -20,6 +20,9 @@ def get_job_status(job_id):
 @token_required_for_job_id
 def update_job_progress(job_id):
 
-    progress = int(request.form.get('progress'))
-    status_log = request.form.get('status_log')
-    return jsonify(job_status_service.update_job_progress(job_id, progress, status_log))
+    try:
+        progress = int(request.form.get('progress'))
+        status_log = request.form.get('status_log')
+        return jsonify(job_status_service.update_job_progress(job_id, progress, status_log))
+    except job_status_service.JobNotFoundError:
+        abort(500, 'Job was deleted...')
