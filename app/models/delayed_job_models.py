@@ -68,6 +68,7 @@ class DefaultJobConfig(DB.Model):
     docker_image_url = DB.Column(DB.Text)
     docker_registry_username = DB.Column(DB.Text) # Username for the container registry (optional)
     docker_registry_password = DB.Column(DB.Text)  # Password for the container registry (optional)
+    requirements_script_path = DB.Column(DB.Text)
 
 
 class InputFile(DB.Model):

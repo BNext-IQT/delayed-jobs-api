@@ -7,6 +7,7 @@ import random
 import shutil
 import unittest
 from pathlib import Path
+import stat
 
 import jwt
 import yaml
@@ -193,3 +194,95 @@ class TestJobSubmitter(unittest.TestCase):
 
         lsf_job_id_got = job_submission_service.get_lsf_job_id(sample_output)
         self.assertEqual(lsf_id_must_be, lsf_job_id_got, msg='The lsf job id was not parsed correctly')
+
+    def test_gets_lsf_job_resources_params_correctly_when_no_script(self):
+        """
+        Tests that if can get the parameters string for the bsub command correctly when there is no script defined
+        """
+        with self.flask_app.app_context():
+            job_type = 'TEST'
+            docker_image_url = 'some_url'
+
+            input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
+            job = delayed_job_models.get_or_create(job_type, params, docker_image_url, input_files_hashes)
+
+            resources_params_got = job_submission_service.get_job_resources_params(job)
+            resources_params_must_be = ''
+
+            self.assertEqual(resources_params_got, resources_params_must_be,
+                             msg='The resources params were not calculated correctly!')
+
+    def test_gets_lsf_job_resources_params_correctly_when_script_returns_default(self):
+        """
+        Tests that if can get the parameters string for the bsub command correctly when script returns default
+        """
+        with self.flask_app.app_context():
+            job_type = 'TEST'
+            docker_image_url = 'some_url'
+
+            input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
+            job = delayed_job_models.get_or_create(job_type, params, docker_image_url, input_files_hashes)
+            job_submission_service.create_job_run_dir(job)
+
+            test_job_config = delayed_job_models.get_job_config(job_type)
+
+            source_requirements_script_path = 'requirements.py'
+            with open(source_requirements_script_path, 'wt') as requirements_script:
+                requirements_script.write('#!/usr/bin/env python3\n')
+                requirements_script.write('print("DEFAULT")\n')
+
+            test_job_config.requirements_script_path = source_requirements_script_path
+
+
+            resources_params_got = job_submission_service.get_job_resources_params(job)
+            resources_params_must_be = ''
+
+            self.assertEqual(resources_params_got, resources_params_must_be,
+                             msg='The resources params were not calculated correctly!')
+
+
+            job_requirements_script_path = Path(job.run_dir_path).joinpath('requirements_calculation.py')
+
+            self.assertTrue(os.path.isfile(job_requirements_script_path),
+                            msg='The requirements script was not created!')
+
+            os.remove(source_requirements_script_path)
+
+    def test_gets_lsf_job_resources_params_correctly_when_script_returns_some_params(self):
+        """
+        Tests that if can get the parameters string for the bsub command correctly when script returns default
+        """
+        with self.flask_app.app_context():
+            job_type = 'TEST'
+            docker_image_url = 'some_url'
+
+            input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
+            job = delayed_job_models.get_or_create(job_type, params, docker_image_url, input_files_hashes)
+            job_submission_service.create_job_run_dir(job)
+
+            test_job_config = delayed_job_models.get_job_config(job_type)
+
+            print('job.run_dir_path: ', job.run_dir_path)
+            resources_params_must_be = '-n 2 -M 8192 -R "rusage[mem=8192]"'
+            source_requirements_script_path = 'requirements.py'
+            with open(source_requirements_script_path, 'wt') as requirements_script:
+                requirements_script.write('#!/usr/bin/env python3\n')
+                requirements_script.write(f'print(\'{resources_params_must_be}\')\n')
+
+            test_job_config.requirements_script_path = source_requirements_script_path
+
+
+            resources_params_got = job_submission_service.get_job_resources_params(job)
+
+
+            self.assertEqual(resources_params_got, resources_params_must_be,
+                             msg='The resources params were not calculated correctly!')
+
+            job_requirements_script_path = Path(job.run_dir_path).joinpath('requirements_calculation.py')
+            print('job_requirements_script_path: ', job_requirements_script_path)
+
+            self.assertTrue(os.path.isfile(job_requirements_script_path),
+                            msg='The requirements script was not created!')
+
+            os.remove(source_requirements_script_path)
+

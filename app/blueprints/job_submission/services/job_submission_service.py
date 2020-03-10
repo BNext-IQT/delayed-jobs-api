@@ -358,6 +358,44 @@ def prepare_output_dir(job):
 
     app_logging.info(f'Job output dir is {job_output_dir}')
 
+def get_job_resources_params(job):
+    """
+    Gets the string with the parameters for bsub for the job requirements parameters
+    :param job: job object for which to generate the parameters string
+    :return: the parameters if that is the case, empty string if the default settings must be used.
+    """
+    job_config = delayed_job_models.get_job_config(job.type)
+    source_requirements_script_path = job_config.requirements_script_path
+
+    if source_requirements_script_path is None:
+        return ''
+
+    dest_requirements_script_path = Path(job.run_dir_path).joinpath('requirements_calculation.py')
+    shutil.copyfile(source_requirements_script_path, dest_requirements_script_path)
+
+    file_stats = os.stat(source_requirements_script_path)
+    os.chmod(dest_requirements_script_path, file_stats.st_mode | stat.S_IEXEC)
+
+    run_params_path = get_job_run_params_file_path(job)
+    run_command = f'{dest_requirements_script_path} {run_params_path}'
+
+    requirements_params_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    return_code = requirements_params_process.returncode
+    app_logging.info(f'requirements return code was: {return_code}')
+    if return_code != 0:
+        raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
+
+    app_logging.info(f'Run params Output: \n {requirements_params_process.stdout}')
+    app_logging.info(f'Run params Error: \n {requirements_params_process.stderr}')
+
+    params_ouput_str = requirements_params_process.stdout.decode().rstrip()
+    if params_ouput_str == 'DEFAULT':
+        return ''
+
+    return params_ouput_str
+
+
 def prepare_job_submission_script(job):
     """
     Prepares the script that will submit the job to LSF
@@ -389,7 +427,8 @@ def prepare_job_submission_script(job):
             RUN_PARAMS_FILE=run_params_path,
             DOCKER_IMAGE_URL=job.docker_image_url,
             SET_DOCKER_REGISTRY_CREDENTIALS=set_docker_registry_credentials,
-            RUN_DIR=get_job_run_dir(job)
+            RUN_DIR=get_job_run_dir(job),
+            RESOURCES_PARAMS=''
 
         )
         job.lsf_host = lsf_host
