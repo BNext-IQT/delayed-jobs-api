@@ -37,7 +37,7 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submission_response.get('job_id')
 
     print('wait some time until it starts, it should be running...')
-    time.sleep(10)
+    time.sleep(15)
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
@@ -48,10 +48,6 @@ def run_test(server_base_url, admin_username, admin_password):
     job_status = status_response.get('status')
     print(f'job_status: {job_status}')
     assert job_status == 'RUNNING', 'Job seems to not be running!'
-
-    progress = int(status_response.get('progress'))
-    print(f'progress:  {progress}')
-    assert progress > 0, 'The job progress is not increasing'
 
     print('wait some time until it should have finished...')
     time.sleep(40)
