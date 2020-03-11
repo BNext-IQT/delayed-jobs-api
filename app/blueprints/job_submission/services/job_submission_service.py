@@ -433,6 +433,7 @@ def prepare_job_submission_script(job):
             RESOURCES_PARAMS=resources_params
 
         )
+        job.requirements_parameters_string = resources_params
         job.lsf_host = lsf_host
         delayed_job_models.save_job(job)
 
