@@ -4,16 +4,16 @@ Entry file for the delayed jobs app
 from flask import Flask
 from flask_cors import CORS
 
+from app.blueprints.admin.controllers.admin_tasks_controller import ADMIN_TASKS_BLUEPRINT
+from app.blueprints.admin.controllers.authorisation_controller import ADMIN_AUTH_BLUEPRINT
+from app.blueprints.job_status.controllers.job_status_controller import JOB_STATUS_BLUEPRINT
+from app.blueprints.job_submission.controllers.job_submissions_controller import SUBMISSION_BLUEPRINT
+from app.blueprints.job_submission.services import job_submission_service
+from app.blueprints.swagger_description.swagger_description_blueprint import SWAGGER_BLUEPRINT
 from app.config import RUN_CONFIG
 from app.config import RunEnvs
 from app.db import DB
 from app.models import delayed_job_models
-from app.blueprints.job_submission.services import job_submission_service
-from app.blueprints.swagger_description.swagger_description_blueprint import SWAGGER_BLUEPRINT
-from app.blueprints.job_submission.controllers.job_submissions_controller import SUBMISSION_BLUEPRINT
-from app.blueprints.job_status.job_status_controller import JOB_STATUS_BLUEPRINT
-from app.blueprints.admin.controllers.authorisation_controller import ADMIN_AUTH_BLUEPRINT
-from app.blueprints.admin.controllers.admin_tasks_controller import ADMIN_TASKS_BLUEPRINT
 
 
 def create_app():

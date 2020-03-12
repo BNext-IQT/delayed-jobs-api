@@ -3,8 +3,8 @@ The blueprint used for handling the jobs status
 """
 from flask import Blueprint, jsonify, abort, request
 
-from app.blueprints.job_status import job_status_service
 from app.authorisation.decorators import token_required_for_job_id
+from app.blueprints.job_status.services import job_status_service
 
 JOB_STATUS_BLUEPRINT = Blueprint('job_status', __name__)
 
