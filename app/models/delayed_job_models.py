@@ -113,6 +113,7 @@ class DelayedJob(DB.Model):
     lsf_job_id = DB.Column(DB.Integer)
     lsf_host = DB.Column(DB.Text)
     requirements_parameters_string = DB.Column(DB.Text)
+    status_description = DB.Column(DB.Text)
     input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
@@ -127,7 +128,7 @@ class DelayedJob(DB.Model):
         plain_properties = {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
                                                          'created_at', 'started_at', 'finished_at', 'raw_params',
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
-                                                         'timezone', 'num_failures']}
+                                                         'timezone', 'num_failures', 'status_description']}
 
         output_files_urls = [output_file.public_url for output_file in self.output_files]
 
@@ -343,7 +344,7 @@ def get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes
     job_id = generate_job_id(job_type, job_params, docker_image_url, input_files_hashes)
     return get_job_by_id(job_id)
 
-def update_job_progress(job_id, progress, status_log):
+def update_job_progress(job_id, progress, status_log, status_description):
     """
     Updates the job with new data passed in a dict
     :param job_id: id of the job to modify
@@ -358,6 +359,9 @@ def update_job_progress(job_id, progress, status_log):
         if job.status_log is None:
             job.status_log = ''
         job.status_log += f'{datetime.datetime.now().isoformat()}: {status_log}\n'
+
+    if status_description is not None:
+        job.status_description = status_description
 
     DB.session.commit()
     return job

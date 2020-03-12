@@ -28,6 +28,7 @@ def update_job_progress(job_id):
     try:
         progress = int(request.form.get('progress'))
         status_log = request.form.get('status_log')
-        return jsonify(job_status_service.update_job_progress(job_id, progress, status_log))
+        status_description = request.form.get('status_description')
+        return jsonify(job_status_service.update_job_progress(job_id, progress, status_log, status_description))
     except job_status_service.JobNotFoundError:
         abort(500, 'Job was deleted...')

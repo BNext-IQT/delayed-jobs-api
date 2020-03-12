@@ -89,7 +89,7 @@ paths:
           description: 'A stringification of a JSON object describing the status.
           It is free for the job to determine the contents'
           type: 'string'
-          example: '{"msg":"Smiles files loaded"}'
+          example: '{"msg":"Smiles file loaded"}'
       responses:
         "200":
           description: "successful operation"

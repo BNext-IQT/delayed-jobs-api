@@ -51,7 +51,8 @@ class TestStatus(unittest.TestCase):
             resp_data = json.loads(response.data.decode('utf-8'))
 
             for prop in ['type', 'status', 'status_log', 'progress', 'created_at', 'started_at', 'finished_at',
-                         'raw_params', 'expires_at', 'api_initial_url', 'docker_image_url', 'timezone', 'num_failures']:
+                         'raw_params', 'expires_at', 'api_initial_url', 'docker_image_url', 'timezone', 'num_failures',
+                         'status_description']:
                 type_must_be = str(getattr(job_must_be, prop))
                 type_got = resp_data[prop]
                 self.assertEqual(type_must_be, type_got, msg=f'The returned job {prop} is not correct.')
@@ -117,6 +118,7 @@ class TestStatus(unittest.TestCase):
             new_data = {
                 'progress': 50,
                 'status_log': 'Loading database',
+                'status_description': '{"msg":"Smiles file loaded"}'
             }
 
             token = token_generator.generate_job_token(job_id)
@@ -141,6 +143,10 @@ class TestStatus(unittest.TestCase):
             self.assertIsNotNone(status_log_got, msg=f'The status log was not set correctly!')
             self.assertNotEqual(status_log_got, new_data['status_log'], msg=f'It seems that the status log was not saved'
                                                                         f'correctly. It should be accumulative')
+
+            status_description_got = job_got.status_description
+            self.assertEqual(status_description_got, new_data['status_description'],
+                             msg=f'The status description was not updated correctly!')
 
     def test_update_job_status_no_status_log(self):
         """
