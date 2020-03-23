@@ -27,12 +27,12 @@ services:
   delayed-jobs-server-prod:
     build:
       context: .
-      target: production-server
+      target: development-server
       args:
         <<: *build_args
     image: "${SERVER_IMAGE_TAG:-chembl/delayed-jobs-server:prod}"
     ports:
-    - "8080:8080"
+    - "5000:5000"
   delayed-job-status-daemon-prod:
     build:
       context: .
