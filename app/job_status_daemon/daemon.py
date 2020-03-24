@@ -331,9 +331,7 @@ def get_output_file_url(file_relative_path):
             server_base_path_with_slash = server_base_path_with_slash[:-1]
 
     outputs_base_path = RUN_CONFIG.get('outputs_base_path')
-    downloads_uri_scheme = RUN_CONFIG.get('downloads_uri_scheme')
 
-    return f'{downloads_uri_scheme}://' \
-           f'{server_name}{server_base_path_with_slash}/{outputs_base_path}/{file_relative_path}'
+    return f'{server_name}{server_base_path_with_slash}/{outputs_base_path}/{file_relative_path}'
 
 

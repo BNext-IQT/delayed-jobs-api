@@ -21,6 +21,5 @@ generate_default_config: True # Generates a default configuration for the jobs
 status_agent_run_dir: 'Where the status agents will run their scripts'
 run_status_script: False # Sets if I should actually run the status script, if missing assumed true. Useful for testing
 outputs_base_path: 'outputs' # base path for which to serve the job outputs under
-downloads_uri_scheme: 'http' # the scheme to use for the output files urls
 status_agent:
   lock_validity_seconds: 1 # Time in seconds for which the lock of a status agent is valid.

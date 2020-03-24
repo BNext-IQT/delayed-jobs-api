@@ -309,9 +309,7 @@ class TestJobStatusDaemon(unittest.TestCase):
                         server_base_path_with_slash = f'{server_base_path}/'
 
                     outputs_base_path = RUN_CONFIG.get('outputs_base_path')
-                    downloads_uri_scheme = RUN_CONFIG.get('downloads_uri_scheme')
-                    output_url_must_be = f'{downloads_uri_scheme}://' \
-                                         f'{RUN_CONFIG.get("server_public_host")}/' \
+                    output_url_must_be = f'{RUN_CONFIG.get("server_public_host")}/' \
                                          f'{server_base_path_with_slash}{outputs_base_path}/' \
                                          f'{job.id}/{subdir}{out_file_name}'
 

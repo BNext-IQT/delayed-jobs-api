@@ -81,9 +81,6 @@ if not RUN_CONFIG.get('base_path'):
 if not RUN_CONFIG.get('outputs_base_path'):
     RUN_CONFIG['outputs_base_path'] = 'outputs'
 
-if not RUN_CONFIG.get('downloads_uri_scheme'):
-    RUN_CONFIG['downloads_uri_scheme'] = 'http'
-
 if not RUN_CONFIG.get('status_agent'):
     RUN_CONFIG['status_agent'] = {}
     RUN_CONFIG['status_agent']['lock_validity_seconds'] = 1
