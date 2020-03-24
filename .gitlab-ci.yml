@@ -77,7 +77,6 @@ unit_tests:
     entrypoint: [""]
   script:
   - env
-  - exit 0
   - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -134,6 +133,5 @@ functional_tests:
     url: ${SERVER_URL_STAGING}
   script:
   - set -x
-  - exit 0
   - sleep 30 # Give some time for the deployment to take effect.
   - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
