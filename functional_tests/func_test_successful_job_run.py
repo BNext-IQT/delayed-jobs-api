@@ -50,7 +50,7 @@ def run_test(server_base_url, admin_username, admin_password):
     assert job_status == 'RUNNING', 'Job seems to not be running!'
 
     print('wait some time until it should have finished...')
-    time.sleep(40)
+    time.sleep(50)
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
