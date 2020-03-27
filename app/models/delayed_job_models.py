@@ -278,7 +278,9 @@ def get_job_by_id(job_id, force_refresh=False):
     :return: job given an id, raises JobNotFoundError if it does not exist
     """
     if force_refresh:
+        DB.session.refresh()
         DB.session.commit()
+        DB.session.expire_all()
 
     job = DelayedJob.query.filter_by(id=job_id).first()
 
