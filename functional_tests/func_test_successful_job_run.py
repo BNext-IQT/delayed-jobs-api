@@ -51,4 +51,5 @@ def run_test(server_base_url, admin_username, admin_password):
 
     utils.assert_output_files_can_be_downloaded(status_response)
 
+    utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
     shutil.rmtree(tmp_dir)

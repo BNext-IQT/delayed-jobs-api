@@ -41,7 +41,7 @@ def run_test(server_base_url, admin_username, admin_password):
     print('Waiting until should be running')
 
     status_url = utils.get_status_url(server_base_url, job_id)
-    utils.assert_job_status_with_retries(status_url, 'RUNNING')
+    utils.assert_job_status_with_retries(status_url, 'RUNNING', 'FINISHED')
 
     status_request = requests.get(status_url)
     status_response = status_request.json()

@@ -53,6 +53,7 @@ def run_test(server_base_url, admin_username, admin_password):
     print(f'timestamp_0: {timestamp_0}')
     print(f'started_at_0: {started_at_0}')
 
+    time.sleep(5)
     print('Now I will submit the same job again')
     test_job_to_submit = utils.prepare_test_job_2(tmp_dir)
     submit_request = requests.post(submit_url, data=test_job_to_submit['payload'], files=test_job_to_submit['files'])
@@ -80,5 +81,6 @@ def run_test(server_base_url, admin_username, admin_password):
 
     utils.assert_output_files_can_be_downloaded(status_response)
 
+    utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
     shutil.rmtree(tmp_dir)
 

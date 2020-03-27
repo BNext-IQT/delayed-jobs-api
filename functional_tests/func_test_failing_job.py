@@ -105,7 +105,7 @@ def get_job_started_at_and_assert_status_with_retries(server_base_url, job_id):
 
     return started_at_1
 
-def assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, retries, max_retries,
+def assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, job_retries, max_job_retries,
                                                        previous_started_at_time):
     max_test_retries = 1000
     current_test_tries = 0
@@ -115,10 +115,12 @@ def assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, 
 
         started_at_1 = get_job_started_at_and_assert_status_with_retries(server_base_url, job_id)
 
+        print(f'job_retries: {job_retries}')
+        print(f'max_job_retries: {max_job_retries}')
         print(f'previous_started_at_time: {previous_started_at_time}')
         print(f'started_at_1: {started_at_1}')
 
-        if retries < (max_retries - 1):
+        if job_retries < (max_job_retries - 1):
             assertion_passed = previous_started_at_time != started_at_1
         else:
             assertion_passed = previous_started_at_time == started_at_1
@@ -126,7 +128,9 @@ def assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, 
         if assertion_passed:
             break
 
-    if retries < (max_retries - 1):
+        current_test_tries += 1
+
+    if job_retries < (max_job_retries - 1):
         assert assertion_passed, 'The job must have started again'
     else:
         assert assertion_passed, 'The job must have NOT started again, ' \
