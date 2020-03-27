@@ -163,7 +163,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             app_logging.info(f'{job.id}: must_ignore_cache: {must_ignore_cache}')
             app_logging.info(f'{job.id}: output_was_lost: {output_was_lost}')
 
-            must_resubmit = must_ignore_cache or job_output_was_lost
+            must_resubmit = must_ignore_cache or output_was_lost
             app_logging.info(f'{job.id}: must_resubmit: {must_resubmit}')
 
             if must_resubmit:
