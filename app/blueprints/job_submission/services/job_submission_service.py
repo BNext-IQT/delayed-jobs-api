@@ -163,7 +163,10 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             app_logging.info(f'{job.id}: must_ignore_cache: {must_ignore_cache}')
             app_logging.info(f'{job.id}: output_was_lost: {output_was_lost}')
 
-            if must_ignore_cache or job_output_was_lost:
+            must_resubmit = must_ignore_cache or job_output_was_lost
+            app_logging.info(f'{job.id}: must_resubmit: {must_resubmit}')
+
+            if must_resubmit:
                 app_logging.info(f'I will delete and submit again {job.id}')
                 delayed_job_models.delete_job(job)
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
