@@ -270,14 +270,21 @@ def get_or_create(job_type, job_params, docker_image_url, input_files_hashes={})
     return job
 
 
-def get_job_by_id(job_id):
+def get_job_by_id(job_id, force_refresh=False):
     """
     :param job_id: id of the job
+    :param force_refresh: force a refresh on the object
     :return: job given an id, raises JobNotFoundError if it does not exist
     """
     job = DelayedJob.query.filter_by(id=job_id).first()
+
     if job is None:
         raise JobNotFoundError()
+
+    if force_refresh:
+        DB.session.expire(job)
+        DB.session.refresh(job)
+
     return job
 
 

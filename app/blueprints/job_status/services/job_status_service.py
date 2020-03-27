@@ -20,7 +20,7 @@ def get_job_status(job_id):
     """
 
     try:
-        job = delayed_job_models.get_job_by_id(job_id)
+        job = delayed_job_models.get_job_by_id(job_id, force_refresh=True)
         return job.public_dict()
     except delayed_job_models.JobNotFoundError:
         raise JobNotFoundError()
