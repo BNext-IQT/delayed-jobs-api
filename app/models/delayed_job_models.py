@@ -422,6 +422,7 @@ def delete_all_jobs():
     Deletes all jobs in the database.
     """
     DelayedJob.query.filter_by().delete()
+    DB.session.commit()
 
 
 def delete_all_expired_jobs():
