@@ -282,6 +282,7 @@ def get_job_by_id(job_id, force_refresh=False):
         raise JobNotFoundError()
 
     if force_refresh:
+        DB.session.rollback()
         DB.session.expire(job)
         DB.session.refresh(job)
 
