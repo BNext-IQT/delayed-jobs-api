@@ -107,7 +107,7 @@ def get_job_started_at_and_assert_status_with_retries(server_base_url, job_id):
 
 def assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, retries, max_retries,
                                                        previous_started_at_time):
-    max_retries = 100
+    max_retries = 1000
     current_tries = 0
     assertion_passed = False
 

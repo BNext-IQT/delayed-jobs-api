@@ -37,15 +37,13 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submission_response.get('job_id')
 
     print('wait some time until it starts, it should be running...')
-    time.sleep(15)
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
 
-    utils.assert_job_status_with_retries(status_url, 'RUNNING', 'FINISHED')
+    utils.assert_job_status_with_retries(status_url, 'RUNNING')
 
     print('wait some time until it should have finished...')
-    time.sleep(50)
 
     utils.assert_job_status_with_retries(status_url, 'FINISHED')
     status_request = requests.get(status_url)

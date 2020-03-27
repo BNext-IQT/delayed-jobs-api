@@ -1,10 +1,9 @@
 """
 Module that provides a service to get or modify the status or jobs
 """
-import os
+import json
 
-from flask import url_for
-
+import app.app_logging as app_logging
 from app.models import delayed_job_models
 
 
@@ -20,7 +19,9 @@ def get_job_status(job_id):
     """
 
     try:
+
         job = delayed_job_models.get_job_by_id(job_id, force_refresh=True)
+        app_logging.info(f'{job.id} status is {json.dumps(job.public_dict())}')
         return job.public_dict()
     except delayed_job_models.JobNotFoundError:
         raise JobNotFoundError()

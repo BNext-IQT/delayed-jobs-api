@@ -40,10 +40,9 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submit_response.get('job_id')
 
     print('Waiting until job finishes')
-    time.sleep(10)
 
     status_url = utils.get_status_url(server_base_url, job_id)
-    print('status_url: ', status_url)
+    utils.assert_job_status_with_retries(status_url, 'FINISHED')
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
@@ -63,7 +62,7 @@ def run_test(server_base_url, admin_username, admin_password):
     assert job_id == job_id_1, 'The job ids must be the same!'
 
     print('Waiting until job "starts"')
-    time.sleep(5)
+    utils.assert_job_status_with_retries(status_url, 'RUNNING')
 
     status_url = utils.get_status_url(server_base_url, job_id_1)
     print('status_url: ', status_url)
@@ -79,12 +78,7 @@ def run_test(server_base_url, admin_username, admin_password):
     assert started_at_0 == started_at_1, f'The job must have not started again. ' \
                                          f'started_at_0:{started_at_0}, started_at_1:{started_at_1}'
 
-    output_files_urls = status_response.get('output_files_urls')
-    print('output_files_urls: ', output_files_urls)
-
-    for url in output_files_urls:
-        file_request = requests.get(url)
-        assert file_request.status_code == 200, 'A results file could not be downloaded!!'
+    utils.assert_output_files_can_be_downloaded(status_response)
 
     shutil.rmtree(tmp_dir)
 

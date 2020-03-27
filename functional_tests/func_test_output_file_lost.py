@@ -38,17 +38,9 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submission_response.get('job_id')
 
     print('wait some time until it finishes')
-    time.sleep(25)
 
     status_url = utils.get_status_url(server_base_url, job_id)
-    print('status_url: ', status_url)
-
-    status_request = requests.get(status_url)
-    status_response = status_request.json()
-
-    job_status = status_response.get('status')
-    print(f'job_status: {job_status}')
-    assert job_status == 'FINISHED', 'Job should have been finished!'
+    utils.assert_job_status_with_retries(status_url, 'FINISHED')
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
@@ -68,8 +60,8 @@ def run_test(server_base_url, admin_username, admin_password):
     submit_response = submit_request.json()
     job_id = submit_response.get('job_id')
 
-    print('Wait a bit again')
-    time.sleep(25)
+    print('Wait a bit again until it finished')
+    utils.assert_job_status_with_retries(status_url, 'FINISHED')
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
