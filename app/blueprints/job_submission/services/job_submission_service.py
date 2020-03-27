@@ -471,8 +471,8 @@ def submit_job_to_lsf(job):
 
     submission_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    app_logging.info(f'Output: \n {submission_process.stdout}')
-    app_logging.info(f'Error: \n {submission_process.stderr}')
+    app_logging.info(f'Submission STD Output: \n {submission_process.stdout}')
+    app_logging.info(f'Submission STD Error: \n {submission_process.stderr}')
 
     with open(submission_output_path, 'wb') as submission_out_file:
         submission_out_file.write(submission_process.stdout)

@@ -3,6 +3,7 @@ Module with utils functions for the functional tests
 """
 import os
 import time
+import datetime
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -195,7 +196,7 @@ def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_
         status_response = status_request.json()
 
         job_status = status_response.get('status')
-        print(f'job_status: {job_status}')
+        print(f'{datetime.datetime.utcnow().isoformat()} job_status: {job_status}')
         assertion_passed = job_status == status_must_be_1 or job_status == status_must_be_2
         current_tries += 1
 
