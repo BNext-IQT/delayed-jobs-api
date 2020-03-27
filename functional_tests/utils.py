@@ -177,4 +177,46 @@ def request_all_job_outputs_deletion(job_id, server_base_url, admin_username, ad
 
     print('jobs_deletion_response: ', jobs_deletion_response)
 
+def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_2=None):
+    """
+    Asserts that the status is what it should be. It retries up to 5 times
+    :param status_url: url to check status
+    :param status_must_be_1: what the status should be
+    :param status_must_be_2: another option for that the status must be
+    """
+    max_retries = 100
+    current_tries = 0
+    assertion_passed = False
+
+    while current_tries < max_retries:
+
+        status_request = requests.get(status_url)
+        status_response = status_request.json()
+
+        job_status = status_response.get('status')
+        print(f'job_status: {job_status}')
+        assertion_passed = job_status == status_must_be_1 or job_status == status_must_be_2
+        current_tries += 1
+
+        if assertion_passed:
+            break
+
+        time.sleep(1)
+
+    assert assertion_passed, f'Job seems to not be {status_must_be_1}! after {current_tries} tries.'
+
+def assert_output_files_can_be_downloaded(status_response):
+    """
+    asserts that the output files can be downloaded
+    :param status_response: status response from the server
+    """
+    output_files_urls = status_response.get('output_files_urls')
+    print('output_files_urls: ', output_files_urls)
+
+    for url in output_files_urls:
+        full_url = f'http://{url}'
+        file_request = requests.get(full_url)
+        assert file_request.status_code == 200, 'A results file could not be downloaded!!'
+
+
 

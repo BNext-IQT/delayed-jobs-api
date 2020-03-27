@@ -54,17 +54,8 @@ def run_test(server_base_url, admin_username, admin_password):
         print('Waiting until job finishes')
         time.sleep(20)
 
-        started_at_1, job_status = get_job_started_at_and_status(server_base_url, job_id)
-        assert job_status == 'ERROR', 'Job should have failed!'
-
-        print(f'previous_started_at_time: {previous_started_at_time}')
-        print(f'started_at_1: {started_at_1}')
-
-        if retries < (max_retries - 1):
-            assert previous_started_at_time != started_at_1, 'The job must have started again'
-        else:
-            assert previous_started_at_time == started_at_1, 'The job must have NOT started again, ' \
-                                                             'max retries have been reached'
+        started_at_1 = assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, retries, max_retries,
+                                                       previous_started_at_time)
 
         previous_started_at_time = started_at_1
 
@@ -103,3 +94,42 @@ def get_job_started_at_and_status(server_base_url, job_id):
     print(f'job_status: {job_status}')
 
     return started_at, job_status
+
+def get_job_started_at_and_assert_status_with_retries(server_base_url, job_id):
+
+    status_url = utils.get_status_url(server_base_url, job_id)
+    utils.assert_job_status_with_retries(status_url, 'ERROR')
+
+    started_at_1, job_status = get_job_started_at_and_status(server_base_url, job_id)
+    assert job_status == 'ERROR', 'Job should have failed!'
+
+    return started_at_1
+
+def assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, retries, max_retries,
+                                                       previous_started_at_time):
+    max_retries = 100
+    current_tries = 0
+    assertion_passed = False
+
+    while current_tries < max_retries:
+
+        started_at_1 = get_job_started_at_and_assert_status_with_retries(server_base_url, job_id)
+
+        print(f'previous_started_at_time: {previous_started_at_time}')
+        print(f'started_at_1: {started_at_1}')
+
+        if retries < (max_retries - 1):
+            assertion_passed = previous_started_at_time != started_at_1
+        else:
+            assertion_passed = previous_started_at_time == started_at_1
+
+        if assertion_passed:
+            break
+
+    if retries < (max_retries - 1):
+        assert assertion_passed, 'The job must have started again'
+    else:
+        assert assertion_passed, 'The job must have NOT started again, ' \
+                                                         'max retries have been reached'
+
+    return started_at_1

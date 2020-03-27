@@ -42,28 +42,15 @@ def run_test(server_base_url, admin_username, admin_password):
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
 
-    status_request = requests.get(status_url)
-    status_response = status_request.json()
-
-    job_status = status_response.get('status')
-    print(f'job_status: {job_status}')
-    assert job_status == 'RUNNING', 'Job seems to not be running!'
+    utils.assert_job_status_with_retries(status_url, 'RUNNING', 'FINISHED')
 
     print('wait some time until it should have finished...')
     time.sleep(50)
 
+    utils.assert_job_status_with_retries(status_url, 'FINISHED')
     status_request = requests.get(status_url)
     status_response = status_request.json()
 
-    job_status = status_response.get('status')
-    print(f'job_status: {job_status}')
-    assert job_status == 'FINISHED', 'Job should have finished already!'
-
-    output_files_urls = status_response.get('output_files_urls')
-    print('output_files_urls: ', output_files_urls)
-
-    for url in output_files_urls:
-        file_request = requests.get(url)
-        assert file_request.status_code == 200, 'A results file could not be downloaded!!'
+    utils.assert_output_files_can_be_downloaded(status_response)
 
     shutil.rmtree(tmp_dir)
