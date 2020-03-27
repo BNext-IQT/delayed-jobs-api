@@ -62,7 +62,7 @@ def run_test(server_base_url, admin_username, admin_password):
     assert job_id == job_id_1, 'The job ids must be the same!'
 
     print('Waiting until job "starts"')
-    utils.assert_job_status_with_retries(status_url, 'RUNNING')
+    utils.assert_job_status_with_retries(status_url, 'RUNNING', 'FINISHED')
 
     status_url = utils.get_status_url(server_base_url, job_id_1)
     print('status_url: ', status_url)
