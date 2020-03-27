@@ -13,6 +13,7 @@ from sqlalchemy import and_
 from enum import Enum
 from app.db import DB
 from app.config import RUN_CONFIG
+import app.app_logging as app_logging
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept
@@ -282,7 +283,8 @@ def get_job_by_id(job_id, force_refresh=False):
         raise JobNotFoundError()
 
     if force_refresh:
-        DB.session.rollback()
+        app_logging.info(f'Forcing refresh of {job.id}')
+        DB.session.commit()
         DB.session.expire(job)
         DB.session.refresh(job)
 

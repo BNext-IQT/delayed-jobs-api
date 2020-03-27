@@ -184,6 +184,7 @@ def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_
     :param status_must_be_1: what the status should be
     :param status_must_be_2: another option for that the status must be
     """
+    time.sleep(10)
     max_retries = 1000
     current_tries = 0
     assertion_passed = False
@@ -210,13 +211,14 @@ def assert_output_files_can_be_downloaded(status_response):
     asserts that the output files can be downloaded
     :param status_response: status response from the server
     """
+    time.sleep(5)
     output_files_urls = status_response.get('output_files_urls')
     print('output_files_urls: ', output_files_urls)
 
     for url in output_files_urls:
         full_url = f'http://{url}'
         file_request = requests.get(full_url)
-        assert file_request.status_code == 200, 'A results file could not be downloaded!!'
+        assert file_request.status_code == 200, f'A results file ({full_url}) could not be downloaded!!'
 
 
 
