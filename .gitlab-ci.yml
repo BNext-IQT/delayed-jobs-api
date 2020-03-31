@@ -116,9 +116,8 @@ deploy_to_staging:
   - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - ls run_config/staging.yml
-  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - cat ${RUN_CONFIG_STAGING}
+  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=run_config/staging.yml -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
+  - cat run_config/staging.yml
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID}~" k8s-deployment.yaml
