@@ -102,6 +102,7 @@ deploy_to_staging:
   - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
+  - git clone git@gitlab.ebi.ac.uk:chembl/chembl/configurations/delayed-jobs-config.git
   - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - cat ${RUN_CONFIG_STAGING}
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
@@ -121,17 +122,17 @@ deploy_to_staging:
 # ----------------------------------------------------------------------------------------------------------------------
 # Test staging
 # ----------------------------------------------------------------------------------------------------------------------
-functional_tests:
-  stage: test_staging
-  image:
-    name: $SERVER_IMAGE_TAG
-    entrypoint: [""]
-  only:
-  - staging
-  environment:
-    name: staging
-    url: ${SERVER_URL_STAGING}
-  script:
-  - set -x
-  - sleep 30 # Give some time for the deployment to take effect.
-  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
+#functional_tests:
+#  stage: test_staging
+#  image:
+#    name: $SERVER_IMAGE_TAG
+#    entrypoint: [""]
+#  only:
+#  - staging
+#  environment:
+#    name: staging
+#    url: ${SERVER_URL_STAGING}
+#  script:
+#  - set -x
+#  - sleep 30 # Give some time for the deployment to take effect.
+#  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
