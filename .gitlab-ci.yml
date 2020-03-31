@@ -16,6 +16,7 @@ services:
 stages:
   - build
   - test_and_qa
+  - prepare_config_staging
   - deploy_to_staging
   - test_staging
 
@@ -82,6 +83,13 @@ unit_tests:
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to staging
 # ----------------------------------------------------------------------------------------------------------------------
+prepare_config_staging:
+  stage: prepare_config_staging
+  image:
+    name: alpine/git
+  script:
+    - git clone https://gitlab+deploy-token-174:dsy79G71ug_Hjv5swUzH@gitlab.ebi.ac.uk/chembl/chembl/configurations/delayed-jobs-config.git
+
 deploy_to_staging:
   stage: deploy_to_staging
   image:
@@ -102,7 +110,6 @@ deploy_to_staging:
   - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - git clone git@gitlab.ebi.ac.uk:chembl/chembl/configurations/delayed-jobs-config.git
   - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${RUN_CONFIG_STAGING} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - cat ${RUN_CONFIG_STAGING}
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
