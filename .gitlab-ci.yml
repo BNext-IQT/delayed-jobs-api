@@ -97,7 +97,6 @@ prepare_config_staging:
     paths:
       - ${CONFIG_STAGING_FILE_PATH}
 
-
 deploy_to_staging:
   stage: deploy_to_staging
   image:
