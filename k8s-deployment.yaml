@@ -4,7 +4,7 @@ metadata:
   name: delayed-jobs-server
   namespace: <NAMESPACE>
 spec:
-  replicas: 1
+  replicas: <NUM_REPLICAS>
   selector:
     matchLabels:
       app: delayed-jobs

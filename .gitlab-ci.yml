@@ -9,6 +9,7 @@ variables:
   DOCKER_DRIVER: overlay
   CONFIGS_FOLDER: run_config
   CONFIG_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.yml
+  CONFIG_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.yml
 
 image: docker:latest
 
@@ -21,6 +22,7 @@ stages:
   - prepare_config_staging
   - deploy_to_staging
   - test_staging
+  - prepare_config_prod_hx
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -120,6 +122,7 @@ deploy_to_staging:
   - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${CONFIG_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - cat ${CONFIG_STAGING_FILE_PATH}
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
+  - sed -i "s~<NUM_REPLICAS>~${NUM_REPLICAS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID}~" k8s-deployment.yaml
   - sed -i "s~<SERVER_IMAGE_TAG>~${SERVER_IMAGE_TAG}~" k8s-deployment.yaml
@@ -150,3 +153,18 @@ deploy_to_staging:
 #  - set -x
 #  - sleep 30 # Give some time for the deployment to take effect.
 #  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Deployment to prod hx
+# ----------------------------------------------------------------------------------------------------------------------
+prepare_config_prod_hx:
+  stage: prepare_config_prod_hx
+  image:
+    name: alpine/git
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - mkdir -p ${CONFIGS_FOLDER}
+    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
+  artifacts:
+    paths:
+      - ${CONFIG_PROD_HX_FILE_PATH}
