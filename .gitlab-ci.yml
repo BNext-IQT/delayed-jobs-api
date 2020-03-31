@@ -92,7 +92,7 @@ prepare_config_staging:
     entrypoint: ["/bin/sh", "-c"]
   script:
     - mkdir -p ${CONFIGS_FOLDER}
-    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGS_REPO} ${CONFIGS_FOLDER}
+    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
   artifacts:
     paths:
       - ${CONFIG_STAGING_FILE_PATH}
