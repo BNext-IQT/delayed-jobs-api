@@ -7,7 +7,8 @@ variables:
   JOB_STATUS_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-status-daemon
   STATUS_DAEMON_IMAGE_TAG: ${CI_REGISTRY}/${REGISTRY_USER}/${JOB_STATUS_APPLICATION}:${CI_COMMIT_SHORT_SHA}
   DOCKER_DRIVER: overlay
-  CONFIG_STAGING_FILE_PATH: run_config/staging.yml
+  CONFIGS_FOLDER: run_config
+  CONFIG_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.yml
 
 image: docker:latest
 
@@ -90,8 +91,8 @@ prepare_config_staging:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - mkdir -p run_config
-    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@gitlab.ebi.ac.uk/chembl/chembl/configurations/delayed-jobs-config.git run_config
+    - mkdir -p ${CONFIGS_FOLDER}
+    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGS_REPO} ${CONFIGS_FOLDER}
   artifacts:
     paths:
       - ${CONFIG_STAGING_FILE_PATH}
