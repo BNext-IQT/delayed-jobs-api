@@ -87,6 +87,7 @@ prepare_config_staging:
   stage: prepare_config_staging
   image:
     name: alpine/git
+    entrypoint: ["/bin/sh", "-c"]
   script:
     - git clone https://gitlab+deploy-token-174:dsy79G71ug_Hjv5swUzH@gitlab.ebi.ac.uk/chembl/chembl/configurations/delayed-jobs-config.git
 
