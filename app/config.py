@@ -75,6 +75,9 @@ except FileNotFoundError:
 if not RUN_CONFIG.get('server_public_host'):
     RUN_CONFIG['server_public_host'] = '0.0.0.0:5000'
 
+if not RUN_CONFIG.get('status_update_host'):
+    RUN_CONFIG['status_update_host'] = RUN_CONFIG['server_public_host']
+
 if not RUN_CONFIG.get('base_path'):
     RUN_CONFIG['base_path'] = ''
 

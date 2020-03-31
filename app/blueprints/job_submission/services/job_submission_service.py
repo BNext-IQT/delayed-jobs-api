@@ -304,7 +304,7 @@ def create_params_file(job, input_files_desc):
         'inputs': prepare_job_inputs(job, input_files_desc),
         'output_dir': get_job_output_dir_path(job),
         'status_update_endpoint': {
-            'url': f'http://{RUN_CONFIG.get("server_public_host")}'
+            'url': f'http://{RUN_CONFIG.get("status_update_host")}'
                    f'{RUN_CONFIG.get("base_path", "")}/status/{job.id}',
             'method': 'PATCH'
         },
