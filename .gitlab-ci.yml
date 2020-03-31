@@ -89,7 +89,12 @@ prepare_config_staging:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
   script:
-    - git clone https://gitlab+deploy-token-174:dsy79G71ug_Hjv5swUzH@gitlab.ebi.ac.uk/chembl/chembl/configurations/delayed-jobs-config.git
+    - mkdir -p run_config
+    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@gitlab.ebi.ac.uk/chembl/chembl/configurations/delayed-jobs-config.git run_config
+  artifacts:
+    paths:
+      - run_config/staging.yml
+
 
 deploy_to_staging:
   stage: deploy_to_staging
