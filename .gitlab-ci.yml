@@ -163,6 +163,7 @@ prepare_config_prod_hx:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
   script:
+    - rm -rf ${CONFIGS_FOLDER} || true
     - mkdir -p ${CONFIGS_FOLDER}
     - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
   artifacts:
