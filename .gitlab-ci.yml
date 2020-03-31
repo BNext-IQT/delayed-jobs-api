@@ -7,6 +7,7 @@ variables:
   JOB_STATUS_APPLICATION: delayed-jobs/delayed-jobs-api/delayed-jobs-status-daemon
   STATUS_DAEMON_IMAGE_TAG: ${CI_REGISTRY}/${REGISTRY_USER}/${JOB_STATUS_APPLICATION}:${CI_COMMIT_SHORT_SHA}
   DOCKER_DRIVER: overlay
+  CONFIG_STAGING_FILE_PATH: run_config/staging.yml
 
 image: docker:latest
 
@@ -93,7 +94,7 @@ prepare_config_staging:
     - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@gitlab.ebi.ac.uk/chembl/chembl/configurations/delayed-jobs-config.git run_config
   artifacts:
     paths:
-      - run_config/staging.yml
+      - ${CONFIG_STAGING_FILE_PATH}
 
 
 deploy_to_staging:
@@ -116,8 +117,8 @@ deploy_to_staging:
   - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=run_config/staging.yml -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - cat run_config/staging.yml
+  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${CONFIG_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
+  - cat ${CONFIG_STAGING_FILE_PATH}
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
   - sed -i "s~<GID>~${CBL_PUB_GID}~" k8s-deployment.yaml
