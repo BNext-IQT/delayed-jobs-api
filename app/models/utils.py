@@ -15,7 +15,10 @@ def get_output_files_dict(output_files):
 
         public_url = output_file.public_url
         filename = get_filename_from_url(public_url)
-        # sanitised_filename =
+        sanitised_filename = get_sanitised_filename(output_files_dict, filename)
+        output_files_dict[sanitised_filename] = public_url
+
+    return output_files_dict
 
 def get_filename_from_url(public_url):
     """

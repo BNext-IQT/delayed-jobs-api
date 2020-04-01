@@ -13,6 +13,7 @@ from sqlalchemy import and_
 from enum import Enum
 from app.db import DB
 from app.config import RUN_CONFIG
+from app.models import utils
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept
@@ -130,7 +131,7 @@ class DelayedJob(DB.Model):
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
                                                          'timezone', 'num_failures', 'status_description']}
 
-        output_files_urls = [output_file.public_url for output_file in self.output_files]
+        output_files_urls = utils.get_output_files_dict(self.output_files)
 
         return {
             **plain_properties,
