@@ -11,6 +11,7 @@ variables:
   CONFIG_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.yml
   CONFIG_GUNICORN_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.gunicorn.config.py
   CONFIG_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.yml
+  CONFIG_GUNICORN_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.gunicorn.config.py
 
 image: docker:latest
 
@@ -24,6 +25,7 @@ stages:
   - deploy_to_staging
   - test_staging
   - prepare_config_prod_hx
+  - deploy_to_prod_hx
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -122,7 +124,7 @@ deploy_to_staging:
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${CONFIG_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_STAGING} --from-file=GUNICORN_CONFIG=${CONFIG_GUNICORN_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl apply -f -
+  - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_STAGING} --from-file=GUNICORN_CONFIG=${CONFIG_GUNICORN_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - cat ${CONFIG_STAGING_FILE_PATH}
   - cat ${CONFIG_GUNICORN_STAGING_FILE_PATH}
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
@@ -163,10 +165,13 @@ deploy_to_staging:
 # Deployment to prod hx
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hx:
+  when: manual
   stage: prepare_config_prod_hx
   image:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
+  only:
+    - master
   script:
     - rm -rf ${CONFIGS_FOLDER} || true
     - mkdir -p ${CONFIGS_FOLDER}
@@ -174,3 +179,15 @@ prepare_config_prod_hx:
   artifacts:
     paths:
       - ${CONFIG_PROD_HX_FILE_PATH}
+      - ${CONFIG_GUNICORN_PROD_HX_FILE_PATH}
+
+deploy_to_prod_hx:
+  stage: deploy_to_prod_hx
+  image:
+    name: alpine/git
+    entrypoint: ["/bin/sh", "-c"]
+  only:
+    - master
+  script:
+    - set -x
+    - echo "$KUBE_CA_PEM_HX" > "$(pwd)/kube.ca.pem"
