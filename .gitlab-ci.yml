@@ -168,6 +168,7 @@ deploy_to_staging:
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hx:
   when: manual
+  allow_failure: false
   stage: prepare_config_prod_hx
   image:
     name: alpine/git
