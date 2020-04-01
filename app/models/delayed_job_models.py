@@ -13,7 +13,6 @@ from sqlalchemy import and_
 from enum import Enum
 from app.db import DB
 from app.config import RUN_CONFIG
-import app.app_logging as app_logging
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept

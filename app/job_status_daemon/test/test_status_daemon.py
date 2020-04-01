@@ -319,7 +319,7 @@ class TestJobStatusDaemon(unittest.TestCase):
 
             daemon.parse_bjobs_output(sample_output)
             job_outputs_got = job.output_files
-            self.assertEqual(len(job_outputs_got), 4, msg='There must be 2 outputs for this job!')
+            self.assertEqual(len(job_outputs_got), 4, msg='There must be 4 outputs for this job!')
 
             for output_file in job.output_files:
                 output_url_got = output_file.public_url
