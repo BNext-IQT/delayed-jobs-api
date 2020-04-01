@@ -1,0 +1,321 @@
+---
+swagger: '2.0'
+info:
+  description: 'API that runs jobs using the LSF Cluster'
+  version: '1.0.0'
+  title: 'Delayed Jobs API'
+  contact:
+    email: 'chembl-help@ebi.ac.uk'
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+#host: Will be set dynamically by Swagger Description Blueprint
+#basePath: Will be set dynamically by Swagger Description Blueprint
+tags:
+- name: 'status'
+  description: 'Endpoints related to the status of the jobs'
+- name: 'submission'
+  description: 'Endpoints related to the submission of jobs'
+schemes:
+- "https"
+- "http"
+tags:
+- name: Example Job
+  description: A Job that tests the system
+  externalDocs:
+    description: Example repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/test-job
+- name: MMV Job
+  description: A Job for the Malaria Data
+  externalDocs:
+    description: Source Repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job
+- name: Admin
+  description: Administrative tasks for the system
+paths:
+  /status/{job_id}:
+    get:
+      tags:
+        - 'status'
+      summary: 'Get status of a job by ID'
+      description: 'Returns a single job'
+      operationId: 'get_job_status_by_id'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job to return"
+          required: true
+          type: 'string'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/JobStatus'
+        "400":
+          description: 'Invalid ID supplied'
+        "404":
+          description: 'Job not found'
+    patch:
+      tags:
+        - 'status'
+      summary: 'Update the progress of a job'
+      description: 'Updates the progress of a job, you can also add a comment on the progress'
+      operationId: 'update_job_progress'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job to return"
+          required: true
+          type: 'string'
+        - name: 'progress'
+          in: 'formData'
+          description: 'The percentage of progress of the job'
+          required: true
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 100
+        - name: 'status_log'
+          in: 'formData'
+          description: 'A comment on what is the job doing'
+          type: 'string'
+          example: 'Generating fingerprint...'
+        - name: 'status_description'
+          in: 'formData'
+          description: 'A stringification of a JSON object describing the status.
+          It is free for the job to determine the contents'
+          type: 'string'
+          example: '{"msg":"Smiles file loaded"}'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/JobStatus'
+        "400":
+          description: 'Invalid ID supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - JobKeyAuth: []
+  /submit/test_job:
+    post:
+      tags:
+        - 'Example Job'
+      summary: 'Submits a Job that tests the system'
+      operationId: 'submit_test_job'
+      consumes:
+        - 'multipart/form-data'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'instruction'
+          in: 'formData'
+          description: "How do you want the job to behave"
+          required: true
+          type: 'string'
+          enum: ['RUN_NORMALLY', 'FAIL']
+        - name: 'seconds'
+          in: 'formData'
+          description: 'The amount of seconds that the job will run for'
+          required: true
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 512
+          enum: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+        - name: 'api_url'
+          in: 'formData'
+          description: 'The url of an API to test a call to it during the job run'
+          required: true
+          type: 'string'
+          default: 'https://www.ebi.ac.uk/chembl/api/data/similarity/CN1C(=O)C=C(c2cccc(Cl)c2)c3cc(ccc13)[C@@](N)(c4ccc(Cl)cc4)c5cncn5C/80.json'
+        - name: 'input1'
+          in: 'formData'
+          description: 'Input File 1'
+          required: true
+          type: 'file'
+        - name: 'input2'
+          in: 'formData'
+          description: 'Input File 2'
+          required: true
+          type: 'file'
+        - name: 'dl__ignore_cache'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
+          required: true
+          type: 'boolean'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
+  /submit/mmv_job:
+    post:
+      tags:
+        - 'MMV Job'
+      summary: 'Submits a MMV Job'
+      operationId: 'submit_mmv_job'
+      consumes:
+        - 'multipart/form-data'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'input1'
+          in: 'formData'
+          description: 'Input File 1'
+          required: true
+          type: 'file'
+        - name: 'standardise'
+          in: 'formData'
+          description: 'Standardise or not'
+          required: true
+          type: 'boolean'
+        - name: 'dl__ignore_cache'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
+          required: true
+          type: 'boolean'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
+  /admin/login:
+    get:
+      tags:
+        - 'Admin'
+      summary: 'Allows to login to the administration of the system.'
+      description: 'If the correct password is given, it will return a token that is valid for 1 hour'
+      operationId: 'admin_login'
+      produces:
+        - 'application/json'
+      responses:
+        "200":
+          description: "login successful"
+          schema:
+            $ref: '#/definitions/AdminToken'
+        "401":
+          description: 'Could not verify username and password'
+      security:
+        - adminAuth: []
+  /admin/delete_all_jobs_by_type:
+    post:
+      tags:
+        - 'Admin'
+      summary: 'Deletes all jobs of the type passed as parameter.'
+      description: "Deletes all jobs of the type passed as parameter. If the job type does not exist it doesn't delete
+      anything"
+      operationId: 'admin_delete_all_jobs_by_type'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'job_type'
+          in: 'formData'
+          description: 'Type of job to delete'
+          required: true
+          type: 'string'
+      responses:
+        "200":
+          description: 'All jobs of the given type were deleted!'
+          schema:
+            $ref: '#/definitions/AdminOperationResult'
+        "401":
+          description: 'Invalid Admin token supplied'
+      security:
+        - adminTokenAuth: []
+  /admin/delete_output_files_for_job/{job_id}:
+    get:
+      tags:
+        - 'Admin'
+      summary: 'Deletes the output files for the job whose id is given as parameter'
+      description: 'Deletes all the output files of a finished job. Useful for testing, debugging and other admin tasks'
+      operationId: 'admin_delete_output_files_for_job'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job for which I will delete the output files"
+          required: true
+          type: 'string'
+      responses:
+        "200":
+          description: "Result of the operation"
+          schema:
+            $ref: '#/definitions/AdminOperationResult'
+        "400":
+          description: 'Invalid ID supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - adminTokenAuth: []
+securityDefinitions:
+  JobKeyAuth:        # arbitrary name for the security scheme
+    type: apiKey
+    in: header       # can be "header", "query" or "cookie"
+    name: X-Job-Key  # name of the header, query parameter or cookie
+  adminTokenAuth:
+    type: apiKey
+    in: header
+    name: X-Admin-Key
+  adminAuth:
+    type: basic
+security:
+  - JobKeyAuth: []
+  - adminAuth: []
+  - adminTokenAuth: []
+definitions:
+  SubmissionResponse:
+    type: 'object'
+    properties:
+      job_id:
+        type: 'string'
+  AdminToken:
+    type: "object"
+    properties:
+      token:
+        type: 'string'
+  AdminOperationResult:
+    type: "object"
+    properties:
+      operation_result:
+        type: 'string'
+  JobStatus:
+    type: "object"
+    properties:
+      id:
+        type: 'string'
+      type:
+        type: 'string'
+      status:
+        type: 'string'
+      status_log:
+        type: 'string'
+      progress:
+        type: 'string'
+      created_at:
+        type: 'string'
+      started_at:
+        type: 'string'
+      finished_at:
+        type: 'string'
+      raw_params:
+        type: 'string'
+      expires_at:
+        type: 'string'
+      api_initial_url:
+        type: 'string'
+      docker_image_url:
+        type: 'string'
+      timezone:
+        type: 'string'
+      output_files_urls:
+        type: 'array'
+        items:
+          type: 'string'

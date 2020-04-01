@@ -6,3 +6,6 @@ sql_alchemy:
   track_modifications: False
 elasticsearch:
   dry_run: True # If True, I will just print the data and not send anything to elasticsearch
+  host: 'http://wp-p1m-50.ebi.ac.uk:9200'
+admin_username: 'admin'
+admin_password: '123456'

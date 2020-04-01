@@ -2,6 +2,7 @@
     Module that handles the configuration of the app
 """
 import os
+import logging
 from pathlib import Path
 import hashlib
 from enum import Enum
@@ -59,7 +60,35 @@ def verify_secret(prop_name, value):
 
     return hashed == has_must_be
 
-RUN_CONFIG = yaml.load(open(CONFIG_FILE_PATH, 'r'), Loader=yaml.FullLoader)
+print('Loading run config')
+try:
+    RUN_CONFIG = yaml.load(open(CONFIG_FILE_PATH, 'r'), Loader=yaml.FullLoader)
+    print('Run config loaded')
+except FileNotFoundError:
+    print('Config file not found. Attempting to load config from environment variable DELAYED_JOBS_RAW_CONFIG')
+    raw_config = os.getenv('DELAYED_JOBS_RAW_CONFIG')
+    print('raw_config: ', raw_config)
+    RUN_CONFIG = yaml.load(raw_config, Loader=yaml.FullLoader)
+
+
+# Load defaults
+if not RUN_CONFIG.get('server_public_host'):
+    RUN_CONFIG['server_public_host'] = '0.0.0.0:5000'
+
+if not RUN_CONFIG.get('status_update_host'):
+    RUN_CONFIG['status_update_host'] = RUN_CONFIG['server_public_host']
+
+if not RUN_CONFIG.get('base_path'):
+    RUN_CONFIG['base_path'] = ''
+
+if not RUN_CONFIG.get('outputs_base_path'):
+    RUN_CONFIG['outputs_base_path'] = 'outputs'
+
+if not RUN_CONFIG.get('status_agent'):
+    RUN_CONFIG['status_agent'] = {}
+    RUN_CONFIG['status_agent']['lock_validity_seconds'] = 1
 
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
+
+print('RUN CONFIG: ', RUN_CONFIG)

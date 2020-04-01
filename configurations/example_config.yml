@@ -9,3 +9,18 @@ elasticsearch:
 jobs_run_dir: 'Where the job runs'
 jobs_scripts_dir: 'Where the job scripts are'
 run_jobs: False # If False, do not actually run any job, useful for testing. Assumed to be true if missing.
+logger: 'gunicorn.error' #Logger to use for the app logs
+lsf_submission:
+  id_rsa_file: '/path/to/ID_RSA_LSF'
+  lsf_user: 'lsf_user'
+  lsf_host: 'lsf_host'
+server_public_host: some_server:30001 # Name of the public server name if unset, # it will be 0.0.0.0:5000
+status_update_host: 'some_server' # The base url for the jobs to send feedback to the server, if unset, it will be
+# whatever is set as server_public_host
+enable_cors: True
+generate_default_config: True # Generates a default configuration for the jobs
+status_agent_run_dir: 'Where the status agents will run their scripts'
+run_status_script: False # Sets if I should actually run the status script, if missing assumed true. Useful for testing
+outputs_base_path: 'outputs' # base path for which to serve the job outputs under
+status_agent:
+  lock_validity_seconds: 1 # Time in seconds for which the lock of a status agent is valid.

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delayed-jobs-server
+  namespace: <NAMESPACE>
+spec:
+  replicas: <NUM_REPLICAS>
+  selector:
+    matchLabels:
+      app: delayed-jobs
+  template:
+    metadata:
+      labels:
+        app: delayed-jobs
+    spec:
+      securityContext:
+        runAsUser: <UID>
+        runAsGroup: <GID>
+      containers:
+      - name: delayed-jobs-api
+        image: <SERVER_IMAGE_TAG>
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: <NFS_MOUNT_PATH>
+        - name: id-rda-lsf
+          mountPath: '/etc/lsf_config/'
+          readOnly: true
+        - name: run-config
+          mountPath: '/etc/run_config/'
+          readOnly: true
+        - name: gunicorn-config
+          mountPath: '/etc/gunicorn_config/'
+          readOnly: true
+      - name: delayed-jobs-status-daemon
+        image: <STATUS_DAEMON_IMAGE_TAG>
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: nfs-volume
+          mountPath: <NFS_MOUNT_PATH>
+        - name: id-rda-lsf
+          mountPath: '/etc/lsf_config/'
+          readOnly: true
+        - name: run-config
+          mountPath: '/etc/run_config/'
+          readOnly: true
+        - name: gunicorn-config
+          mountPath: '/etc/gunicorn_config/'
+          readOnly: true
+      volumes:
+        - name: nfs-volume
+          nfs:
+            server: <NFS_FQDN>
+            path: <NFS_PATH>
+        - name: id-rda-lsf
+          secret:
+            secretName: <ID_RSA_SECRET_NAME>
+        - name: run-config
+          secret:
+            secretName: <RUN_CONFIG_SECRET_NAME>
+        - name: gunicorn-config
+          secret:
+            secretName: <GUNICORN_CONFIG_SECRET_NAME>
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: delayed-jobs
+  namespace: <NAMESPACE>
+spec:
+  type: NodePort
+  selector:
+    app: delayed-jobs
+  ports:
+  - port: 5000
+    targetPort: 5000

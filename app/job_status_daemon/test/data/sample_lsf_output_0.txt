@@ -1,0 +1,5 @@
+I am going to check the status_must_be of the LSF jobs 123 456
+START_REMOTE_SSH
+Job <123> is not found
+Job <456> is not found
+FINISH_REMOTE_SSH

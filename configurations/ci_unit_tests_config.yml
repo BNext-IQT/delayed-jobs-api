@@ -10,3 +10,8 @@ elasticsearch:
 run_jobs: False
 admin_username: 'admin'
 admin_password: '123456'
+lsf_submission:
+  id_rsa_file: '~/.ssh/id_rsa'
+  lsf_user: 'lsf_user'
+  lsf_host: 'lsf_host'
+generate_default_config: True
