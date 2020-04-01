@@ -95,6 +95,8 @@ prepare_config_staging:
   image:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
+  only:
+    - staging
   script:
     - mkdir -p ${CONFIGS_FOLDER}
     - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
@@ -109,7 +111,7 @@ deploy_to_staging:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
   only:
-  - staging
+    - staging
   environment:
     name: staging
     url: ${SERVER_URL_STAGING}
