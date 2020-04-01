@@ -29,6 +29,9 @@ spec:
         - name: run-config
           mountPath: '/etc/run_config/'
           readOnly: true
+        - name: gunicorn-config
+          mountPath: '/etc/gunicorn_config/'
+          readOnly: true
       - name: delayed-jobs-status-daemon
         image: <STATUS_DAEMON_IMAGE_TAG>
         imagePullPolicy: Always
@@ -41,6 +44,9 @@ spec:
         - name: run-config
           mountPath: '/etc/run_config/'
           readOnly: true
+        - name: gunicorn-config
+          mountPath: '/etc/gunicorn_config/'
+          readOnly: true
       volumes:
         - name: nfs-volume
           nfs:
@@ -52,6 +58,9 @@ spec:
         - name: run-config
           secret:
             secretName: <RUN_CONFIG_SECRET_NAME>
+        - name: gunicorn-config
+          secret:
+            secretName: <GUNICORN_CONFIG_SECRET_NAME>
 
 ---
 apiVersion: v1

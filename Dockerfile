@@ -2,6 +2,7 @@
 ARG INSTALL_PYTHON_VERSION=${INSTALL_PYTHON_VERSION:-3.7}
 FROM python:${INSTALL_PYTHON_VERSION}-slim-buster AS base
 ENV CONFIG_FILE_PATH=${CONFIG_FILE_PATH:-'/etc/run_config/RUN_CONFIG'}
+ENV GUNICORN_CONFIG_FILE_PATH=${GUNICORN_CONFIG_FILE_PATH:-'/etc/gunicorn_config/GUNICORN_CONFIG'}
 
 RUN apt-get update
 RUN apt-get install -y \
@@ -29,7 +30,7 @@ ENTRYPOINT FLASK_APP=app flask run --host=0.0.0.0
 FROM base AS production-server
 # Take into account that the app will get the configuration from the variable DELAYED_JOBS_RAW_CONFIG if the config.yml
 # file is not found.
-ENTRYPOINT gunicorn wsgi:FLASK_APP -b 0.0.0.0:5000 -t 300 --log-level debug
+ENTRYPOINT gunicorn wsgi:FLASK_APP -c ${GUNICORN_CONFIG_FILE_PATH}
 
 FROM base AS job-status-daemon
 ENTRYPOINT /app/run_daemon.sh

@@ -9,6 +9,7 @@ variables:
   DOCKER_DRIVER: overlay
   CONFIGS_FOLDER: run_config
   CONFIG_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.yml
+  CONFIG_GUNICORN_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.gunicorn.config.py
   CONFIG_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.yml
 
 image: docker:latest
@@ -98,6 +99,7 @@ prepare_config_staging:
   artifacts:
     paths:
       - ${CONFIG_STAGING_FILE_PATH}
+      - ${CONFIG_GUNICORN_STAGING_FILE_PATH}
 
 deploy_to_staging:
   stage: deploy_to_staging
@@ -120,7 +122,9 @@ deploy_to_staging:
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${CONFIG_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
+  - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_STAGING} --from-file=GUNICORN_CONFIG=${CONFIG_GUNICORN_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl apply -f -
   - cat ${CONFIG_STAGING_FILE_PATH}
+  - cat ${CONFIG_GUNICORN_STAGING_FILE_PATH}
   - sed -i "s~<NAMESPACE>~${CHEMBL_NS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<NUM_REPLICAS>~${NUM_REPLICAS_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
@@ -132,6 +136,7 @@ deploy_to_staging:
   - sed -i "s~<NFS_PATH>~${NFS_PATH_HX}~" k8s-deployment.yaml
   - sed -i "s~<ID_RSA_SECRET_NAME>~${ID_RSA_SECRET_NAME_STAGING}~" k8s-deployment.yaml
   - sed -i "s~<RUN_CONFIG_SECRET_NAME>~${RUN_CONFIG_SECRET_NAME_STAGING}~" k8s-deployment.yaml
+  - sed -i "s~<GUNICORN_CONFIG_SECRET_NAME>~${GUNICORN_CONFIG_SECRET_NAME_STAGING}~" k8s-deployment.yaml
   - cat k8s-deployment.yaml
   - kubectl apply -n ${CHEMBL_NS_STAGING} -f k8s-deployment.yaml
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
