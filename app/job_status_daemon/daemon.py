@@ -14,8 +14,7 @@ import random
 from app.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.blueprints.job_submission.services import job_submission_service
-
-DEFAULT_SLEEP_TIME = 1
+from app.job_status_daemon import locks
 
 AGENT_RUN_DIR = RUN_CONFIG.get('status_agent_run_dir', str(Path().absolute()) + '/status_agents_run')
 if not os.path.isabs(AGENT_RUN_DIR):
@@ -29,54 +28,54 @@ print('-------------------------------------------------------------------------
 print(f'AGENT_RUN_DIR: {AGENT_RUN_DIR}')
 print('------------------------------------------------------------------------------')
 
-def check_jobs_status():
+def check_jobs_status(delete_lock_after_finishing=True):
     """
     The main function of this module. Checks for jobs to check the status, and checks their status in lsf
-    :return: the amount of seconds to wait for the next run
+    :param delete_lock_after_finishing: determines if explicitly deletes the lock after finishing
+    :return: (sleeptime, jobs_were_checked) the amount of seconds to wait for the next run and if the jobs
+    were checked or not
     """
     lsf_config = RUN_CONFIG.get('lsf_submission')
     current_lsf_host = lsf_config['lsf_host']
     my_hostname = socket.gethostname()
 
-    existing_lock = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
+    min_sleep_time = RUN_CONFIG.get('status_agent').get('min_sleep_time')
+    max_sleep_time = RUN_CONFIG.get('status_agent').get('max_sleep_time')
+
+    sleep_time = random.uniform(min_sleep_time, max_sleep_time)
+
+    existing_lock = locks.get_lock_for_lsf_host(current_lsf_host)
     if existing_lock is not None:
 
-        lock_expired = existing_lock.expires_at < datetime.datetime.utcnow()
-        i_must_respect_lock = existing_lock.lsf_host == current_lsf_host and \
-                              existing_lock.lock_owner != my_hostname and \
-                              not lock_expired
+        print(f'I ({my_hostname}) found a lock, waiting {sleep_time} seconds before checking again')
+        return sleep_time, False
 
-        if i_must_respect_lock:
-            sleep_time = DEFAULT_SLEEP_TIME + random.random()
-            print(f'I ({my_hostname}) found a lock, waiting {sleep_time} seconds before checking again')
-            return sleep_time
-        else:
-            print(f'I ({my_hostname}) found a lock, but it expired, I will disrespect it.')
-            delayed_job_models.delete_lock(existing_lock)
-            delayed_job_models.lock_lsf_status_daemon(current_lsf_host, my_hostname)
     else:
         print(f'Locking LSF status check for {current_lsf_host}, I am {my_hostname}')
-        delayed_job_models.lock_lsf_status_daemon(current_lsf_host, my_hostname)
+        locks.set_lsf_lock(current_lsf_host, my_hostname)
 
-    print('Checking for jobs to check...')
+    print('Looking for jobs to check...')
     lsf_job_ids_to_check = get_lsf_job_ids_to_check()
     print(f'lsf_job_ids_to_check: {lsf_job_ids_to_check}')
 
     if len(lsf_job_ids_to_check) == 0:
-        return DEFAULT_SLEEP_TIME
+        locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
+        return sleep_time, True
 
     script_path = prepare_job_status_check_script(lsf_job_ids_to_check)
     must_run_script = RUN_CONFIG.get('run_status_script', True)
     if not must_run_script:
         print('Not running script because run_status_script is False')
-        return DEFAULT_SLEEP_TIME
+        locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
+        return sleep_time, False
 
     try:
         script_output = get_status_script_output(script_path)
         os.remove(script_path)  # Remove the script after running so it doesn't fill up the NFS
         print(f'deleted script: {script_path}')
         parse_bjobs_output(script_output)
-        return DEFAULT_SLEEP_TIME
+        locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
+        return sleep_time, True
     except JobStatusDaemonError as error:
         print(error)
 
