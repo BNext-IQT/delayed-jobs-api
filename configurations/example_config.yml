@@ -1,4 +1,4 @@
-run_env: DEV # DEV, TEST, STAGING or PROD
+run_env: DEV # DEV, STAGING or PROD
 server_secret_key: 'ServerKey!!!'
 sql_alchemy:
   create_tables: True # If true, execute table creation command on app start

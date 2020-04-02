@@ -10,7 +10,6 @@ import shutil
 import os
 
 from sqlalchemy import and_
-import flask
 
 from app import create_app
 from app.models import delayed_job_models
@@ -29,6 +28,10 @@ class TestJobStatusDaemon(unittest.TestCase):
         self.flask_app = create_app()
         self.client = self.flask_app.test_client()
 
+        with self.flask_app.app_context():
+            delayed_job_models.delete_all_jobs()
+            shutil.rmtree(daemon.AGENT_RUN_DIR, ignore_errors=True)
+
     def tearDown(self):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
@@ -43,6 +46,11 @@ class TestJobStatusDaemon(unittest.TestCase):
         - 2 Jobs in error state, each running in a different lsf cluster
         - 2 Jobs in finished state, each running in a different lsf cluster
         """
+        lsf_config = RUN_CONFIG.get('lsf_submission')
+        lsf_host = lsf_config['lsf_host']
+
+        run_environment = RUN_CONFIG.get('run_env')
+
         with self.flask_app.app_context():
 
             i = 0
@@ -50,8 +58,6 @@ class TestJobStatusDaemon(unittest.TestCase):
                            delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.FINISHED,
                            delayed_job_models.JobStatuses.ERROR]:
 
-                lsf_config = RUN_CONFIG.get('lsf_submission')
-                lsf_host = lsf_config['lsf_host']
 
                 for assigned_host in [lsf_host, 'another_host']:
                     job = delayed_job_models.DelayedJob(
@@ -60,6 +66,7 @@ class TestJobStatusDaemon(unittest.TestCase):
                         lsf_job_id=i,
                         status=status,
                         lsf_host=assigned_host,
+                        run_environment=run_environment
                     )
                     job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
                     os.makedirs(job.output_dir_path, exist_ok=True)
@@ -72,14 +79,17 @@ class TestJobStatusDaemon(unittest.TestCase):
         - 2 Jobs in error state, each running in a different lsf cluster
         - 2 Jobs in finished state, each running in a different lsf cluster
         """
+        run_environment = RUN_CONFIG.get('run_env')
+        lsf_config = RUN_CONFIG.get('lsf_submission')
+        lsf_host = lsf_config['lsf_host']
+
         with self.flask_app.app_context():
 
             i = 0
             for status in [delayed_job_models.JobStatuses.FINISHED,
                            delayed_job_models.JobStatuses.ERROR]:
 
-                lsf_config = RUN_CONFIG.get('lsf_submission')
-                lsf_host = lsf_config['lsf_host']
+
 
                 for assigned_host in [lsf_host, 'another_host']:
                     job = delayed_job_models.DelayedJob(
@@ -87,7 +97,43 @@ class TestJobStatusDaemon(unittest.TestCase):
                         type='TEST',
                         lsf_job_id=i,
                         status=status,
-                        lsf_host=assigned_host
+                        lsf_host=assigned_host,
+                        run_environment=run_environment
+                    )
+                    job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
+                    os.makedirs(job.output_dir_path, exist_ok=True)
+                    delayed_job_models.save_job(job)
+                    i += 1
+
+    def create_test_jobs_2(self):
+        """
+        This will create:
+        - 2 Jobs in created state, each running in a different run environment
+        - 2 Jobs in queued state, each running in a different run environment
+        - 2 Jobs in running state, each running in a different run environment
+        - 2 Jobs in error state, each running in a different run environment
+        - 2 Jobs in finished state, each running in a different run environment
+        """
+        lsf_config = RUN_CONFIG.get('lsf_submission')
+        lsf_host = lsf_config['lsf_host']
+
+        run_environment = RUN_CONFIG.get('run_env')
+
+        with self.flask_app.app_context():
+
+            i = 0
+            for status in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
+                           delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.FINISHED,
+                           delayed_job_models.JobStatuses.ERROR]:
+
+                for run_env in [run_environment, 'another_environment']:
+                    job = delayed_job_models.DelayedJob(
+                        id=f'Job-{status}-{run_env}',
+                        type='TEST',
+                        lsf_job_id=i,
+                        status=status,
+                        lsf_host=lsf_host,
+                        run_environment=run_env
                     )
                     job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
                     os.makedirs(job.output_dir_path, exist_ok=True)
@@ -121,6 +167,42 @@ class TestJobStatusDaemon(unittest.TestCase):
 
 
     def test_determines_for_which_jobs_check_status_1(self):
+        """
+        Given a set of jobs currently in the database, knows for which it is required to check the status.
+        In this case, some jobs require a check, the ones running in the same run environment
+        """
+        self.create_test_jobs_2()
+        print('here 1')
+        current_run_environment = RUN_CONFIG.get('run_env')
+        print('current_run_environment: ', current_run_environment)
+
+        with self.flask_app.app_context():
+            lsf_config = RUN_CONFIG.get('lsf_submission')
+            lsf_host = lsf_config['lsf_host']
+
+            status_is_not_error_or_finished = delayed_job_models.DelayedJob.status.notin_(
+                [delayed_job_models.JobStatuses.ERROR, delayed_job_models.JobStatuses.FINISHED]
+            )
+            lsf_host_is_my_host = delayed_job_models.DelayedJob.lsf_host == lsf_host
+
+            run_environment_is_my_current_environment = \
+                delayed_job_models.DelayedJob.run_environment == current_run_environment
+
+
+            job_to_check_status_must_be = delayed_job_models.DelayedJob.query.filter(
+                and_(lsf_host_is_my_host, status_is_not_error_or_finished, run_environment_is_my_current_environment)
+            )
+
+            lsf_ids_to_check_status_must_be = [job.lsf_job_id for job in job_to_check_status_must_be]
+            job_ids_must_be = [job.id for job in job_to_check_status_must_be]
+            lsf_ids_to_check_got = daemon.get_lsf_job_ids_to_check()
+            self.assertListEqual(lsf_ids_to_check_status_must_be, lsf_ids_to_check_got,
+                                 msg=f'The jobs for which to check the status were not created '
+                                     f'correctly! jobs must be {job_ids_must_be}')
+
+
+
+    def test_determines_for_which_jobs_check_status_2(self):
         """
         Given a set of jobs currently in the database, knows for which it is required to check the status.
         In this case, NO jobs require a check.

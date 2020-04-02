@@ -28,7 +28,7 @@ def run():
     # for test_module in [func_test_successful_job_run, func_test_job_cache, func_test_parallel_job_submission,
     #                     func_test_failing_job, func_test_output_file_lost]:
 
-    for test_module in [func_test_job_cache]:
+    for test_module in [func_test_successful_job_run]:
 
         test_module.run_test(ARGS.server_base_path, ARGS.admin_username, ARGS.admin_password)
 

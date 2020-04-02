@@ -196,7 +196,8 @@ def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_
         status_response = status_request.json()
 
         job_status = status_response.get('status')
-        print(f'{datetime.datetime.utcnow().isoformat()} job_status: {job_status}')
+        job_progress = status_response.get('progress')
+        print(f'{datetime.datetime.utcnow().isoformat()} - job_status: {job_status} progress: {job_progress}')
         assertion_passed = job_status == status_must_be_1 or job_status == status_must_be_2
         current_tries += 1
 
@@ -216,7 +217,7 @@ def assert_output_files_can_be_downloaded(status_response):
     output_files_urls = status_response.get('output_files_urls')
     print('output_files_urls: ', output_files_urls)
 
-    for url in output_files_urls:
+    for output_key, url in output_files_urls.items():
         full_url = f'http://{url}'
         file_request = requests.get(full_url)
         assert file_request.status_code == 200, f'A results file ({full_url}) could not be downloaded!!'

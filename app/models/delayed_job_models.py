@@ -13,6 +13,7 @@ from sqlalchemy import and_
 from enum import Enum
 from app.db import DB
 from app.models import utils
+from app.config import RUN_CONFIG
 
 
 DAYS_TO_LIVE = 7  # Days for which the results are kept
@@ -105,6 +106,7 @@ class DelayedJob(DB.Model):
     lsf_host = DB.Column(DB.Text)
     requirements_parameters_string = DB.Column(DB.Text)
     status_description = DB.Column(DB.Text)
+    run_environment = DB.Column(DB.String(length=60))
     input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
@@ -207,8 +209,9 @@ def get_or_create(job_type, job_params, docker_image_url, input_files_hashes={})
     if existing_job is not None:
         return existing_job
 
+    run_environment = RUN_CONFIG.get('run_env')
     job = DelayedJob(id=job_id, type=job_type, raw_params=json.dumps(job_params, sort_keys=True),
-                     docker_image_url=docker_image_url)
+                     docker_image_url=docker_image_url, run_environment=run_environment)
 
     DB.session.add(job)
     DB.session.commit()
@@ -415,14 +418,19 @@ def get_lsf_job_ids_to_check(lsf_host):
     """
 
     DB.session.commit()
+
     status_is_not_error_or_finished = DelayedJob.status.notin_(
         [JobStatuses.ERROR, JobStatuses.FINISHED]
     )
 
     lsf_host_is_my_host = DelayedJob.lsf_host == lsf_host
 
+    current_run_environment = RUN_CONFIG.get('run_env')
+    run_environment_is_my_current_environment = \
+        DelayedJob.run_environment == current_run_environment
+
     job_to_check_status = DelayedJob.query.filter(
-        and_(lsf_host_is_my_host, status_is_not_error_or_finished)
+        and_(lsf_host_is_my_host, status_is_not_error_or_finished, run_environment_is_my_current_environment)
     )
 
     # Make sure there are no None value. This can happen when the server has created a job and is submitting it, and the
