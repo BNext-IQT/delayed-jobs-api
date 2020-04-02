@@ -187,10 +187,12 @@ prepare_config_prod_hx:
 deploy_to_prod_hx:
   stage: deploy_to_prod_hx
   image:
-    name: alpine/git
+    name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
   only:
     - master
+  environment:
+    name: prod_hx
   script:
     - set -x
     - echo "$KUBE_CA_PEM_HX" > "$(pwd)/kube.ca.pem"
