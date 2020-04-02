@@ -92,6 +92,12 @@ if STATUS_AGENT_CONFIG is None:
         'max_sleep_time': 2
     }
 
+CACHE_CONFIG = RUN_CONFIG.get('cache_config')
+if CACHE_CONFIG is None:
+    RUN_CONFIG['cache_config'] = {
+        'CACHE_TYPE': 'simple'
+    }
+
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
 
