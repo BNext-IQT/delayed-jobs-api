@@ -25,3 +25,10 @@ def set_lsf_lock(lsf_host, lock_owner):
         'owner': lock_owner
     }
     CACHE.set(key=lsf_host, value=lock_dict, timeout=seconds_valid)
+
+def delete_lsf_lock(lsf_host):
+    """
+    Deletes the lock for the lsf host passed as parameter
+    :param lsf_host: lsf host for which to delete the lock
+    """
+    CACHE.delete(key=lsf_host)

@@ -341,6 +341,8 @@ class TestJobStatusDaemon(unittest.TestCase):
 
             self.assertEqual(lock_hostname_got, lock_hostname_must_be, msg='The lock was not saved correctly!')
 
+            locks.delete_lsf_lock(current_lsf_host)
+
     def test_agent_respects_a_lock(self):
         """
         Tests that when a lock has been created for another host, the agent respects it. This means that
@@ -352,3 +354,23 @@ class TestJobStatusDaemon(unittest.TestCase):
 
             sleep_time_got, jobs_were_checked = daemon.check_jobs_status()
             self.assertFalse(jobs_were_checked, msg='The jobs should have not been checked')
+
+            min_sleep_time = RUN_CONFIG.get('status_agent').get('min_sleep_time')
+            max_sleep_time = RUN_CONFIG.get('status_agent').get('max_sleep_time')
+            self.assertTrue(min_sleep_time <= sleep_time_got <= max_sleep_time,
+                            msg='The sleep time was not calculated correctly!')
+
+            locks.delete_lsf_lock(current_lsf_host)
+
+    def test_deletes_lock_after_finishing(self):
+        """
+        Tests that it requests the deletion of the lock after checking the jobs
+        """
+        with self.flask_app.app_context():
+            daemon.check_jobs_status()
+            current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
+
+            lock_got = locks.get_lock_for_lsf_host(current_lsf_host)
+            self.assertIsNone(lock_got, msg='The LSF lock was not deleted!')
+
+

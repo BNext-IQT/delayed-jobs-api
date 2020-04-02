@@ -57,12 +57,14 @@ def check_jobs_status(delete_lock_after_finishing=True):
     print(f'lsf_job_ids_to_check: {lsf_job_ids_to_check}')
 
     if len(lsf_job_ids_to_check) == 0:
+        locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
         return DEFAULT_SLEEP_TIME, True
 
     script_path = prepare_job_status_check_script(lsf_job_ids_to_check)
     must_run_script = RUN_CONFIG.get('run_status_script', True)
     if not must_run_script:
         print('Not running script because run_status_script is False')
+        locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
         return DEFAULT_SLEEP_TIME, False
 
     try:
@@ -70,6 +72,7 @@ def check_jobs_status(delete_lock_after_finishing=True):
         os.remove(script_path)  # Remove the script after running so it doesn't fill up the NFS
         print(f'deleted script: {script_path}')
         parse_bjobs_output(script_output)
+        locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
         return DEFAULT_SLEEP_TIME, True
     except JobStatusDaemonError as error:
         print(error)

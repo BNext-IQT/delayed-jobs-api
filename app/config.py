@@ -84,9 +84,13 @@ if not RUN_CONFIG.get('base_path'):
 if not RUN_CONFIG.get('outputs_base_path'):
     RUN_CONFIG['outputs_base_path'] = 'outputs'
 
-if not RUN_CONFIG.get('status_agent'):
-    RUN_CONFIG['status_agent'] = {}
-    RUN_CONFIG['status_agent']['lock_validity_seconds'] = 1
+STATUS_AGENT_CONFIG = RUN_CONFIG.get('status_agent')
+if STATUS_AGENT_CONFIG is None:
+    RUN_CONFIG['status_agent'] = {
+        'lock_validity_seconds': 1,
+        'min_sleep_time': 1,
+        'max_sleep_time': 2
+    }
 
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
