@@ -12,7 +12,7 @@ def run():
     flask_app = create_app()
     with flask_app.app_context():
         while True:
-            sleep_time = daemon.check_jobs_status()
+            sleep_time, jobs_were_checked = daemon.check_jobs_status()
             time.sleep(sleep_time)
 
 if __name__ == "__main__":

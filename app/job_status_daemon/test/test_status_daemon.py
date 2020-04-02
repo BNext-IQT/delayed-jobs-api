@@ -17,6 +17,7 @@ from app.models import delayed_job_models
 from app.config import RUN_CONFIG
 from app.job_status_daemon import daemon
 from app.blueprints.job_submission.services import job_submission_service
+from app.job_status_daemon import locks
 
 
 class TestJobStatusDaemon(unittest.TestCase):
@@ -330,10 +331,16 @@ class TestJobStatusDaemon(unittest.TestCase):
         Tests that the daemon creates a lock while checking LSF
         """
         with self.flask_app.app_context():
-            daemon.check_jobs_status()
+            daemon.check_jobs_status(delete_lock_after_finishing=False)
             current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
-            lock_got = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
+
+            lock_got = locks.get_lock_for_lsf_host(current_lsf_host)
             self.assertIsNotNone(lock_got, msg='The LSF lock was not created!')
+
+            lock_hostname_got = lock_got.get('owner')
+            lock_hostname_must_be = socket.gethostname()
+
+            self.assertEqual(lock_hostname_got, lock_hostname_must_be, msg='The lock was not saved correctly!')
 
     def test_agent_respects_a_lock(self):
         """
@@ -342,25 +349,7 @@ class TestJobStatusDaemon(unittest.TestCase):
         """
         with self.flask_app.app_context():
             current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
-            delayed_job_models.lock_lsf_status_daemon(current_lsf_host, 'another_owner')
+            locks.set_lsf_lock(current_lsf_host, 'another_owner')
 
-            sleep_time_got = daemon.check_jobs_status()
-            self.assertNotAlmostEqual(sleep_time_got % daemon.DEFAULT_SLEEP_TIME, 0, places=4,
-                            msg='The sleep time must be greater than the default time and not a multiple of it '
-                                'because there was a lock')
-
-    def test_agent_does_not_respect_an_expired_lock(self):
-        """
-        Tests that when a lock has been created for another host, the agent does not respect it and creates its own lock
-        """
-        with self.flask_app.app_context():
-            current_lsf_host = RUN_CONFIG.get('lsf_submission').get('lsf_host')
-            delayed_job_models.lock_lsf_status_daemon(current_lsf_host, 'another_owner', seconds_valid=-1)
-
-            sleep_time_got = daemon.check_jobs_status()
-            self.assertEquals(sleep_time_got, daemon.DEFAULT_SLEEP_TIME,
-                              msg='The lock must not be respected because it expired!')
-
-            my_hostname = socket.gethostname()
-            lock_got = delayed_job_models.get_lock_for_lsf_host(current_lsf_host)
-            self.assertEquals(lock_got.lock_owner, my_hostname, msg='A new lock must have been created owned by me!')
+            sleep_time_got, jobs_were_checked = daemon.check_jobs_status()
+            self.assertFalse(jobs_were_checked, msg='The jobs should have not been checked')
