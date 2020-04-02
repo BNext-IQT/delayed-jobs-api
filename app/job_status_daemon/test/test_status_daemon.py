@@ -32,7 +32,6 @@ class TestJobStatusDaemon(unittest.TestCase):
     def tearDown(self):
         with self.flask_app.app_context():
             delayed_job_models.delete_all_jobs()
-            delayed_job_models.delete_all_lsf_locks()
             shutil.rmtree(daemon.AGENT_RUN_DIR, ignore_errors=True)
 
     def create_test_jobs_0(self):
