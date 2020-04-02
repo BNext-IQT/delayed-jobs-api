@@ -16,8 +16,6 @@ from app.config import RUN_CONFIG
 from app.blueprints.job_submission.services import job_submission_service
 from app.job_status_daemon import locks
 
-DEFAULT_SLEEP_TIME = 1
-
 AGENT_RUN_DIR = RUN_CONFIG.get('status_agent_run_dir', str(Path().absolute()) + '/status_agents_run')
 if not os.path.isabs(AGENT_RUN_DIR):
     AGENT_RUN_DIR = Path(AGENT_RUN_DIR).resolve()
@@ -41,10 +39,14 @@ def check_jobs_status(delete_lock_after_finishing=True):
     current_lsf_host = lsf_config['lsf_host']
     my_hostname = socket.gethostname()
 
+    min_sleep_time = RUN_CONFIG.get('status_agent').get('min_sleep_time')
+    max_sleep_time = RUN_CONFIG.get('status_agent').get('max_sleep_time')
+
+    sleep_time = random.uniform(min_sleep_time, max_sleep_time)
+
     existing_lock = locks.get_lock_for_lsf_host(current_lsf_host)
     if existing_lock is not None:
 
-        sleep_time = DEFAULT_SLEEP_TIME + random.random()
         print(f'I ({my_hostname}) found a lock, waiting {sleep_time} seconds before checking again')
         return sleep_time, False
 
@@ -58,14 +60,14 @@ def check_jobs_status(delete_lock_after_finishing=True):
 
     if len(lsf_job_ids_to_check) == 0:
         locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
-        return DEFAULT_SLEEP_TIME, True
+        return sleep_time, True
 
     script_path = prepare_job_status_check_script(lsf_job_ids_to_check)
     must_run_script = RUN_CONFIG.get('run_status_script', True)
     if not must_run_script:
         print('Not running script because run_status_script is False')
         locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
-        return DEFAULT_SLEEP_TIME, False
+        return sleep_time, False
 
     try:
         script_output = get_status_script_output(script_path)
@@ -73,7 +75,7 @@ def check_jobs_status(delete_lock_after_finishing=True):
         print(f'deleted script: {script_path}')
         parse_bjobs_output(script_output)
         locks.delete_lsf_lock(current_lsf_host) if delete_lock_after_finishing else None
-        return DEFAULT_SLEEP_TIME, True
+        return sleep_time, True
     except JobStatusDaemonError as error:
         print(error)
 
