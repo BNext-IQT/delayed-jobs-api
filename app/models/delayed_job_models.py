@@ -12,7 +12,6 @@ from sqlalchemy import and_
 
 from enum import Enum
 from app.db import DB
-from app.config import RUN_CONFIG
 from app.models import utils
 
 
@@ -52,15 +51,6 @@ class JobConfigNotFoundError(Exception):
 # ----------------------------------------------------------------------------------------------------------------------
 # Models
 # ----------------------------------------------------------------------------------------------------------------------
-class StatusAgentLock(DB.Model):
-    """
-    Class that represents a lock used by the job status daemon
-    """
-    lsf_host = DB.Column(DB.String(length=120), primary_key=True)
-    lock_owner = DB.Column(DB.String(length=120))
-    expires_at = DB.Column(DB.DateTime)
-
-
 class DefaultJobConfig(DB.Model):
     """
     Class that represents a default container image for a job type
