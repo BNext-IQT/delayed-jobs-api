@@ -125,7 +125,7 @@ deploy_to_staging:
   - echo ${CHEMBL_NS_STAGING} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
   - kubectl create secret generic ${ID_RSA_SECRET_NAME_STAGING} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
-  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG=${CONFIG_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
+  - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_STAGING} --from-file=RUN_CONFIG.yml=${CONFIG_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_STAGING} --from-file=GUNICORN_CONFIG.py=${CONFIG_GUNICORN_STAGING_FILE_PATH} -o yaml -n ${CHEMBL_NS_STAGING} --dry-run | kubectl replace -f -
   - cat ${CONFIG_STAGING_FILE_PATH}
   - cat ${CONFIG_GUNICORN_STAGING_FILE_PATH}
@@ -203,7 +203,7 @@ deploy_to_prod_hx:
     - echo ${CHEMBL_NS_PROD} ${KUBE_URL_HX} ${KUBE_CLUS_NAME_HX} ${KUBE_USER_HX}
     - kubectl get pods -n ${CHEMBL_NS_PROD}
     - kubectl create secret generic ${ID_RSA_SECRET_NAME_PROD_HX} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HX} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
-    - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_PROD_HX} --from-file=RUN_CONFIG=${CONFIG_PROD_HX_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
+    - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_PROD_HX} --from-file=RUN_CONFIG.yml=${CONFIG_PROD_HX_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
     - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_PROD_HX} --from-file=GUNICORN_CONFIG.py=${CONFIG_GUNICORN_PROD_HX_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
     - cat ${CONFIG_PROD_HX_FILE_PATH}
     - cat ${CONFIG_GUNICORN_PROD_HX_FILE_PATH}
