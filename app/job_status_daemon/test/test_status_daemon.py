@@ -201,7 +201,6 @@ class TestJobStatusDaemon(unittest.TestCase):
                                      f'correctly! jobs must be {job_ids_must_be}')
 
 
-
     def test_determines_for_which_jobs_check_status_2(self):
         """
         Given a set of jobs currently in the database, knows for which it is required to check the status.
