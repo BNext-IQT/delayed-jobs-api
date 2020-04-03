@@ -135,7 +135,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
-        app_logging.info(f'Job {job.id} already exists, status: {job.status}')
+        app_logging.debug(f'Job {job.id} already exists, status: {job.status}')
 
         if job.status in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
                           delayed_job_models.JobStatuses.RUNNING, delayed_job_models.JobStatuses.UNKNOWN]:
@@ -145,13 +145,13 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
         elif job.status == delayed_job_models.JobStatuses.ERROR:
 
             if job.num_failures <= MAX_RETRIES:
-                app_logging.info(f'{job.id} has failed {job.num_failures}. Max retries is {MAX_RETRIES}. '
+                app_logging.debug(f'{job.id} has failed {job.num_failures}. Max retries is {MAX_RETRIES}. '
                                  f'I will submit it again')
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
                                             job_params)
                 return get_job_submission_response(job)
             else:
-                app_logging.info(f'{job.id} has failed {job.num_failures} times. Max retries is {MAX_RETRIES}. '
+                app_logging.debug(f'{job.id} has failed {job.num_failures} times. Max retries is {MAX_RETRIES}. '
                                  f'NOT submitting it again')
                 return get_job_submission_response(job)
 
@@ -160,14 +160,14 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             must_ignore_cache = parse_ignore_cache_param(job_params)
             output_was_lost = job_output_was_lost(job)
 
-            app_logging.info(f'{job.id}: must_ignore_cache: {must_ignore_cache}')
-            app_logging.info(f'{job.id}: output_was_lost: {output_was_lost}')
+            app_logging.debug(f'{job.id}: must_ignore_cache: {must_ignore_cache}')
+            app_logging.debug(f'{job.id}: output_was_lost: {output_was_lost}')
 
             must_resubmit = must_ignore_cache or output_was_lost
-            app_logging.info(f'{job.id}: must_resubmit: {must_resubmit}')
+            app_logging.debug(f'{job.id}: must_resubmit: {must_resubmit}')
 
             if must_resubmit:
-                app_logging.info(f'I will delete and submit again {job.id}')
+                app_logging.debug(f'I will delete and submit again {job.id}')
                 delayed_job_models.delete_job(job)
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
                 return get_job_submission_response(job)
@@ -195,7 +195,7 @@ def create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker
     job.started_at = None
     job.finished_at = None
     delayed_job_models.save_job(job)
-    app_logging.info(f'Submitting Job: {job.id}')
+    app_logging.debug(f'Submitting Job: {job.id}')
     prepare_job_and_submit(job, input_files_desc)
     return job
 
@@ -289,7 +289,7 @@ def create_job_run_dir(job):
     os.makedirs(job_run_dir, exist_ok=True)
     os.makedirs(job_input_files_dir, exist_ok=True)
 
-    app_logging.info(f'Job run dir is {job_run_dir}')
+    app_logging.debug(f'Job run dir is {job_run_dir}')
 
 def create_params_file(job, input_files_desc):
     """
@@ -359,7 +359,7 @@ def prepare_output_dir(job):
     delayed_job_models.save_job(job)
     os.makedirs(job_output_dir, exist_ok=True)
 
-    app_logging.info(f'Job output dir is {job_output_dir}')
+    app_logging.debug(f'Job output dir is {job_output_dir}')
 
 def get_job_resources_params(job):
     """
@@ -385,12 +385,12 @@ def get_job_resources_params(job):
     requirements_params_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     return_code = requirements_params_process.returncode
-    app_logging.info(f'requirements return code was: {return_code}')
+    app_logging.debug(f'requirements return code was: {return_code}')
     if return_code != 0:
         raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
 
-    app_logging.info(f'Run params Output: \n {requirements_params_process.stdout}')
-    app_logging.info(f'Run params Error: \n {requirements_params_process.stderr}')
+    app_logging.debug(f'Run params Output: \n {requirements_params_process.stdout}')
+    app_logging.debug(f'Run params Error: \n {requirements_params_process.stderr}')
 
     params_ouput_str = requirements_params_process.stdout.decode().rstrip()
     if params_ouput_str == 'DEFAULT':
@@ -465,17 +465,17 @@ def submit_job_to_lsf(job):
     id_rsa_path = lsf_config['id_rsa_file']
 
     run_command = f'{submit_file_path} {id_rsa_path}'
-    app_logging.info(f'Going to run job submission script, command: {run_command}')
+    app_logging.debug(f'Going to run job submission script, command: {run_command}')
 
     must_run_jobs = RUN_CONFIG.get('run_jobs', True)
     if not must_run_jobs:
-        app_logging.info(f'Not submitting jobs because run_jobs is False')
+        app_logging.debug(f'Not submitting jobs because run_jobs is False')
         return
 
     submission_process = subprocess.run(run_command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    app_logging.info(f'Submission STD Output: \n {submission_process.stdout}')
-    app_logging.info(f'Submission STD Error: \n {submission_process.stderr}')
+    app_logging.debug(f'Submission STD Output: \n {submission_process.stdout}')
+    app_logging.debug(f'Submission STD Error: \n {submission_process.stderr}')
 
     with open(submission_output_path, 'wb') as submission_out_file:
         submission_out_file.write(submission_process.stdout)
@@ -484,7 +484,7 @@ def submit_job_to_lsf(job):
         submission_err_file.write(submission_process.stderr)
 
     return_code = submission_process.returncode
-    app_logging.info(f'submission return code was: {return_code}')
+    app_logging.debug(f'submission return code was: {return_code}')
     if return_code != 0:
         raise JobSubmissionError('There was an error when running the job submission script! Please check the logs')
 
@@ -492,7 +492,7 @@ def submit_job_to_lsf(job):
     job.lsf_job_id = lsf_job_id
     job.status = delayed_job_models.JobStatuses.QUEUED
     delayed_job_models.save_job(job)
-    app_logging.info(f'LSF Job ID is: {lsf_job_id}')
+    app_logging.debug(f'LSF Job ID is: {lsf_job_id}')
 
 
 def get_lsf_job_id(submission_out):
