@@ -98,7 +98,6 @@ class DelayedJob(DB.Model):
     requirements_parameters_string = DB.Column(DB.Text)
     status_description = DB.Column(DB.Text)
     run_environment = DB.Column(DB.String(length=60))
-    input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
