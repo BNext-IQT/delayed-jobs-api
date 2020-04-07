@@ -63,15 +63,6 @@ class DefaultJobConfig(DB.Model):
     requirements_script_path = DB.Column(DB.Text)
 
 
-class InputFile(DB.Model):
-    """
-        Class that represents an input file that was sent to the job
-    """
-    id = DB.Column(DB.Integer, primary_key=True)
-    internal_path = DB.Column(DB.Text, nullable=False)
-    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
-
-
 class OutputFile(DB.Model):
     """
         Class that represents an output file that the job produced.
@@ -86,7 +77,7 @@ class DelayedJob(DB.Model):
     """
     Class that represents a delayed job in the database.
     """
-    id = DB.Column(DB.String(length=60), primary_key=True)
+    id = DB.Column(DB.String(length=120), primary_key=True)
     type = DB.Column(DB.String(length=60), DB.ForeignKey('default_job_config.job_type'), nullable=False)
     status = DB.Column(DB.Enum(JobStatuses), default=JobStatuses.CREATED)
     status_log = DB.Column(DB.Text)  # a comment about the status, for example 'Compressing file'
