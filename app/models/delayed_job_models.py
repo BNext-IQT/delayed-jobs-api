@@ -263,11 +263,11 @@ def generate_default_job_configs():
     DB.session.add(test_job_config)
     DB.session.commit()
 
-    similarity_job_config = DefaultJobConfig(
-        job_type='SIMILARITY',
+    structure_search_job_config = DefaultJobConfig(
+        job_type='STRUCTURE_SEARCH',
         docker_image_url='some_url'
     )
-    DB.session.add(similarity_job_config)
+    DB.session.add(structure_search_job_config)
     DB.session.commit()
 
     mmv_job_config = DefaultJobConfig(

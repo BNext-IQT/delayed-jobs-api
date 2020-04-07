@@ -1,7 +1,7 @@
 """
 The blueprint used in job submission
 """
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort
 
 from app.blueprints.job_submission.services import job_submission_service
 from app.blueprints.job_submission.controllers import marshmallow_schemas
@@ -35,4 +35,20 @@ def submit_mmv_job():
     job_type = 'MMV'
     form_data = request.form
     form_files = request.files
+    return submit_job(job_type, form_data, form_files)
+
+@SUBMISSION_BLUEPRINT.route('/structure_search_job', methods = ['POST'])
+@validate_form_with(marshmallow_schemas.StructureSearchJobSchema)
+def submit_structure_search_job():
+
+    job_type = 'STRUCTURE_SEARCH'
+    form_data = request.form
+    form_files = request.files
+
+    # one small additional validation
+    search_type = form_data.get('search_type')
+    threshold = form_data.get('threshold')
+    if search_type == 'SIMILARITY' and threshold is None:
+        abort(400, 'When the search type is similarity, you must provide a threshold!')
+
     return submit_job(job_type, form_data, form_files)
