@@ -18,3 +18,12 @@ class MMVJobSchema(Schema):
     """
     standardise = fields.Boolean(required=True)
     dl__ignore_cache =fields.Boolean(required=True)
+
+class StructureSearchJobSchema(Schema):
+    """
+    Class that defines the schema for the Structure Search job
+    """
+    search_type = fields.String(required=True, validate=validate.OneOf(['SIMILARITY', 'SUBSTRUCTURE', 'CONNECTIVITY']))
+    search_term = fields.String(required=True)
+    threshold = fields.String(required=True)
+    dl__ignore_cache =fields.Boolean(required=True)

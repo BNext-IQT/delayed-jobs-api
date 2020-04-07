@@ -186,6 +186,47 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/SubmissionResponse"
+  /submit/structure_search_job:
+    post:
+      tags:
+        - 'Structure Search Job'
+      summary: 'Submits a Structure Search (Similarity, Substructure, Connectivity) Job'
+      operationId: 'submit_structure_search_job'
+      consumes:
+        - 'multipart/form-data'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'search_type'
+          in: 'formData'
+          description: 'Type of search to perform'
+          required: true
+          type: 'string'
+          enum: ['SIMILARITY', 'SUBSTRUCTURE', 'CONNECTIVITY']
+        - name: 'search_term'
+          in: 'formData'
+          description: 'Search term for the search, a smiles or a ChEMBL ID'
+          required: true
+          type: 'string'
+        - name: 'threshold'
+          in: 'formData'
+          description: 'Threshold for the search, only used in similarity'
+          required: true
+          type: integer
+          format: int64
+          minimum: 40
+          maximum: 100
+        - name: 'dl__ignore_cache'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
+          required: true
+          type: 'boolean'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
   /admin/login:
     get:
       tags:

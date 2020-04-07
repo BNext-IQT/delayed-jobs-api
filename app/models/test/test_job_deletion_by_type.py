@@ -59,9 +59,6 @@ class TestJobDeletionByType(unittest.TestCase):
         job.output_dir_path = output_dir
         os.makedirs(output_dir, exist_ok=True)
 
-        # Add some inputs
-        utils.simulate_inputs_to_job(job, job_run_dir)
-
         # Add some outputs
         utils.simulate_outputs_of_job(job, output_dir)
 
