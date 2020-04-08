@@ -21,7 +21,6 @@ def get_job_status(job_id):
     try:
 
         job = delayed_job_models.get_job_by_id(job_id, force_refresh=True)
-        app_logging.debug(f'{job.id} status is {json.dumps(job.public_dict())}')
         return job.public_dict()
     except delayed_job_models.JobNotFoundError:
         raise JobNotFoundError()
