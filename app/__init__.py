@@ -3,6 +3,8 @@ Entry file for the delayed jobs app
 """
 from flask import Flask
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from app.blueprints.admin.controllers.admin_tasks_controller import ADMIN_TASKS_BLUEPRINT
 from app.blueprints.admin.controllers.authorisation_controller import ADMIN_AUTH_BLUEPRINT
@@ -41,6 +43,8 @@ def create_app():
     with flask_app.app_context():
         DB.init_app(flask_app)
         CACHE.init_app(flask_app)
+
+
 
         create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
         if create_tables:
