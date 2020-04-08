@@ -17,7 +17,7 @@ def get_json():
     yaml_file_path = Path(Path().absolute()).joinpath('app', 'swagger', 'swagger.yaml')
 
     forwarded_for_value = request.headers.get('X-Forwarded-For')
-    app_logging.info('forwarded_for_value: ', forwarded_for_value)
+    app_logging.info(f'forwarded_for_value: {forwarded_for_value}')
 
     with open(yaml_file_path, 'r') as stream:
         swagger_desc = yaml.safe_load(stream)
