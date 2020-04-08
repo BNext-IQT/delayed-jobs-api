@@ -42,6 +42,7 @@ def create_app():
     with flask_app.app_context():
         DB.init_app(flask_app)
         CACHE.init_app(flask_app)
+        RATE_LIMITER.init_app(flask_app)
 
         create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
         if create_tables:
@@ -56,8 +57,6 @@ def create_app():
         flask_app.register_blueprint(JOB_STATUS_BLUEPRINT, url_prefix=f'{base_path}/status')
         flask_app.register_blueprint(ADMIN_AUTH_BLUEPRINT, url_prefix=f'{base_path}/admin')
         flask_app.register_blueprint(ADMIN_TASKS_BLUEPRINT, url_prefix=f'{base_path}/admin')
-
-        RATE_LIMITER.init_app(flask_app)
 
         return flask_app
 
