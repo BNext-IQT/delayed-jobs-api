@@ -29,8 +29,7 @@ def run_test(server_base_url, admin_username, admin_password):
 
     job_id = submit_job_and_confirm(server_base_url, test_job_to_submit)
 
-    print('Waiting until job finishes')
-    time.sleep(20)
+    print('Waiting until job fails')
 
     started_at_0, job_status = get_job_started_at_and_status(server_base_url, job_id)
     assert job_status == 'ERROR', 'Job should have failed!'
@@ -51,8 +50,7 @@ def run_test(server_base_url, admin_username, admin_password):
 
         assert original_job_id == job_id, 'The job id must be the same!'
 
-        print('Waiting until job finishes')
-        time.sleep(20)
+        print('Waiting until job fails')
 
         started_at_1 = assert_job_must_have_not_been_started_with_retries(server_base_url, job_id, retries, max_retries,
                                                        previous_started_at_time)
@@ -83,6 +81,8 @@ def get_job_started_at_and_status(server_base_url, job_id):
 
     status_url = utils.get_status_url(server_base_url, job_id)
     print('status_url: ', status_url)
+
+    utils.assert_job_status_with_retries(status_url, 'ERROR')
 
     status_request = requests.get(status_url)
     status_response = status_request.json()
