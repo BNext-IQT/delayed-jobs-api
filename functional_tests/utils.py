@@ -185,14 +185,15 @@ def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_
     :param status_must_be_1: what the status should be
     :param status_must_be_2: another option for that the status must be
     """
-    time.sleep(10)
+    time.sleep(1)
     max_retries = 1000
     current_tries = 0
     assertion_passed = False
 
     while current_tries < max_retries:
 
-        status_request = requests.get(status_url)
+        headers = {'Cache-Control': 'no-cache'}
+        status_request = requests.get(status_url, headers=headers)
         status_response = status_request.json()
 
         job_status = status_response.get('status')

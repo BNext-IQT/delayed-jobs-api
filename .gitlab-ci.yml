@@ -148,20 +148,20 @@ deploy_to_staging:
 # ----------------------------------------------------------------------------------------------------------------------
 # Test staging
 # ----------------------------------------------------------------------------------------------------------------------
-#functional_tests:
-#  stage: test_staging
-#  image:
-#    name: $SERVER_IMAGE_TAG
-#    entrypoint: [""]
-#  only:
-#  - staging
-#  environment:
-#    name: staging
-#    url: ${SERVER_URL_STAGING}
-#  script:
-#  - set -x
-#  - sleep 30 # Give some time for the deployment to take effect.
-#  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
+functional_tests:
+  stage: test_staging
+  image:
+    name: $SERVER_IMAGE_TAG
+    entrypoint: [""]
+  only:
+  - staging
+  environment:
+    name: staging
+    url: ${SERVER_URL_STAGING}
+  script:
+  - set -x
+  - sleep 30 # Give some time for the deployment to take effect.
+  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to prod hx

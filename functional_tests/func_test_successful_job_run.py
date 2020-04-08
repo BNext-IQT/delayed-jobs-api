@@ -43,7 +43,7 @@ def run_test(server_base_url, admin_username, admin_password):
 
     utils.assert_job_status_with_retries(status_url, 'RUNNING', 'FINISHED')
 
-    print('wait some time until it should have finished...')
+    print('waiting time until it finishes...')
 
     utils.assert_job_status_with_retries(status_url, 'FINISHED')
     status_request = requests.get(status_url)
