@@ -12,6 +12,8 @@ variables:
   CONFIG_GUNICORN_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.gunicorn.config.py
   CONFIG_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.yml
   CONFIG_GUNICORN_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.gunicorn.config.py
+  CONFIG_PROD_HH_FILE_PATH: ${CONFIGS_FOLDER}/prod_hh.yml
+  CONFIG_GUNICORN_PROD_HH_FILE_PATH: ${CONFIGS_FOLDER}/prod_hh.gunicorn.config.py
 
 image: docker:latest
 
@@ -26,6 +28,8 @@ stages:
   - test_staging
   - prepare_config_prod_hx
   - deploy_to_prod_hx
+  - prepare_config_prod_hh
+  - deploy_to_prod_hh
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -168,7 +172,6 @@ functional_tests:
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hx:
   when: manual
-  allow_failure: false
   stage: prepare_config_prod_hx
   image:
     name: alpine/git
@@ -189,6 +192,7 @@ deploy_to_prod_hx:
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
+  when: manual
   only:
     - master
   environment:
@@ -219,6 +223,67 @@ deploy_to_prod_hx:
     - sed -i "s~<ID_RSA_SECRET_NAME>~${ID_RSA_SECRET_NAME_PROD_HX}~" k8s-deployment.yaml
     - sed -i "s~<RUN_CONFIG_SECRET_NAME>~${RUN_CONFIG_SECRET_NAME_PROD_HX}~" k8s-deployment.yaml
     - sed -i "s~<GUNICORN_CONFIG_SECRET_NAME>~${GUNICORN_CONFIG_SECRET_NAME_PROD_HX}~" k8s-deployment.yaml
+    - cat k8s-deployment.yaml
+    - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
+    - kubectl get pods -n ${CHEMBL_NS_PROD}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Deployment to prod hh
+# ----------------------------------------------------------------------------------------------------------------------
+prepare_config_prod_hh:
+  when: manual
+  allow_failure: false
+  stage: prepare_config_prod_hh
+  image:
+    name: alpine/git
+    entrypoint: ["/bin/sh", "-c"]
+  only:
+    - master
+  script:
+    - rm -rf ${CONFIGS_FOLDER} || true
+    - mkdir -p ${CONFIGS_FOLDER}
+    - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
+  artifacts:
+    paths:
+      - ${CONFIG_PROD_HH_FILE_PATH}
+      - ${CONFIG_GUNICORN_PROD_HH_FILE_PATH}
+
+deploy_to_prod_hh:
+  stage: deploy_to_prod_hh
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: ["/bin/sh", "-c"]
+  when: manual
+  only:
+    - master
+  environment:
+    name: prod_hh
+  script:
+    - set -x
+    - echo "$KUBE_CA_PEM_HH" > "$(pwd)/kube.ca.pem"
+    - kubectl config set-cluster ${KUBE_CLUS_NAME_HH} --server="${KUBE_URL_HH}" --certificate-authority="$(pwd)/kube.ca.pem"
+    - kubectl config set-credentials ${KUBE_USER_HH} --token="${KUBE_TOKEN_HH}"
+    - kubectl config set-context ${CHEMBL_NS_PROD} --cluster=${KUBE_CLUS_NAME_HH} --user=${KUBE_USER_HH}
+    - kubectl config use-context ${CHEMBL_NS_PROD}
+    - echo ${CHEMBL_NS_PROD} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
+    - kubectl get pods -n ${CHEMBL_NS_PROD}
+    - kubectl create secret generic ${ID_RSA_SECRET_NAME_PROD_HH} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl apply -f -
+    - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_PROD_HH} --from-file=RUN_CONFIG.yml=${CONFIG_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl apply -f -
+    - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_PROD_HX} --from-file=GUNICORN_CONFIG.py=${CONFIG_GUNICORN_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl apply -f -
+    - cat ${CONFIG_PROD_HH_FILE_PATH}
+    - cat ${CONFIG_GUNICORN_PROD_HH_FILE_PATH}
+    - sed -i "s~<NAMESPACE>~${CHEMBL_NS_PROD}~" k8s-deployment.yaml
+    - sed -i "s~<NUM_REPLICAS>~${NUM_REPLICAS_PROD_HH}~" k8s-deployment.yaml
+    - sed -i "s~<UID>~${CBL_ADM_UID}~" k8s-deployment.yaml
+    - sed -i "s~<GID>~${CBL_PUB_GID}~" k8s-deployment.yaml
+    - sed -i "s~<SERVER_IMAGE_TAG>~${SERVER_IMAGE_TAG}~" k8s-deployment.yaml
+    - sed -i "s~<STATUS_DAEMON_IMAGE_TAG>~${STATUS_DAEMON_IMAGE_TAG}~" k8s-deployment.yaml
+    - sed -i "s~<NFS_MOUNT_PATH>~${NFS_MOUNT_PATH_PROD_HH}~" k8s-deployment.yaml
+    - sed -i "s~<NFS_FQDN>~${NFS_FQDN_HH}~" k8s-deployment.yaml
+    - sed -i "s~<NFS_PATH>~${NFS_PATH_HH}~" k8s-deployment.yaml
+    - sed -i "s~<ID_RSA_SECRET_NAME>~${ID_RSA_SECRET_NAME_PROD_HH}~" k8s-deployment.yaml
+    - sed -i "s~<RUN_CONFIG_SECRET_NAME>~${RUN_CONFIG_SECRET_NAME_PROD_HH}~" k8s-deployment.yaml
+    - sed -i "s~<GUNICORN_CONFIG_SECRET_NAME>~${GUNICORN_CONFIG_SECRET_NAME_PROD_HH}~" k8s-deployment.yaml
     - cat k8s-deployment.yaml
     - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
     - kubectl get pods -n ${CHEMBL_NS_PROD}
