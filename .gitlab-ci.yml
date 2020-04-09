@@ -268,7 +268,7 @@ deploy_to_prod_hh:
     - kubectl get pods -n ${CHEMBL_NS_PROD}
     - kubectl create secret generic ${ID_RSA_SECRET_NAME_PROD_HH} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
     - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_PROD_HH} --from-file=RUN_CONFIG.yml=${CONFIG_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
-    - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_PROD_HX} --from-file=GUNICORN_CONFIG.py=${CONFIG_GUNICORN_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | replace apply -f -
+    - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_PROD_HX} --from-file=GUNICORN_CONFIG.py=${CONFIG_GUNICORN_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | replace -f -
     - cat ${CONFIG_PROD_HH_FILE_PATH}
     - cat ${CONFIG_GUNICORN_PROD_HH_FILE_PATH}
     - sed -i "s~<NAMESPACE>~${CHEMBL_NS_PROD}~" k8s-deployment.yaml
