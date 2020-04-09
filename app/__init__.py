@@ -15,6 +15,7 @@ from app.config import RunEnvs
 from app.db import DB
 from app.models import delayed_job_models
 from app.cache import CACHE
+from app.rate_limiter import RATE_LIMITER
 
 def create_app():
     """
@@ -41,6 +42,7 @@ def create_app():
     with flask_app.app_context():
         DB.init_app(flask_app)
         CACHE.init_app(flask_app)
+        RATE_LIMITER.init_app(flask_app)
 
         create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
         if create_tables:

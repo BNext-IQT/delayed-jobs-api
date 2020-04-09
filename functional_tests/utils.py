@@ -198,7 +198,9 @@ def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_
 
         job_status = status_response.get('status')
         job_progress = status_response.get('progress')
+        print('Status request response code: ', status_request.status_code)
         print(f'{datetime.datetime.utcnow().isoformat()} - job_status: {job_status} progress: {job_progress}')
+        print('---')
         assertion_passed = job_status == status_must_be_1 or job_status == status_must_be_2
         current_tries += 1
 

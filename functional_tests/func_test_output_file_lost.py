@@ -23,6 +23,7 @@ def run_test(server_base_url, admin_username, admin_password):
 
     utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
 
+    time.sleep(5)
     tmp_dir = Path().absolute().joinpath('tmp')
     test_job_to_submit = utils.prepare_test_job_2(tmp_dir)
 
@@ -61,7 +62,7 @@ def run_test(server_base_url, admin_username, admin_password):
     job_id = submit_response.get('job_id')
 
     print('Wait a bit again until it finishes')
-    time.sleep(10)
+    time.sleep(20)
     utils.assert_job_status_with_retries(status_url, 'FINISHED')
 
     status_url = utils.get_status_url(server_base_url, job_id)
