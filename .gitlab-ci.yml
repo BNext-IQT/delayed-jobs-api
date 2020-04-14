@@ -266,8 +266,8 @@ deploy_to_prod_hh:
     - kubectl config use-context ${CHEMBL_NS_PROD}
     - echo ${CHEMBL_NS_PROD} ${KUBE_URL_HH} ${KUBE_CLUS_NAME_HH} ${KUBE_USER_HH}
     - kubectl get pods -n ${CHEMBL_NS_PROD}
-    - kubectl create secret generic ${ID_RSA_SECRET_NAME_PROD_HH} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
-    - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_PROD_HH} --from-file=RUN_CONFIG.yml=${CONFIG_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl replace -f -
+    - kubectl create secret generic ${ID_RSA_SECRET_NAME_PROD_HH} --from-file=ID_RSA_LSF=${ID_RSA_LSF_HH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl apply -f -
+    - kubectl create secret generic ${RUN_CONFIG_SECRET_NAME_PROD_HH} --from-file=RUN_CONFIG.yml=${CONFIG_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl apply -f -
     - kubectl create secret generic ${GUNICORN_CONFIG_SECRET_NAME_PROD_HH} --from-file=GUNICORN_CONFIG.py=${CONFIG_GUNICORN_PROD_HH_FILE_PATH} -o yaml -n ${CHEMBL_NS_PROD} --dry-run | kubectl apply -f -
     - cat ${CONFIG_PROD_HH_FILE_PATH}
     - cat ${CONFIG_GUNICORN_PROD_HH_FILE_PATH}
@@ -286,4 +286,3 @@ deploy_to_prod_hh:
     - cat k8s-deployment.yaml
     - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
     - kubectl get pods -n ${CHEMBL_NS_PROD}
-
