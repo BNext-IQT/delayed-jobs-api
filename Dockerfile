@@ -11,7 +11,7 @@ RUN apt-get install -y \
     iputils-ping \
     ssh \
     build-essential \
-    default-libmysqlclient-dev
+    libpq-dev
 
 WORKDIR /app
 COPY requirements.txt .
