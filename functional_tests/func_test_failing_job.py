@@ -87,7 +87,7 @@ def get_job_started_at_and_status(server_base_url, job_id):
     status_request = requests.get(status_url)
     status_response = status_request.json()
 
-    started_at = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
+    started_at = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
     print(f'started_at: {started_at}')
 
     job_status = status_response.get('status')
