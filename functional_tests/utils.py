@@ -196,11 +196,17 @@ def assert_job_status_with_retries(status_url, status_must_be_1, status_must_be_
         print('Status request response code: ', status_request.status_code)
 
         status_response = status_request.json()
+        job_id = status_response.get('id')
         job_status = status_response.get('status')
         job_progress = status_response.get('progress')
 
-        print(f'{datetime.datetime.utcnow().isoformat()} - job_status: {job_status} progress: {job_progress}')
+        print(f'{datetime.datetime.utcnow().isoformat()} - job_id:{job_id} job_status: {job_status} progress: {job_progress}')
         print('---')
+
+        must_not_fail = status_must_be_1 != 'ERROR' and status_must_be_2 != 'ERROR'
+        if must_not_fail:
+            assert job_status != 'ERROR', 'Job must have not failed!'
+
         assertion_passed = job_status == status_must_be_1 or job_status == status_must_be_2
         current_tries += 1
 

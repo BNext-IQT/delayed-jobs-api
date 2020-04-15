@@ -234,9 +234,6 @@ functional_tests_prod_hx:
     entrypoint: [""]
   only:
   - master
-  environment:
-    name: prod_hx
-    url: ${SERVER_URL_STAGING}
   script:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
@@ -309,8 +306,6 @@ functional_tests_prod_hh:
     entrypoint: [""]
   only:
   - master
-  environment:
-    name: prod_hh
   script:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
