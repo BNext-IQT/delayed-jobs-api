@@ -46,7 +46,7 @@ def run_test(server_base_url, admin_username, admin_password):
     status_request = requests.get(status_url)
     status_response = status_request.json()
     print('status_response: ', status_response)
-    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
+    started_at_0 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
     timestamp_0 = started_at_0.timestamp()
     print(f'timestamp_0: {timestamp_0}')
     print(f'started_at_0: {started_at_0}')
@@ -69,7 +69,7 @@ def run_test(server_base_url, admin_username, admin_password):
     status_response = status_request.json()
     print('status_response: ', status_response)
 
-    started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S')
+    started_at_1 = datetime.datetime.strptime(status_response.get('started_at'), '%Y-%m-%d %H:%M:%S.%f')
     timestamp_1 = started_at_1.timestamp()
     print(f'timestamp_1: {timestamp_1}')
     print(f'started_at_1: {started_at_1}')
