@@ -26,7 +26,9 @@ stages:
   - prepare_config_staging
   - deploy_to_staging
   - test_staging
+  - prepare_config_hx
   - deploy_to_prod_hx
+  - prepare_config_hh
   - deploy_to_prod_hh
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -169,8 +171,7 @@ functional_tests:
 # Deployment to prod hx
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hx:
-  when: manual
-  stage: deploy_to_prod_hx
+  stage: prepare_config_hx
   image:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
@@ -245,8 +246,7 @@ functional_tests_prod_hx:
 # Deployment to prod hh
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hh:
-  when: manual
-  stage: deploy_to_prod_hh
+  stage: prepare_config_hh
   image:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
