@@ -226,12 +226,13 @@ deploy_to_prod_hx:
     - kubectl get pods -n ${CHEMBL_NS_PROD}
 
 functional_tests_prod_hx:
+  when: manual
   stage: deploy_to_prod_hx
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   only:
-  - staging
+  - master
   environment:
     name: staging
     url: ${SERVER_URL_STAGING}
