@@ -234,7 +234,7 @@ functional_tests_prod_hx:
   only:
   - master
   environment:
-    name: staging
+    name: prod_hx
     url: ${SERVER_URL_STAGING}
   script:
   - set -x
@@ -300,3 +300,18 @@ deploy_to_prod_hh:
     - cat k8s-deployment.yaml
     - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
     - kubectl get pods -n ${CHEMBL_NS_PROD}
+
+functional_tests_prod_hh:
+  when: manual
+  stage: deploy_to_prod_hh
+  image:
+    name: $SERVER_IMAGE_TAG
+    entrypoint: [""]
+  only:
+  - master
+  environment:
+    name: prod_hh
+  script:
+  - set -x
+  - sleep 30 # Give some time for the deployment to take effect.
+  - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_HH} ${DJ_SERVER_ADMIN_USERNAME_PROD_HH} ${DJ_SERVER_ADMIN_PASSWORD_PROD_HH}
