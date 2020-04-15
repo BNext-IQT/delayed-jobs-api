@@ -26,9 +26,7 @@ stages:
   - prepare_config_staging
   - deploy_to_staging
   - test_staging
-  - prepare_config_prod_hx
   - deploy_to_prod_hx
-  - prepare_config_prod_hh
   - deploy_to_prod_hh
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -165,14 +163,14 @@ functional_tests:
   script:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
-  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME} ${DJ_SERVER_ADMIN_PASSWORD}
+  - functional_tests/run_functional_tests.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME_STAGING} ${DJ_SERVER_ADMIN_PASSWORD_STAGING}
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to prod hx
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hx:
   when: manual
-  stage: prepare_config_prod_hx
+  stage: deploy_to_prod_hx
   image:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
@@ -227,12 +225,27 @@ deploy_to_prod_hx:
     - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
     - kubectl get pods -n ${CHEMBL_NS_PROD}
 
+functional_tests_prod_hx:
+  stage: deploy_to_prod_hx
+  image:
+    name: $SERVER_IMAGE_TAG
+    entrypoint: [""]
+  only:
+  - staging
+  environment:
+    name: staging
+    url: ${SERVER_URL_STAGING}
+  script:
+  - set -x
+  - sleep 30 # Give some time for the deployment to take effect.
+  - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_HX} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_HX}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Deployment to prod hh
 # ----------------------------------------------------------------------------------------------------------------------
 prepare_config_prod_hh:
   when: manual
-  stage: prepare_config_prod_hh
+  stage: deploy_to_prod_hh
   image:
     name: alpine/git
     entrypoint: ["/bin/sh", "-c"]
