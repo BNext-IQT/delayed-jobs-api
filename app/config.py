@@ -102,7 +102,7 @@ RATE_LIMIT_CONFIG = RUN_CONFIG.get('rate_limit', {})
 DEFAULT_RATE_LIMIT = {
     'rates': {
         'default_for_all_routes': '3 per second',
-        'admin_login': '1 per second',
+        'admin_login': '3 per second',
         'job_submission': '10 per minute',
     }
 
