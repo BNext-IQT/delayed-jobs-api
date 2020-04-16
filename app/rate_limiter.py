@@ -8,5 +8,6 @@ from app.config import RUN_CONFIG
 
 RATE_LIMITER = Limiter(
     key_func=get_ipaddr,
-    default_limits=[RUN_CONFIG.get('rate_limit').get('rates').get('default_for_all_routes')]
+    default_limits=[RUN_CONFIG.get('rate_limit').get('rates').get('default_for_all_routes')],
+    storage_uri=RUN_CONFIG.get('rate_limit').get('storage_url')
 )

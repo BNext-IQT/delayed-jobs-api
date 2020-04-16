@@ -104,7 +104,8 @@ DEFAULT_RATE_LIMIT = {
         'default_for_all_routes': '3 per second',
         'admin_login': '3 per second',
         'job_submission': '10 per minute',
-    }
+    },
+    'storage_url': 'memory://'
 
 }
 RUN_CONFIG['rate_limit'] = {
