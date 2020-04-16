@@ -317,7 +317,7 @@ functional_tests_prod_hh:
 # ----------------------------------------------------------------------------------------------------------------------
 functional_tests_prod_public:
   when: manual
-  stage: deploy_to_prod_hx
+  stage: functional_tests_prod_public
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
