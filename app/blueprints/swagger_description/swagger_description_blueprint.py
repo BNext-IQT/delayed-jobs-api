@@ -3,7 +3,7 @@ Blueprint in charge of sending the swagger configuration in json format.
 """
 from pathlib import Path
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import yaml
 
 from app.config import RUN_CONFIG

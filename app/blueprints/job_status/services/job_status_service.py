@@ -1,9 +1,6 @@
 """
 Module that provides a service to get or modify the status or jobs
 """
-import json
-
-import app.app_logging as app_logging
 from app.models import delayed_job_models
 
 
@@ -11,17 +8,18 @@ class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
 
-def get_job_status(job_id):
+def get_job_status(job_id, server_base_url='http://0.0.0.0:5000'):
     """
     Returns a dict representation of the job with the id given as parameter
     :param job_id: the id of the job for which the status is required
+    :param server_base_url: url to use as base for building the output files urls
     :return: a dict with the public properties of a job.
     """
 
     try:
 
         job = delayed_job_models.get_job_by_id(job_id, force_refresh=True)
-        return job.public_dict()
+        return job.public_dict(server_base_url)
     except delayed_job_models.JobNotFoundError:
         raise JobNotFoundError()
 
