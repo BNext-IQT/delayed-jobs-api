@@ -98,6 +98,21 @@ if CACHE_CONFIG is None:
         'CACHE_TYPE': 'simple'
     }
 
+RATE_LIMIT_CONFIG = RUN_CONFIG.get('rate_limit', {})
+DEFAULT_RATE_LIMIT = {
+    'rates': {
+        'default_for_all_routes': '3 per second',
+        'admin_login': '3 per second',
+        'job_submission': '10 per minute',
+    },
+    'storage_url': 'memory://'
+
+}
+RUN_CONFIG['rate_limit'] = {
+    **DEFAULT_RATE_LIMIT,
+    **RATE_LIMIT_CONFIG,
+}
+
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
 

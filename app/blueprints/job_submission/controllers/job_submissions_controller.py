@@ -6,6 +6,9 @@ from flask import Blueprint, jsonify, request, abort
 from app.blueprints.job_submission.services import job_submission_service
 from app.blueprints.job_submission.controllers import marshmallow_schemas
 from app.request_validation.decorators import validate_form_with
+from app.rate_limiter import RATE_LIMITER
+from app.config import RUN_CONFIG
+
 
 SUBMISSION_BLUEPRINT = Blueprint('job_submission', __name__)
 
@@ -21,6 +24,7 @@ def submit_job(job_type, form_data, form_files):
 # ----------------------------------------------------------------------------------------------------------------------
 @SUBMISSION_BLUEPRINT.route('/test_job', methods = ['POST'])
 @validate_form_with(marshmallow_schemas.TestJobSchema)
+@RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('job_submission'))
 def submit_test_job():
 
     job_type = 'TEST'
@@ -30,6 +34,7 @@ def submit_test_job():
 
 @SUBMISSION_BLUEPRINT.route('/mmv_job', methods = ['POST'])
 @validate_form_with(marshmallow_schemas.MMVJobSchema)
+@RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('job_submission'))
 def submit_mmv_job():
 
     job_type = 'MMV'
@@ -39,6 +44,7 @@ def submit_mmv_job():
 
 @SUBMISSION_BLUEPRINT.route('/structure_search_job', methods = ['POST'])
 @validate_form_with(marshmallow_schemas.StructureSearchJobSchema)
+@RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('job_submission'))
 def submit_structure_search_job():
 
     job_type = 'STRUCTURE_SEARCH'

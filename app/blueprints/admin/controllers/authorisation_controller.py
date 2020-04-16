@@ -4,10 +4,13 @@ Blueprint for authorisation endpoints for the administration of the system
 from flask import Blueprint, jsonify, request, make_response
 
 from app.blueprints.admin.services import authorisation_service
+from app.rate_limiter import RATE_LIMITER
+from app.config import RUN_CONFIG
 
 ADMIN_AUTH_BLUEPRINT = Blueprint('admin_auth', __name__)
 
 @ADMIN_AUTH_BLUEPRINT.route('/login', methods = ['GET'])
+@RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('admin_login'))
 def login():
 
     auth = request.authorization

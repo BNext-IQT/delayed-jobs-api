@@ -26,3 +26,8 @@ status_agent:
   lock_validity_seconds: 1 # Time in seconds for which the lock of a status agent is valid.
   min_sleep_time: 1 # Minimum sleep time for the status agent daemon
   max_sleep_time: 2 # Maximum sleep time for the status agent daemon, will sleep a random value between min and max
+rate_limit:
+  rates:
+    default_for_all_routes: 'some number per second'
+    admin_login: 'some number per second'
+    job_submission: 'some number per minute'
