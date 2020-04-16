@@ -44,6 +44,9 @@ def create_app():
         CACHE.init_app(flask_app)
         RATE_LIMITER.init_app(flask_app)
 
+        for handler in flask_app.logger.handlers:
+            RATE_LIMITER.logger.addHandler(handler)
+
         create_tables = RUN_CONFIG.get('sql_alchemy').get('create_tables', False)
         if create_tables:
             DB.create_all()
