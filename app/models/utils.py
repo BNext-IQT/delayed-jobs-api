@@ -3,7 +3,7 @@
 """
 import re
 
-def get_output_files_dict(output_files):
+def get_output_files_dict(output_files, server_base_url):
     """
     :param output_files:t the list of OutputFile objects of the job
     :return: a dict describing the output files of a job. To be used for generating
@@ -13,7 +13,11 @@ def get_output_files_dict(output_files):
     output_files_dict = {}
     for output_file in output_files:
 
-        public_url = output_file.public_url
+        if server_base_url.endswith('/'):
+            public_url = f'{server_base_url[:-1]}{output_file.public_url}'
+        else:
+            public_url = f'{server_base_url}{output_file.public_url}'
+
         filename = get_filename_from_url(public_url)
         sanitised_filename = get_sanitised_filename(output_files_dict, filename)
         output_files_dict[sanitised_filename] = public_url

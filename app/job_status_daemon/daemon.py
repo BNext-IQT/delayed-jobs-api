@@ -317,7 +317,6 @@ def get_output_file_url(file_relative_path):
     For example: Job-1/subdir/output_0.txt
     :return: the url of an output file given a path from the job outputs dir
     """
-    server_name = RUN_CONFIG.get("server_public_host")
 
     server_base_path = RUN_CONFIG.get('base_path', '')
     if server_base_path == '':
@@ -331,6 +330,6 @@ def get_output_file_url(file_relative_path):
 
     outputs_base_path = RUN_CONFIG.get('outputs_base_path')
 
-    return f'{server_name}{server_base_path_with_slash}/{outputs_base_path}/{file_relative_path}'
+    return f'{server_base_path_with_slash}/{outputs_base_path}/{file_relative_path}'
 
 

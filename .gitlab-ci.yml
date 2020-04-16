@@ -30,6 +30,7 @@ stages:
   - deploy_to_prod_hx
   - prepare_config_hh
   - deploy_to_prod_hh
+  - functional_tests_prod_public
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -310,3 +311,19 @@ functional_tests_prod_hh:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
   - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_HH} ${DJ_SERVER_ADMIN_USERNAME_PROD_HH} ${DJ_SERVER_ADMIN_PASSWORD_PROD_HH}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Test prod public url
+# ----------------------------------------------------------------------------------------------------------------------
+functional_tests_prod_public:
+  when: manual
+  stage: deploy_to_prod_hx
+  image:
+    name: $SERVER_IMAGE_TAG
+    entrypoint: [""]
+  only:
+  - master
+  script:
+  - set -x
+  - sleep 30 # Give some time for the deployment to take effect.
+  - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}

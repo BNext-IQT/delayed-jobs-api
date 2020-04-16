@@ -103,17 +103,17 @@ class DelayedJob(DB.Model):
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
 
-    def public_dict(self):
+    def  public_dict(self, server_base_url='http://0.0.0.0:5000'):
         """
         Returns a dictionary representation of the object with all the fields that are safe to be public
-        :return:
+        :param server_base_url: url to use as base for building the output files urls
         """
         plain_properties = {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
                                                          'created_at', 'started_at', 'finished_at', 'raw_params',
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
                                                          'timezone', 'num_failures', 'status_description']}
 
-        output_files_urls = utils.get_output_files_dict(self.output_files)
+        output_files_urls = utils.get_output_files_dict(self.output_files, server_base_url)
 
         return {
             **plain_properties,

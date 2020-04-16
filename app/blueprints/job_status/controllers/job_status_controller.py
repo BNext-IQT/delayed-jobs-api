@@ -7,7 +7,6 @@ from app.authorisation.decorators import token_required_for_job_id
 from app.blueprints.job_status.services import job_status_service
 from app.blueprints.job_status.controllers import marshmallow_schemas
 from app.request_validation.decorators import validate_form_with, validate_url_params_with
-import app.app_logging as app_logging
 
 JOB_STATUS_BLUEPRINT = Blueprint('job_status', __name__)
 
@@ -16,7 +15,8 @@ JOB_STATUS_BLUEPRINT = Blueprint('job_status', __name__)
 def get_job_status(job_id):
 
     try:
-        return jsonify(job_status_service.get_job_status(job_id))
+        server_base_url = request.host_url
+        return jsonify(job_status_service.get_job_status(job_id, server_base_url))
     except job_status_service.JobNotFoundError:
         abort(404)
 
