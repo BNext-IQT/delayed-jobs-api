@@ -48,6 +48,8 @@ def run_test(server_base_url, admin_username, admin_password):
     utils.assert_job_status_with_retries(status_url, 'FINISHED')
     status_request = requests.get(status_url)
     status_response = status_request.json()
+    job_progress = int(status_response.get('progress'))
+    assert job_progress == 100, 'The final progress of the job must be 100!'
 
     utils.assert_output_files_can_be_downloaded(status_response)
 
