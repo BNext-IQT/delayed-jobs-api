@@ -15,7 +15,17 @@ JOB_STATUS_BLUEPRINT = Blueprint('job_status', __name__)
 def get_job_status(job_id):
 
     try:
-        server_base_url = request.host_url
+        raw_host_url = request.host_url
+        scheme = request.scheme
+        if scheme == 'https':
+            if raw_host_url.startswith('http://'):
+                raw_host_url = raw_host_url.replace('http://', 'https://')
+        elif scheme == 'http':
+            if raw_host_url.startswith('https://'):
+                raw_host_url = raw_host_url.replace('https://', 'http://')
+
+        server_base_url = raw_host_url
+
         return jsonify(job_status_service.get_job_status(job_id, server_base_url))
     except job_status_service.JobNotFoundError:
         abort(404)
