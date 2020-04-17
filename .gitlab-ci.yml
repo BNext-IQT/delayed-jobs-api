@@ -360,10 +360,9 @@ functional_tests_prod_public:
 delete_expired_jobs_staging:
   stage: schedules
   image: 'python:3.7'
-  script:
-    - pip install -r requirements.txt
   only:
     - schedules
   script:
     - set -x
+    - pip install -r requirements.txt
     - admin_tasks/delete_expired_jobs.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME_STAGING} ${DJ_SERVER_ADMIN_PASSWORD_STAGING}
