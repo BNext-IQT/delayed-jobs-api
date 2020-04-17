@@ -43,7 +43,15 @@ def run():
     admin_token = login_response.get('token')
     headers = {'X-Admin-Key': admin_token}
 
-    # jobs_deletion_url = f'{server_base_url}/admin/delete_all_jobs_by_type'
+    jobs_deletion_url = f'{server_base_url}/admin/delete_expired_jobs'
+
+    jobs_deletion_request = requests.post(jobs_deletion_url, headers=headers)
+    if jobs_deletion_request.status_code != 200:
+        raise ServerAdminError(f'There was a problem when requesting the deletion of test jobs! '
+                               f'(Status code: {jobs_deletion_request.status_code})')
+    jobs_deletion_response = jobs_deletion_request.json()
+
+    print('jobs_deletion_response: ', jobs_deletion_response)
 
 if __name__ == "__main__":
     run()

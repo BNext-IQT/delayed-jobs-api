@@ -27,3 +27,10 @@ def delete_output_files_for_job(job_id):
 
     operation_result = admin_tasks_service.delete_all_outputs_of_job(job_id)
     return jsonify({'operation_result': operation_result})
+
+@ADMIN_TASKS_BLUEPRINT.route('/delete_expired_jobs', methods = ['GET'])
+@admin_token_required
+def delete_output_files_for_job():
+
+    operation_result = admin_tasks_service.delete_expired_jobs()
+    return jsonify({'operation_result': operation_result})
