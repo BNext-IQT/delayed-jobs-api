@@ -210,6 +210,7 @@ def get_or_create(job_type, job_params, docker_image_url, input_files_hashes={})
 
 def get_job_by_id(job_id, force_refresh=False):
     """
+    returns a job by its id, if the job was found but expired it deletes it (lazy cache) and raises an error
     :param job_id: id of the job
     :param force_refresh: force a refresh on the object
     :return: job given an id, raises JobNotFoundError if it does not exist
@@ -221,7 +222,15 @@ def get_job_by_id(job_id, force_refresh=False):
     job = DelayedJob.query.filter_by(id=job_id).first()
 
     if job is None:
-        raise JobNotFoundError()
+        raise JobNotFoundError(f'The job with id {job_id} does not exist!')
+
+    expiration_date = job.expires_at
+    if expiration_date is not None:
+        current_time = datetime.datetime.utcnow()
+        job_expired = expiration_date < current_time
+        if job_expired:
+            delete_job(job)
+            raise JobNotFoundError(f'The job with id {job_id} does not exist!')
 
     if force_refresh:
         DB.session.commit()

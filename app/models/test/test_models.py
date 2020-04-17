@@ -153,5 +153,36 @@ class TestModels(unittest.TestCase):
             id_got = job_got.id
             self.assertEqual(id_must_be, id_got, msg='The job was not found searching from its params!')
 
+    def test_does_not_return_an_expired_job(self):
+        """
+        Tests that when getting a job by id, it is not returned and it is deleted if has is expired
+        """
+        with self.flask_app.app_context():
+            job_type = 'SIMILARITY'
+            params = {
+                'search_type': 'SIMILARITY',
+                'structure': '[H]C1(CCCN1C(=N)N)CC1=NC(=NO1)C1C=CC(=CC=1)NC1=NC(=CS1)C1C=CC(Br)=CC=1',
+                'threshold': '70'
+            }
+
+            input_files_hashes = {
+                'input1': 'hash1-hash1-hash1-hash1-hash1-hash1-hash1',
+                'input2': 'hash2-hash2-hash2-hash2-hash2-hash2-hash2',
+            }
+            docker_image_url = 'some_url'
+
+            job = delayed_job_models.get_or_create(job_type, params, docker_image_url, input_files_hashes)
+            expired_time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            job.expires_at = expired_time
+
+            id_got = job.id
+
+            with self.assertRaises(delayed_job_models.JobNotFoundError, msg='The job should have not been returned!'):
+                delayed_job_models.get_job_by_id(id_got)
+
+            job_got = delayed_job_models.DelayedJob.query.filter_by(id=id_got).first()
+            self.assertIsNone(job_got, msg='The job must have been deleted!')
+
+
 if __name__ == '__main__':
     unittest.main()
