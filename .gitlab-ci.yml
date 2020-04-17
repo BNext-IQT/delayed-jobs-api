@@ -33,6 +33,7 @@ stages:
   - deploy_to_prod_hh
   - test_prod_hh
   - functional_tests_prod_public
+  - schedules
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -329,6 +330,7 @@ functional_tests_prod_public:
 # Schedules
 # ----------------------------------------------------------------------------------------------------------------------
 delete_expired_jobs_staging:
+  stage: schedules
   only:
     - schedules
   script:
