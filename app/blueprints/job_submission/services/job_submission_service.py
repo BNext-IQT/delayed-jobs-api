@@ -18,6 +18,7 @@ import app.app_logging as app_logging
 from app.authorisation import token_generator
 from app.config import RUN_CONFIG
 from app.models import delayed_job_models
+from app import utils
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir', str(Path().absolute()) + '/jobs_run')
 if not os.path.isabs(JOBS_RUN_DIR):
@@ -282,7 +283,7 @@ def create_job_run_dir(job):
     job_input_files_dir = get_job_input_files_dir(job)
 
     if os.path.exists(job_run_dir):
-        shutil.rmtree(job_run_dir)
+        utils.delete_directory_robustly(job_run_dir)
 
     job.run_dir_path = job_run_dir
     delayed_job_models.save_job(job)
