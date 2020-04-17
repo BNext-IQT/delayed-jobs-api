@@ -1,6 +1,8 @@
 """
 The blueprint used for handling the jobs status
 """
+import re
+
 from flask import Blueprint, jsonify, abort, request
 
 from app.authorisation.decorators import token_required_for_job_id
@@ -15,16 +17,9 @@ JOB_STATUS_BLUEPRINT = Blueprint('job_status', __name__)
 def get_job_status(job_id):
 
     try:
+        # remove scheme so client can decide which one to use
         raw_host_url = request.host_url
-        scheme = request.scheme
-        if scheme == 'https':
-            if raw_host_url.startswith('http://'):
-                raw_host_url = raw_host_url.replace('http://', 'https://')
-        elif scheme == 'http':
-            if raw_host_url.startswith('https://'):
-                raw_host_url = raw_host_url.replace('https://', 'http://')
-
-        server_base_url = raw_host_url
+        server_base_url = re.sub(r'^https?://', '', raw_host_url)
 
         return jsonify(job_status_service.get_job_status(job_id, server_base_url))
     except job_status_service.JobNotFoundError:
