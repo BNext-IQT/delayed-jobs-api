@@ -45,7 +45,7 @@ def run():
 
     jobs_deletion_url = f'{server_base_url}/admin/delete_expired_jobs'
 
-    jobs_deletion_request = requests.post(jobs_deletion_url, headers=headers)
+    jobs_deletion_request = requests.get(jobs_deletion_url, headers=headers)
     if jobs_deletion_request.status_code != 200:
         raise ServerAdminError(f'There was a problem when requesting the deletion of test jobs! '
                                f'(Status code: {jobs_deletion_request.status_code})')
