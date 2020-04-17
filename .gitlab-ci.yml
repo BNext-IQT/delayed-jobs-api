@@ -28,8 +28,10 @@ stages:
   - test_staging
   - prepare_config_hx
   - deploy_to_prod_hx
+  - test_prod_hx
   - prepare_config_hh
   - deploy_to_prod_hh
+  - test_prod_hh
   - functional_tests_prod_public
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -192,7 +194,6 @@ deploy_to_prod_hx:
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
-  when: manual
   only:
     - master
   environment:
@@ -228,8 +229,7 @@ deploy_to_prod_hx:
     - kubectl get pods -n ${CHEMBL_NS_PROD}
 
 functional_tests_prod_hx:
-  when: manual
-  stage: deploy_to_prod_hx
+  stage: test_prod_hx
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
@@ -264,7 +264,6 @@ deploy_to_prod_hh:
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
-  when: manual
   only:
     - master
   environment:
@@ -300,8 +299,7 @@ deploy_to_prod_hh:
     - kubectl get pods -n ${CHEMBL_NS_PROD}
 
 functional_tests_prod_hh:
-  when: manual
-  stage: deploy_to_prod_hh
+  stage: test_prod_hh
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
@@ -316,7 +314,6 @@ functional_tests_prod_hh:
 # Test prod public url
 # ----------------------------------------------------------------------------------------------------------------------
 functional_tests_prod_public:
-  when: manual
   stage: functional_tests_prod_public
   image:
     name: $SERVER_IMAGE_TAG
