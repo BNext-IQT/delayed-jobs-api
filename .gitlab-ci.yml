@@ -359,6 +359,9 @@ functional_tests_prod_public:
 # ----------------------------------------------------------------------------------------------------------------------
 delete_expired_jobs_staging:
   stage: schedules
+  image: 'python:3.7'
+  script:
+    - pip install -r requirements.txt
   only:
     - schedules
   script:
