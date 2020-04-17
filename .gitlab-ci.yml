@@ -366,4 +366,4 @@ delete_expired_jobs_staging:
     - schedules
   script:
     - set -x
-    - admin_tasks/delete_expired_jobs.py
+    - admin_tasks/delete_expired_jobs.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME_STAGING} ${DJ_SERVER_ADMIN_PASSWORD_STAGING}
