@@ -324,3 +324,13 @@ functional_tests_prod_public:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
   - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Schedules
+# ----------------------------------------------------------------------------------------------------------------------
+delete_expired_jobs_staging:
+  only:
+    - schedules
+  script:
+    - set -x
+    - admin_tasks/delete_expired_jobs.py
