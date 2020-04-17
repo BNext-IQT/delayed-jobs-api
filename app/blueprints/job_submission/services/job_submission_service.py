@@ -341,7 +341,7 @@ def prepare_job_inputs(job, tmp_input_files_desc):
         input_files_desc[key] = str(run_path)
 
     if tmp_parent_dir is not None:
-        shutil.rmtree(tmp_parent_dir)
+        utils.delete_directory_robustly(tmp_parent_dir)
 
     return input_files_desc
 
@@ -354,7 +354,7 @@ def prepare_output_dir(job):
     job_output_dir = get_job_output_dir_path(job)
 
     if os.path.exists(job_output_dir):
-        shutil.rmtree(job_output_dir)
+        utils.delete_directory_robustly(job_output_dir)
 
     job.output_dir_path = job_output_dir
     delayed_job_models.save_job(job)
