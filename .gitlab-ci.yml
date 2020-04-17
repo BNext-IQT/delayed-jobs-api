@@ -366,3 +366,13 @@ delete_expired_jobs_staging:
     - set -x
     - pip install requests
     - admin_tasks/delete_expired_jobs.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME_STAGING} ${DJ_SERVER_ADMIN_PASSWORD_STAGING}
+
+delete_expired_jobs_prod:
+  stage: schedules
+  image: 'python:3.7'
+  only:
+    - schedules
+  script:
+    - set -x
+    - pip install requests
+    - admin_tasks/delete_expired_jobs.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}
