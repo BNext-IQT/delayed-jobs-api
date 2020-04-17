@@ -33,6 +33,7 @@ stages:
   - deploy_to_prod_hh
   - test_prod_hh
   - functional_tests_prod_public
+  - schedules
 
 # ----------------------------------------------------------------------------------------------------------------------
 # build
@@ -44,6 +45,8 @@ build_docker_image_server:
   stage: build
   variables:
     DOCKER_HOST: tcp://docker:2375
+  except:
+    - schedules
   script:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
@@ -60,6 +63,8 @@ build_docker_image_status_daemon:
   stage: build
   variables:
     DOCKER_HOST: tcp://docker:2375
+  except:
+    - schedules
   script:
     - set -x
     - docker version # verify docker cli is there. Also prints server info
@@ -77,6 +82,8 @@ pylint:
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
+  except:
+    - schedules
   script:
   - pwd
   - ls
@@ -90,6 +97,8 @@ unit_tests:
   image:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
+  except:
+    - schedules
   script:
   - env
   - CONFIG_FILE_PATH='./configurations/ci_unit_tests_config.yml' python -m unittest
@@ -104,6 +113,8 @@ prepare_config_staging:
     entrypoint: ["/bin/sh", "-c"]
   only:
     - staging
+  except:
+    - schedules
   script:
     - mkdir -p ${CONFIGS_FOLDER}
     - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
@@ -119,6 +130,8 @@ deploy_to_staging:
     entrypoint: ["/bin/sh", "-c"]
   only:
     - staging
+  except:
+    - schedules
   environment:
     name: staging
     url: ${SERVER_URL_STAGING}
@@ -162,6 +175,8 @@ functional_tests:
     entrypoint: [""]
   only:
   - staging
+  except:
+    - schedules
   environment:
     name: staging
     url: ${SERVER_URL_STAGING}
@@ -180,6 +195,8 @@ prepare_config_prod_hx:
     entrypoint: ["/bin/sh", "-c"]
   only:
     - master
+  except:
+    - schedules
   script:
     - rm -rf ${CONFIGS_FOLDER} || true
     - mkdir -p ${CONFIGS_FOLDER}
@@ -196,6 +213,8 @@ deploy_to_prod_hx:
     entrypoint: ["/bin/sh", "-c"]
   only:
     - master
+  except:
+    - schedules
   environment:
     name: prod_hx
   script:
@@ -235,6 +254,8 @@ functional_tests_prod_hx:
     entrypoint: [""]
   only:
   - master
+  except:
+    - schedules
   script:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
@@ -250,6 +271,8 @@ prepare_config_prod_hh:
     entrypoint: ["/bin/sh", "-c"]
   only:
     - master
+  except:
+    - schedules
   script:
     - rm -rf ${CONFIGS_FOLDER} || true
     - mkdir -p ${CONFIGS_FOLDER}
@@ -266,6 +289,8 @@ deploy_to_prod_hh:
     entrypoint: ["/bin/sh", "-c"]
   only:
     - master
+  except:
+    - schedules
   environment:
     name: prod_hh
   script:
@@ -305,6 +330,8 @@ functional_tests_prod_hh:
     entrypoint: [""]
   only:
   - master
+  except:
+    - schedules
   script:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
@@ -320,7 +347,23 @@ functional_tests_prod_public:
     entrypoint: [""]
   only:
   - master
+  except:
+    - schedules
   script:
   - set -x
   - sleep 30 # Give some time for the deployment to take effect.
   - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Schedules
+# ----------------------------------------------------------------------------------------------------------------------
+delete_expired_jobs:
+  stage: schedules
+  image: 'python:3.7'
+  only:
+    - schedules
+  script:
+    - set -x
+    - pip install requests
+    - admin_tasks/delete_expired_jobs.py ${SERVER_URL_STAGING} ${DJ_SERVER_ADMIN_USERNAME_STAGING} ${DJ_SERVER_ADMIN_PASSWORD_STAGING}
+    - admin_tasks/delete_expired_jobs.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}

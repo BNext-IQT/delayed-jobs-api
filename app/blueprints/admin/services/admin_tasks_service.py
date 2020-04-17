@@ -43,3 +43,11 @@ def delete_all_outputs_of_job(job_id):
         return f'All outputs of the job {job_id} were deleted!'
     except delayed_job_models.JobNotFoundError:
         raise abort(404)
+
+def delete_expired_jobs():
+    """
+    Deletes all the jobs that have expired
+    :return: a message (string) with the result of the operation
+    """
+    num_deleted = delayed_job_models.delete_all_expired_jobs()
+    return f'Deleted {num_deleted} expired jobs'

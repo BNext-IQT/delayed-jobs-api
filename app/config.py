@@ -113,6 +113,9 @@ RUN_CONFIG['rate_limit'] = {
     **RATE_LIMIT_CONFIG,
 }
 
+if RUN_CONFIG.get('job_expiration_days') is None:
+    RUN_CONFIG['job_expiration_days'] = 7
+
 # Hash keys and passwords
 RUN_CONFIG['admin_password'] = hash_secret(RUN_CONFIG.get('admin_password'))
 

@@ -270,6 +270,24 @@ paths:
           description: 'Invalid Admin token supplied'
       security:
         - adminTokenAuth: []
+  /admin/delete_expired_jobs:
+    post:
+      tags:
+        - 'Admin'
+      summary: 'Deletes all the jobs that have expired.'
+      description: 'Deletes all the job that have expired according to their expiration date'
+      operationId: 'admin_delete_expired_jobs'
+      produces:
+        - 'application/json'
+      responses:
+        "200":
+          description: 'All expired jobs were deleted!'
+          schema:
+            $ref: '#/definitions/AdminOperationResult'
+        "401":
+          description: 'Invalid Admin token supplied'
+      security:
+        - adminTokenAuth: []
   /admin/delete_output_files_for_job/{job_id}:
     get:
       tags:
