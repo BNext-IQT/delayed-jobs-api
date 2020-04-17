@@ -30,7 +30,7 @@ def delete_output_files_for_job(job_id):
 
 @ADMIN_TASKS_BLUEPRINT.route('/delete_expired_jobs', methods = ['GET'])
 @admin_token_required
-def delete_output_files_for_job():
+def delete_expired_jobs():
 
     operation_result = admin_tasks_service.delete_expired_jobs()
     return jsonify({'operation_result': operation_result})
