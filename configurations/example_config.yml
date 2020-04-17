@@ -31,3 +31,5 @@ rate_limit:
     default_for_all_routes: 'some number per second'
     admin_login: 'some number per second'
     job_submission: 'some number per minute'
+  storage_url: 'memory://' # or some storage uri
+job_expiration_days: 7

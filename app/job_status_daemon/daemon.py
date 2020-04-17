@@ -223,10 +223,22 @@ def react_to_bjobs_json_output(json_output):
 
             parse_job_started_at_time_if_not_set(job, record)
             parse_job_finished_at_time_if_not_set(job, record)
+            set_job_expiration_time(job)
             save_job_outputs(job)
 
         delayed_job_models.save_job(job)
         print(f'Job {job.id} with lsf id {job.lsf_job_id} new state is {new_status}')
+
+
+def set_job_expiration_time(job):
+    """
+    Sets the job expiration time based on the finished time. The finished time must have been set.
+    :param job: job object for which to set the expiration time
+    """
+    finished_time = job.finished_at
+    delta = datetime.timedelta(days=RUN_CONFIG.get('job_expiration_days'))
+    job.expires_at = finished_time + delta
+    print(f'Job {job.id} expires at time is {job.expires_at}')
 
 
 def parse_job_started_at_time_if_not_set(job, lsf_record):

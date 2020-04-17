@@ -4,7 +4,7 @@ This Module tests the basic functions of the status daemon
 import unittest
 import socket
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from os import path
 import shutil
 import os
@@ -356,6 +356,15 @@ class TestJobStatusDaemon(unittest.TestCase):
             status_got = job.status
             status_must_be = delayed_job_models.JobStatuses.FINISHED
             self.assertEqual(status_got, status_must_be, msg='The status of the job was not changed accordingly!')
+
+            finished_time = job.finished_at
+
+            delta = timedelta(days=RUN_CONFIG.get('job_expiration_days'))
+            expiration_date_must_be = finished_time + delta
+
+            expiration_date_got = job.expires_at
+            self.assertEquals(expiration_date_got, expiration_date_must_be,
+                              msg='the job expiration date was not calculated correctly!')
 
     def test_collects_the_urls_for_the_outputs_of_a_finished_job(self):
         """
