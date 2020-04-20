@@ -2,8 +2,6 @@
 The blueprint used for handling the jobs status
 """
 import re
-from pathlib import Path
-import os
 
 from flask import Blueprint, jsonify, abort, request, send_file
 

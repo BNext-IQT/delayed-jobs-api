@@ -128,10 +128,12 @@ class DelayedJob(DB.Model):
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
                                                          'timezone', 'num_failures', 'status_description']}
 
+        input_files_urls = utils.get_input_files_dict(self.input_files, server_base_url)
         output_files_urls = utils.get_output_files_dict(self.output_files, server_base_url)
 
         return {
             **plain_properties,
+            'input_files_urls': input_files_urls,
             'output_files_urls': output_files_urls
         }
 

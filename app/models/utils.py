@@ -2,10 +2,32 @@
     Module with utils function for the delayed job models
 """
 import re
+from app.config import RUN_CONFIG
+
+def get_input_files_dict(input_files, server_base_url):
+    """
+    :param input_files: the list of InputFile objects of the job
+    :param server_base_url: the server base url to build the urls from it
+    :return: a dict describing the input files of a job. To be used for generating
+    a public dict describing a job
+    """
+    input_files_dict = {}
+    for input_file in input_files:
+
+        if server_base_url.endswith('/'):
+            public_url = f'{server_base_url[:-1]}{RUN_CONFIG.get("base_path")}{input_file.public_url}'
+        else:
+            public_url = f'{server_base_url}{RUN_CONFIG.get("base_path")}{input_file.public_url}'
+
+        input_files_dict[input_file.input_key] = public_url
+
+    return input_files_dict
+
 
 def get_output_files_dict(output_files, server_base_url):
     """
-    :param output_files:t the list of OutputFile objects of the job
+    :param output_files: the list of OutputFile objects of the job
+    :param server_base_url: the server base url to build the urls from it
     :return: a dict describing the output files of a job. To be used for generating
     a public dict describing a job
     """
