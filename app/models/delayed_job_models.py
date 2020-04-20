@@ -43,6 +43,9 @@ class JobStatuses(Enum):
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
+class InputFileNotFoundError(Exception):
+    """Base class for exceptions."""
+
 class DockerImageNotSet(Exception):
     """Base class for exceptions."""
 
@@ -68,6 +71,7 @@ class InputFile(DB.Model):
         Class that represents an input file to the job
     """
     id = DB.Column(DB.Integer, primary_key=True)
+    input_key = DB.Column(DB.String(length=120))
     internal_path = DB.Column(DB.Text, nullable=False)
     public_url = DB.Column(DB.Text)
     job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
@@ -249,6 +253,24 @@ def get_job_by_id(job_id, force_refresh=False):
         DB.session.refresh(job)
 
     return job
+
+def get_job_input_file(job_id, input_key):
+    """
+    :param job_id: job id that owns the input file
+    :param input_key: input key of the input file
+    :return: the input file that belongs to the job whose id is given as parameter, and with the key given as parameter
+    """
+    belongs_to_job_id = InputFile.job_id == job_id
+    input_key_is_this_one = InputFile.input_key == input_key
+
+    input_file = InputFile.query.filter(
+        and_(belongs_to_job_id, input_key_is_this_one)
+    ).first()
+
+    if input_file is None:
+        raise InputFileNotFoundError(f'No input file found for job {job_id} with key {input_key}')
+
+    return input_file
 
 
 def get_job_by_lsf_id(lsf_job_id):

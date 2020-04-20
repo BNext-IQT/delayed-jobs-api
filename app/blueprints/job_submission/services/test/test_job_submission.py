@@ -166,8 +166,6 @@ class TestJobSubmitter(unittest.TestCase):
                 self.assertTrue(os.path.isfile(run_path_must_be),
                                 msg=f'The input file for the job ({run_path_must_be}) has not been created!')
 
-            # DB.session.commit()
-            # DB.session.expire_all()
             job_got = delayed_job_models.get_job_by_id(job_id)
             input_files_got = job_got.input_files
             num_inputs_files_must_be = len(os.listdir(input_files_dir_must_be))

@@ -2,8 +2,10 @@
 The blueprint used for handling the jobs status
 """
 import re
+from pathlib import Path
+import os
 
-from flask import Blueprint, jsonify, abort, request
+from flask import Blueprint, jsonify, abort, request, send_file
 
 from app.authorisation.decorators import token_required_for_job_id
 from app.blueprints.job_status.services import job_status_service
@@ -23,6 +25,16 @@ def get_job_status(job_id):
 
         return jsonify(job_status_service.get_job_status(job_id, server_base_url))
     except job_status_service.JobNotFoundError:
+        abort(404)
+
+@JOB_STATUS_BLUEPRINT.route('/inputs/<job_id>/<input_key>', methods = ['GET'])
+@validate_url_params_with(marshmallow_schemas.JobInputFileRequest)
+def get_job_input(job_id, input_key):
+
+    try:
+        input_file_path = job_status_service.get_input_file_path(job_id, input_key)
+        return send_file(input_file_path)
+    except job_status_service.InputFileNotFoundError:
         abort(404)
 
 @JOB_STATUS_BLUEPRINT.route('/<job_id>', methods = ['PATCH'])
