@@ -63,6 +63,16 @@ class DefaultJobConfig(DB.Model):
     requirements_script_path = DB.Column(DB.Text)
 
 
+class InputFile(DB.Model):
+    """
+        Class that represents an input file to the job
+    """
+    id = DB.Column(DB.Integer, primary_key=True)
+    internal_path = DB.Column(DB.Text, nullable=False)
+    public_url = DB.Column(DB.Text)
+    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
+
+
 class OutputFile(DB.Model):
     """
         Class that represents an output file that the job produced.
@@ -98,6 +108,7 @@ class DelayedJob(DB.Model):
     requirements_parameters_string = DB.Column(DB.Text)
     status_description = DB.Column(DB.Text)
     run_environment = DB.Column(DB.String(length=60))
+    input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):

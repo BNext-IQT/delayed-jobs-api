@@ -7,7 +7,6 @@ import random
 import shutil
 import unittest
 from pathlib import Path
-import stat
 
 import jwt
 import yaml
@@ -17,6 +16,7 @@ from app.authorisation import token_generator
 from app.config import RUN_CONFIG
 from app.models import delayed_job_models
 from app.blueprints.job_submission.services import job_submission_service
+from app.db import DB
 
 
 class TestJobSubmitter(unittest.TestCase):
@@ -103,6 +103,8 @@ class TestJobSubmitter(unittest.TestCase):
             docker_image_url = 'some_url'
 
             input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
+            print('TEST INPUT ')
+            print(input_files_desc)
             submission_result = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes,
                                                          docker_image_url, params)
 
@@ -154,6 +156,7 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertEqual(json.dumps(job_params_got, sort_keys=True), raw_job_params_must_be,
                              msg='The job params were not set correctly')
 
+
             # -----------------------------------------------
             # Test Input Files
             # -----------------------------------------------
@@ -162,6 +165,20 @@ class TestJobSubmitter(unittest.TestCase):
                 run_path_must_be = job_input_files_desc_got[key]
                 self.assertTrue(os.path.isfile(run_path_must_be),
                                 msg=f'The input file for the job ({run_path_must_be}) has not been created!')
+
+            # DB.session.commit()
+            # DB.session.expire_all()
+            job_got = delayed_job_models.get_job_by_id(job_id)
+            input_files_got = job_got.input_files
+            num_inputs_files_must_be = len(os.listdir(input_files_dir_must_be))
+            self.assertEquals(num_inputs_files_must_be, len(input_files_got),
+                              msg='The input files were not registered correctly!')
+
+            for input_file in input_files_got:
+                internal_path_got = input_file.internal_path
+                self.assertTrue(os.path.isfile(internal_path_got),
+                                msg=f'The internal path of an input file {internal_path_got} '
+                                    f'seems that does not exist!')
 
             # -----------------------------------------------
             # Test Output Directory
