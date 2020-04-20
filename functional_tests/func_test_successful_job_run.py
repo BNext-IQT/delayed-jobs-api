@@ -51,6 +51,7 @@ def run_test(server_base_url, admin_username, admin_password):
     job_progress = int(status_response.get('progress'))
     assert job_progress == 100, 'The final progress of the job must be 100!'
 
+    utils.assert_input_files_can_be_downloaded(status_response)
     utils.assert_output_files_can_be_downloaded(status_response)
 
     utils.request_all_test_jobs_deletion(server_base_url, admin_username, admin_password)
