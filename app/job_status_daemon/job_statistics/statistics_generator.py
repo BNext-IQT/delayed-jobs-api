@@ -45,3 +45,25 @@ def get_total_bytes_of_input_files_of_job(job):
         total_input_bytes += current_file_size
 
     return total_input_bytes
+
+def get_num_output_files_of_job(job):
+    """
+    :param job: DelayedJob object for which to do the calculation.
+    :return: the number of output files that a job has
+    """
+    return len(job.output_files)
+
+def get_total_bytes_of_output_files_of_job(job):
+    """
+    :param job: DelayedJob object for which to do the calculation.
+    :return: the total bytes of output of the output files that a job has
+    """
+    total_output_bytes = 0
+
+    for job_output_file in job.output_files:
+
+        path = job_output_file.internal_path
+        current_file_size = os.path.getsize(path)
+        total_output_bytes += current_file_size
+
+    return total_output_bytes

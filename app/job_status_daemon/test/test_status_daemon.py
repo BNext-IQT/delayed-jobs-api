@@ -404,7 +404,7 @@ class TestJobStatusDaemon(unittest.TestCase):
 
                     output_urls_must_be.append(output_url_must_be)
 
-            # FINISH to prepare the test scenario
+            # END to prepare the test scenario
 
             daemon.parse_bjobs_output(sample_output)
             job_outputs_got = job.output_files
