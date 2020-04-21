@@ -4,6 +4,9 @@ This Module tests the statistics generation of the status daemon
 import unittest
 import shutil
 from datetime import datetime, timedelta
+from pathlib import Path
+import os
+import random
 
 from app import create_app
 from app.models import delayed_job_models
@@ -68,6 +71,79 @@ class TestJobStatisticsGeneration(unittest.TestCase):
         seconds_got = statistics_generator.get_seconds_from_running_to_finished(job)
         self.assertEqual(seconds_got, seconds_must_be,
                          msg='The seconds from created to queued were not calculated correctly!')
+
+    def test_calculates_correctly_the_number_of_input_files(self):
+        """
+        test that calculates correctly the number of input files
+        """
+        job = delayed_job_models.DelayedJob(
+            id=f'Job-Finished',
+            type='TEST'
+        )
+
+        tmp_dir = Path('tmp').joinpath(f'{random.randint(1, 1000000)}')
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        input_files_desc = {
+            'input1': str(Path.joinpath(tmp_dir, 'input1.txt')),
+            'input2': str(Path.joinpath(tmp_dir, 'input2.txt'))
+        }
+
+        for key, path in input_files_desc.items():
+            with open(path, 'w') as input_file:
+                input_file.write(f'This is input file {key}')
+
+                job_input_file = delayed_job_models.InputFile(
+                    internal_path=str(path),
+                )
+                job.input_files.append(job_input_file)
+
+
+        num_input_files_must_be = len(input_files_desc)
+        num_input_files_got = statistics_generator.get_num_input_files_of_job(job)
+
+        self.assertEqual(num_input_files_got, num_input_files_must_be,
+                         msg='The number of input files was not calculated correctly')
+
+
+    def test_calculates_correctly_the_size_of_input_files(self):
+        """
+        test that calculates correctly the size of input files
+        """
+        job = delayed_job_models.DelayedJob(
+            id=f'Job-Finished',
+            type='TEST'
+        )
+
+        tmp_dir = Path('tmp').joinpath(f'{random.randint(1, 1000000)}')
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        input_files_desc = {
+            'input1': str(Path.joinpath(tmp_dir, 'input1.txt')),
+            'input2': str(Path.joinpath(tmp_dir, 'input2.txt'))
+        }
+
+        total_input_size_must_be = 0
+        for key, path in input_files_desc.items():
+            with open(path, 'w') as input_file:
+                input_file.write(f'This is input file {key}')
+
+                job_input_file = delayed_job_models.InputFile(
+                    internal_path=str(path),
+                )
+                job.input_files.append(job_input_file)
+
+            current_file_size = os.path.getsize(path)
+            total_input_size_must_be += current_file_size
+
+        total_input_size_got = statistics_generator.get_total_bytes_of_input_files_of_job(job)
+
+        self.assertEqual(total_input_size_got, total_input_size_must_be,
+                         msg='The size of the input files was not calculated correctly')
+
+
+
+
 
 
 

@@ -16,7 +16,6 @@ from app.authorisation import token_generator
 from app.config import RUN_CONFIG
 from app.models import delayed_job_models
 from app.blueprints.job_submission.services import job_submission_service
-from app.db import DB
 
 
 class TestJobSubmitter(unittest.TestCase):
