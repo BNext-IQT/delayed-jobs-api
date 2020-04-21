@@ -105,6 +105,8 @@ class TestJobStatisticsGeneration(unittest.TestCase):
         self.assertEqual(num_input_files_got, num_input_files_must_be,
                          msg='The number of input files was not calculated correctly')
 
+        shutil.rmtree(tmp_dir)
+
 
     def test_calculates_correctly_the_size_of_input_files(self):
         """
@@ -140,6 +142,41 @@ class TestJobStatisticsGeneration(unittest.TestCase):
 
         self.assertEqual(total_input_size_got, total_input_size_must_be,
                          msg='The size of the input files was not calculated correctly')
+
+        shutil.rmtree(tmp_dir)
+
+    # def test_calculates_correctly_the_number_of_output_files(self):
+    #     """
+    #     test that calculates correctly the number of output files
+    #     """
+    #     job = delayed_job_models.DelayedJob(
+    #         id=f'Job-Finished',
+    #         type='TEST'
+    #     )
+    #
+    #     tmp_dir = Path('tmp').joinpath(f'{random.randint(1, 1000000)}')
+    #     os.makedirs(tmp_dir, exist_ok=True)
+    #
+    #     input_files_desc = {
+    #         'input1': str(Path.joinpath(tmp_dir, 'input1.txt')),
+    #         'input2': str(Path.joinpath(tmp_dir, 'input2.txt'))
+    #     }
+    #
+    #     for key, path in input_files_desc.items():
+    #         with open(path, 'w') as input_file:
+    #             input_file.write(f'This is input file {key}')
+    #
+    #             job_input_file = delayed_job_models.InputFile(
+    #                 internal_path=str(path),
+    #             )
+    #             job.input_files.append(job_input_file)
+    #
+    #
+    #     num_input_files_must_be = len(input_files_desc)
+    #     num_input_files_got = statistics_generator.get_num_input_files_of_job(job)
+    #
+    #     self.assertEqual(num_input_files_got, num_input_files_must_be,
+    #                      msg='The number of input files was not calculated correctly')
 
 
 
