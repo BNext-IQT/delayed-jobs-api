@@ -216,10 +216,3 @@ class TestJobStatisticsGeneration(unittest.TestCase):
                          msg='The total size of output files was not calculated correctly')
 
         shutil.rmtree(tmp_dir)
-
-
-
-
-
-
-
