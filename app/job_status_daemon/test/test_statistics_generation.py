@@ -3,10 +3,12 @@ This Module tests the statistics generation of the status daemon
 """
 import unittest
 import shutil
+from datetime import datetime, timedelta
 
 from app import create_app
 from app.models import delayed_job_models
 from app.job_status_daemon import daemon
+from app.job_status_daemon.job_statistics import statistics_generator
 
 class TestJobStatisticsGeneration(unittest.TestCase):
     """
@@ -25,22 +27,23 @@ class TestJobStatisticsGeneration(unittest.TestCase):
             delayed_job_models.delete_all_jobs()
             shutil.rmtree(daemon.AGENT_RUN_DIR, ignore_errors=True)
 
-    # def simulate_finished_job(self):
-    #     """
-    #     Creates a job that finished normally in the database
-    #     """
-    #
-    #     job = delayed_job_models.DelayedJob(
-    #         id=f'Job-{assigned_host}-{status}',
-    #         type='TEST',
-    #         lsf_job_id=i,
-    #         status=status,
-    #         lsf_host=assigned_host,
-    #         run_environment=run_environment
-    #     )
-
-    def test_generates_statistics_for_a_finished_job(self):
+    def test_generates_calculates_time_from_created_to_queued(self):
         """
         tests that generates the statistics for a job that finished normally
         """
-        print('TEST STATS FOR A FINISHED JOB')
+
+        current_time = datetime.now()
+        created_at = current_time
+        seconds_must_be = 1.5
+        started_at = created_at + timedelta(seconds=seconds_must_be)
+
+        job = delayed_job_models.DelayedJob(
+            id=f'Job-Finished',
+            type='TEST',
+            created_at=created_at,
+            started_at=started_at
+        )
+
+        seconds_got = statistics_generator.get_seconds_from_created_to_queued(job)
+        self.assertEqual(seconds_got, seconds_must_be,
+                         msg='The seconds from created to queued were not calculated correctly!')
