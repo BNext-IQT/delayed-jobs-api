@@ -49,3 +49,24 @@ class TestStatisticsSaver(unittest.TestCase):
 
         self.assertEqual(job_record_dict_got, dict_must_be, 'The job record dict was not generated correctly')
 
+    def test_generates_the_correct_json_for_a_job_cache_record(self):
+        """
+        Tests that it generates the correct json for a job cache record
+        """
+
+        dict_must_be = {
+            'job_type': 'TEST',
+            'run_env_type': 'DEV',
+            'was_cached': True,
+            'request_date': datetime.now().timestamp() * 1000
+        }
+
+        job_cache_record_dict_got = statistics_saver.get_job_cache_record_dict(
+            job_type=dict_must_be.get('job_type'),
+            run_env_type=dict_must_be.get('run_env_type'),
+            was_cached=dict_must_be.get('was_cached'),
+            request_date=dict_must_be.get('request_date')
+        )
+
+        self.assertEqual(job_cache_record_dict_got, dict_must_be,
+                         'The job cache record dict was not generated correctly')

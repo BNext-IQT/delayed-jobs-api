@@ -92,3 +92,18 @@ def save_job_record(job_type, run_env_type, lsf_host, started_at, finished_at,
 
         result = ES.index(index=index_name, body=job_record_dict, doc_type='_doc')
         app_logging.debug(f'Result {result}')
+
+def get_job_cache_record_dict(job_type, run_env_type, was_cached, request_date):
+    """
+    :param job_type: the type of the job
+    :param run_env_type: run environment
+    :param was_cached: if the record was cached or not
+    :param request_date: timestamp of the date the request was made
+    :return: a dict to be used to save the job cache statistics in the elasticsearch index
+    """
+    return {
+        'job_type': job_type,
+        'run_env_type': run_env_type,
+        'was_cached': was_cached,
+        'request_date': request_date
+    }
