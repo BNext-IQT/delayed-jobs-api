@@ -14,7 +14,7 @@ class JobInputFileRequest(Schema):
     Class that the schema for getting a the input file of a job
     """
     job_id = fields.String(required=True)
-    input_path = fields.String(required=True)
+    input_key = fields.String(required=True)
 
 class JobStatusUpdate(Schema):
     """
