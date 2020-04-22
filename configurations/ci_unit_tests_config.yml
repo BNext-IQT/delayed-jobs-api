@@ -15,6 +15,6 @@ lsf_submission:
   lsf_host: 'lsf_host'
 generate_default_config: True
 job_statistics:
-  dry_run: False # If true, do not attempt to save anything, just print it to the debug log. False by default
+  dry_run: True # If true, do not attempt to save anything, just print it to the debug log. False by default
   general_statistics_index: 'chembl_delayed_jobs_job_record'
   cache_statistics_index: 'chembl_delayed_jobs_job_cache_record'
