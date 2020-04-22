@@ -43,6 +43,9 @@ class JobStatuses(Enum):
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
+class InputFileNotFoundError(Exception):
+    """Base class for exceptions."""
+
 class DockerImageNotSet(Exception):
     """Base class for exceptions."""
 
@@ -61,6 +64,17 @@ class DefaultJobConfig(DB.Model):
     docker_registry_username = DB.Column(DB.Text) # Username for the container registry (optional)
     docker_registry_password = DB.Column(DB.Text)  # Password for the container registry (optional)
     requirements_script_path = DB.Column(DB.Text)
+
+
+class InputFile(DB.Model):
+    """
+        Class that represents an input file to the job
+    """
+    id = DB.Column(DB.Integer, primary_key=True)
+    input_key = DB.Column(DB.String(length=120))
+    internal_path = DB.Column(DB.Text, nullable=False)
+    public_url = DB.Column(DB.Text)
+    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
 class OutputFile(DB.Model):
@@ -98,6 +112,7 @@ class DelayedJob(DB.Model):
     requirements_parameters_string = DB.Column(DB.Text)
     status_description = DB.Column(DB.Text)
     run_environment = DB.Column(DB.String(length=60))
+    input_files = DB.relationship('InputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
     output_files = DB.relationship('OutputFile', backref='delayed_job', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -113,10 +128,12 @@ class DelayedJob(DB.Model):
                                                          'expires_at', 'api_initial_url', 'docker_image_url',
                                                          'timezone', 'num_failures', 'status_description']}
 
+        input_files_urls = utils.get_input_files_dict(self.input_files, server_base_url)
         output_files_urls = utils.get_output_files_dict(self.output_files, server_base_url)
 
         return {
             **plain_properties,
+            'input_files_urls': input_files_urls,
             'output_files_urls': output_files_urls
         }
 
@@ -238,6 +255,24 @@ def get_job_by_id(job_id, force_refresh=False):
         DB.session.refresh(job)
 
     return job
+
+def get_job_input_file(job_id, input_key):
+    """
+    :param job_id: job id that owns the input file
+    :param input_key: input key of the input file
+    :return: the input file that belongs to the job whose id is given as parameter, and with the key given as parameter
+    """
+    belongs_to_job_id = InputFile.job_id == job_id
+    input_key_is_this_one = InputFile.input_key == input_key
+
+    input_file = InputFile.query.filter(
+        and_(belongs_to_job_id, input_key_is_this_one)
+    ).first()
+
+    if input_file is None:
+        raise InputFileNotFoundError(f'No input file found for job {job_id} with key {input_key}')
+
+    return input_file
 
 
 def get_job_by_lsf_id(lsf_job_id):

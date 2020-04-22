@@ -335,10 +335,18 @@ def prepare_job_inputs(job, tmp_input_files_desc):
 
     for key, tmp_path in tmp_input_files_desc.items():
         filename = Path(tmp_path).name
-        run_path = Path(get_job_input_files_dir(job)).joinpath(filename)
-        shutil.move(tmp_path, run_path)
+        input_run_path = Path(get_job_input_files_dir(job)).joinpath(filename)
+        shutil.move(tmp_path, input_run_path)
         tmp_parent_dir = Path(tmp_path).parent
-        input_files_desc[key] = str(run_path)
+        input_files_desc[key] = str(input_run_path)
+
+        input_key = f'{key}'
+        job_input_file = delayed_job_models.InputFile(
+            input_key=input_key,
+            internal_path=str(input_run_path),
+            public_url=f'/status/inputs/{job.id}/{input_key}'
+        )
+        delayed_job_models.add_input_file_to_job(job, job_input_file)
 
     if tmp_parent_dir is not None:
         utils.delete_directory_robustly(tmp_parent_dir)

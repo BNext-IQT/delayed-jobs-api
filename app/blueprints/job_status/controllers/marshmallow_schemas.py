@@ -9,6 +9,13 @@ class JobStatus(Schema):
     """
     job_id = fields.String(required=True)
 
+class JobInputFileRequest(Schema):
+    """
+    Class that the schema for getting a the input file of a job
+    """
+    job_id = fields.String(required=True)
+    input_key = fields.String(required=True)
+
 class JobStatusUpdate(Schema):
     """
     Class that the schema for updating a job status job by id

@@ -3,8 +3,10 @@ Module that provides a service to get or modify the status or jobs
 """
 from app.models import delayed_job_models
 
-
 class JobNotFoundError(Exception):
+    """Base class for exceptions."""
+
+class InputFileNotFoundError(Exception):
     """Base class for exceptions."""
 
 
@@ -22,6 +24,19 @@ def get_job_status(job_id, server_base_url='http://0.0.0.0:5000'):
         return job.public_dict(server_base_url)
     except delayed_job_models.JobNotFoundError:
         raise JobNotFoundError()
+
+def get_input_file_path(job_id, input_key):
+    """
+    :param job_id: the id of the job for which the status is required
+    :param input_key: input_key as saved in the database
+    :return: the internal path of an input file to be used to be sent as a response
+    """
+
+    try:
+        input_file = delayed_job_models.get_job_input_file(job_id, input_key)
+        return input_file.internal_path
+    except delayed_job_models.InputFileNotFoundError:
+        raise InputFileNotFoundError()
 
 
 def update_job_progress(job_id, progress, status_log, status_description):

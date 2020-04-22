@@ -232,4 +232,18 @@ def assert_output_files_can_be_downloaded(status_response):
         assert file_request.status_code == 200, f'A results file ({full_url}) could not be downloaded!!'
 
 
+def assert_input_files_can_be_downloaded(status_response):
+    """
+    asserts that the input files can be downloaded
+    :param status_response: status response from the server
+    """
+    time.sleep(5)
+    input_files_urls = status_response.get('input_files_urls')
+    print('input_files_urls: ', input_files_urls)
+
+    for input_key, url in input_files_urls.items():
+        full_url = f'http://{url}'
+        file_request = requests.get(full_url)
+        assert file_request.status_code == 200, f'An input file ({full_url}) could not be downloaded!!'
+
 
