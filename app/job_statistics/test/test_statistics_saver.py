@@ -48,3 +48,4 @@ class TestStatisticsSaver(unittest.TestCase):
         )
 
         self.assertEqual(job_record_dict_got, dict_must_be, 'The job record dict was not generated correctly')
+

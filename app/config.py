@@ -19,6 +19,8 @@ print('-------------------------------------------------------------------------
 print('CONFIG_FILE_PATH: ', CONFIG_FILE_PATH)
 print('------------------------------------------------------------------------------------------------')
 
+class ImproperlyConfiguredError(Exception):
+    """Base class for exceptions in this module."""
 
 class RunEnvs(Enum):
     """

@@ -5,7 +5,6 @@ sql_alchemy:
   database_uri:  'sqlite:///:memory:'
   track_modifications: False
 elasticsearch:
-  dry_run: True
   host: 'https://www.ebi.ac.uk/chembl/glados-es'
 run_jobs: False
 admin_username: 'admin'
@@ -15,3 +14,6 @@ lsf_submission:
   lsf_user: 'lsf_user'
   lsf_host: 'lsf_host'
 generate_default_config: True
+job_statistics:
+  dry_run: False # If true, do not attempt to save anything, just print it to the debug log. False by default
+  general_statistics_index: 'chembl_delayed_jobs_job_record'
