@@ -4,11 +4,11 @@ This Module generates generic statistics for a job
 import os
 
 
-def get_seconds_from_created_to_queued(job):
+def get_seconds_from_created_to_running(job):
     """
     :param job: DelayedJob object for which to do the calculation.
     :return: the amount of seconds that passed from the time the job was created to the time it
-    was queued
+    started running
     """
     created_at = job.created_at
     started_at = job.started_at

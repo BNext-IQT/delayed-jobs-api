@@ -47,7 +47,7 @@ class TestJobStatisticsGeneration(unittest.TestCase):
             started_at=started_at
         )
 
-        seconds_got = statistics_generator.get_seconds_from_created_to_queued(job)
+        seconds_got = statistics_generator.get_seconds_from_created_to_running(job)
         self.assertEqual(seconds_got, seconds_must_be,
                          msg='The seconds from created to queued were not calculated correctly!')
 
