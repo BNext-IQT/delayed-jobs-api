@@ -98,7 +98,6 @@ class TestStatus(unittest.TestCase):
                              msg='I should not be authorised to modify the status of another job')
 
 
-
     def test_update_job_status(self):
         """
         Tests that a job can update its status

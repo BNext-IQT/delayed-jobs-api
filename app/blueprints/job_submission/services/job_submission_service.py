@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 import re
 import os.path
+from datetime import datetime
 
 import yaml
 
@@ -19,6 +20,7 @@ from app.authorisation import token_generator
 from app.config import RUN_CONFIG
 from app.models import delayed_job_models
 from app import utils
+from app.job_statistics import statistics_saver
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir', str(Path().absolute()) + '/jobs_run')
 if not os.path.isabs(JOBS_RUN_DIR):
@@ -136,6 +138,15 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
+
+        # If it exists, continues here. If not see submits it (see except)
+        statistics_saver.save_job_cache_record(
+            job_type=job_type,
+            run_env_type=RUN_CONFIG.get('run_env'),
+            was_cached=True,
+            request_date=datetime.utcnow().timestamp() * 1000
+        )
+
         app_logging.debug(f'Job {job.id} already exists, status: {job.status}')
 
         if job.status in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
@@ -178,6 +189,12 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     except delayed_job_models.JobNotFoundError:
 
         job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
+        statistics_saver.save_job_cache_record(
+            job_type=job_type,
+            run_env_type=RUN_CONFIG.get('run_env'),
+            was_cached=False,
+            request_date=datetime.utcnow().timestamp() * 1000
+        )
         return get_job_submission_response(job)
 
 
