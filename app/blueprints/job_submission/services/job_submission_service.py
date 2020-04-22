@@ -340,7 +340,7 @@ def prepare_job_inputs(job, tmp_input_files_desc):
         tmp_parent_dir = Path(tmp_path).parent
         input_files_desc[key] = str(input_run_path)
 
-        input_key = f'{key}_{os.path.basename(str(input_run_path))}'
+        input_key = f'{key}'
         job_input_file = delayed_job_models.InputFile(
             input_key=input_key,
             internal_path=str(input_run_path),
