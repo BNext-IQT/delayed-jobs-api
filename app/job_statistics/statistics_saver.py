@@ -75,23 +75,14 @@ def save_job_record(job_type, run_env_type, lsf_host, started_at, finished_at,
         total_input_bytes=total_input_bytes
     )
 
-    dry_run = RUN_CONFIG.get('job_statistics', {}).get('dry_run', False)
+    index_name = RUN_CONFIG.get('job_statistics').get('general_statistics_index')
 
-    if dry_run:
+    if index_name is None:
+        raise ImproperlyConfiguredError('You must provide an index name to save job statistics in'
+                                        ' job_statistics.general_statistics_index')
 
-        app_logging.debug(f'Not actually sending the record to the statistics (dry run): {job_record_dict}')
+    save_record_to_elasticsearch(job_record_dict, index_name)
 
-    else:
-
-        app_logging.debug(f'Sending the following record to the statistics: {job_record_dict}')
-        index_name = RUN_CONFIG.get('job_statistics').get('general_statistics_index')
-
-        if index_name is None:
-            raise ImproperlyConfiguredError('You must provide an index name to save job statistics in'
-                                                       ' job_statistics.general_statistics_index')
-
-        result = ES.index(index=index_name, body=job_record_dict, doc_type='_doc')
-        app_logging.debug(f'Result {result}')
 
 def get_job_cache_record_dict(job_type, run_env_type, was_cached, request_date):
     """
@@ -107,3 +98,35 @@ def get_job_cache_record_dict(job_type, run_env_type, was_cached, request_date):
         'was_cached': was_cached,
         'request_date': request_date
     }
+
+def save_job_cache_record(job_type, run_env_type, was_cached, request_date):
+    """
+     a dict to be used to save the job cache statistics in the elasticsearch index
+    :param job_type: the type of the job
+    :param run_env_type: run environment
+    :param was_cached: if the record was cached or not
+    :param request_date: timestamp of the date the request was made
+   """
+
+    job_cache_record_dict = get_job_cache_record_dict(job_type, run_env_type, was_cached, request_date)
+    index_name = RUN_CONFIG.get('job_statistics').get('cache_statistics_index')
+
+    if index_name is None:
+        raise ImproperlyConfiguredError('You must provide an index name to save job statistics in'
+                                        ' job_statistics.cache_statistics_index')
+
+    save_record_to_elasticsearch(job_cache_record_dict, index_name)
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Saving records to elasticsearch
+# ----------------------------------------------------------------------------------------------------------------------
+def save_record_to_elasticsearch(doc, index_name):
+
+    dry_run = RUN_CONFIG.get('job_statistics', {}).get('dry_run', False)
+
+    if dry_run:
+        app_logging.debug(f'Not actually sending the record to the statistics (dry run): {doc}')
+    else:
+        app_logging.debug(f'Sending the following record to the statistics: {doc}')
+        result = ES.index(index=index_name, body=doc, doc_type='_doc')
+        app_logging.debug(f'Result {result}')
