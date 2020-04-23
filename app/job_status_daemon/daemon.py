@@ -17,6 +17,7 @@ from app.blueprints.job_submission.services import job_submission_service
 from app.job_status_daemon import locks
 from app.job_statistics import statistics_saver
 from app.job_status_daemon.job_statistics import statistics_generator
+import app.app_logging as app_logging
 
 AGENT_RUN_DIR = RUN_CONFIG.get('status_agent_run_dir', str(Path().absolute()) + '/status_agents_run')
 if not os.path.isabs(AGENT_RUN_DIR):
@@ -196,6 +197,7 @@ def react_to_bjobs_json_output(json_output):
     Reads the dict obtained from the status script output, modifies the jobs accordingly
     :param json_output: dict with the output parsed from running the command
     """
+    app_logging.debug(f'Parsing json: {json.dumps(json_output)}')
     for record in json_output['RECORDS']:
         lsf_id = record['JOBID']
         lsf_status = record['STAT']
