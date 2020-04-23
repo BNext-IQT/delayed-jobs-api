@@ -23,7 +23,8 @@ services:
         <<: *build_args
     image: chembl/delayed-jobs-status-daemon:dev
     environment:
-    - CONFIG_FILE_PATH=/app/config.yml # make sure to copy the config.yml file when using this
+      - CONFIG_FILE_PATH=/app/config.yml # make sure to copy the config.yml file when using this
+      - DL_I_AM_STATUS_DAEMON='YES'
   delayed-jobs-server-prod:
     build:
       context: .
@@ -40,3 +41,5 @@ services:
       args:
         <<: *build_args
     image: "${STATUS_DAEMON_IMAGE_TAG:-chembl/delayed-jobs-status-daemon:prod}"
+    environment:
+      - DL_I_AM_STATUS_DAEMON='YES'
