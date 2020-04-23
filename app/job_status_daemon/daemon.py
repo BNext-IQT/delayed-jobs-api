@@ -197,7 +197,7 @@ def react_to_bjobs_json_output(json_output):
     Reads the dict obtained from the status script output, modifies the jobs accordingly
     :param json_output: dict with the output parsed from running the command
     """
-    app_logging.debug(f'Parsing json: {json.dumps(json_output)}')
+    print(f'Parsing json: {json.dumps(json_output)}')
     for record in json_output['RECORDS']:
         lsf_id = record['JOBID']
         lsf_status = record['STAT']
