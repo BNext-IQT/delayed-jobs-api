@@ -316,7 +316,7 @@ def parse_bjobs_output_date(lsf_date_str):
     :return: a python datetime representing the date parsed
     """
     # Just return current date, to avoid date parsing issues. LSF is not responding to the -hms parameter
-    return datetime.datetime.now(tz=datetime.timezone.utc)
+    return datetime.datetime.utcnow()
 
 def save_job_outputs(job):
     """
