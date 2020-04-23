@@ -2,7 +2,6 @@
 Module that provides logging functions for any other module and adapts to any environment where it is running.
 """
 import logging
-import os
 
 from app.config import RUN_CONFIG
 
@@ -48,9 +47,7 @@ def log_msg(level, msg):
     Prints a message to the console
     """
     logger = RUN_CONFIG.get('logger')
-    i_am_daemon = os.getenv('DL_I_AM_STATUS_DAEMON', 'NO') == 'YES'
-
-    if logger is None or i_am_daemon:
+    if logger is None:
         print(level, ':', msg)
     else:
         gunicorn_logger = logging.getLogger(logger)
