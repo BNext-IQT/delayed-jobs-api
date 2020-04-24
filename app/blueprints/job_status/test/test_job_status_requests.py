@@ -1,13 +1,8 @@
 """
 Tests for the status namespace
 """
-import datetime
-import io
 import json
-import os
-import shutil
 import unittest
-from pathlib import Path
 
 from app import create_app
 from app.authorisation import token_generator
