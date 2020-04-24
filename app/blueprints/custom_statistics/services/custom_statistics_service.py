@@ -26,7 +26,7 @@ def save_custom_statistics_test_job(job_id, duration):
     :param job_id: id of the job, just as a test that the job ecists
     :param duration: duration of the job
     """
-    # check_if_job_exists(job_id)
+    check_if_job_exists(job_id)
 
     doc = {
         'duration': int(duration),
