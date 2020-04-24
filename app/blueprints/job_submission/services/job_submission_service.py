@@ -326,7 +326,13 @@ def create_params_file(job, input_files_desc):
                    f'{RUN_CONFIG.get("base_path", "")}/status/{job.id}',
             'method': 'PATCH'
         },
-        'job_params': json.loads(job.raw_params)
+        'custom_statistics_endpoint': {
+            'url': f'http://{RUN_CONFIG.get("status_update_host")}'
+                   f'{RUN_CONFIG.get("base_path", "")}'
+                   f'/custom_statistics/submit_statistics/{job.type.lower()}_job/{job.id}',
+            'method': 'POST'
+        },
+        'job_params': json.loads(job.raw_params),
     }
 
 

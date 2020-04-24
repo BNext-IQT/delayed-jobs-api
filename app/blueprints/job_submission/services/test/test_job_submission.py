@@ -155,6 +155,16 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertEqual(json.dumps(job_params_got, sort_keys=True), raw_job_params_must_be,
                              msg='The job params were not set correctly')
 
+            custom_statistics_url_must_be = f'http://0.0.0.0:5000' \
+                                            f'/custom_statistics/submit_statistics/{job_type.lower()}_job/{job_id}'
+            custom_statistics_url_got = params_got.get('custom_statistics_endpoint', {}).get('url')
+            self.assertEqual(custom_statistics_url_must_be, custom_statistics_url_got,
+                             msg='The status update method was not set correctly!')
+
+            custom_statistics_method_must_be = 'POST'
+            custom_statistics_method_got = params_got.get('custom_statistics_endpoint', {}).get('method')
+            self.assertEqual(custom_statistics_method_must_be, custom_statistics_method_got,
+                             msg='The custom statistics method was not set correctly!')
 
             # -----------------------------------------------
             # Test Input Files
