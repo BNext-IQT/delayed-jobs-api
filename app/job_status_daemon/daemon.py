@@ -241,7 +241,7 @@ def save_job_statistics(job):
     :param job: job object for which to save the statistics
     """
     statistics_saver.save_job_record(
-        job_type=job.type,
+        job_type=str(job.type),
         run_env_type=RUN_CONFIG.get('run_env'),
         lsf_host=job.lsf_host,
         started_at=job.started_at.timestamp() * 1000,

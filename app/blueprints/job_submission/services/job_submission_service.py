@@ -141,7 +141,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
         # If it exists, continues here. If not see submits it (see except)
         statistics_saver.save_job_cache_record(
-            job_type=job_type,
+            job_type=str(job_type),
             run_env_type=RUN_CONFIG.get('run_env'),
             was_cached=True,
             request_date=datetime.utcnow().timestamp() * 1000
@@ -190,7 +190,7 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
         job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
         statistics_saver.save_job_cache_record(
-            job_type=job_type,
+            job_type=str(job_type),
             run_env_type=RUN_CONFIG.get('run_env'),
             was_cached=False,
             request_date=datetime.utcnow().timestamp() * 1000
