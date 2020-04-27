@@ -21,3 +21,17 @@ def submit_custom_statistics_test_job(job_id):
         return jsonify(custom_statistics_service.save_custom_statistics_test_job(job_id, duration))
     except custom_statistics_service.JobNotFoundError:
         abort(404, f'Job with id {job_id} does not exist!')
+
+@CUSTOM_STATISTICS_BLUEPRINT.route('/submit_statistics/structure_search_job/<job_id>', methods = ['POST'])
+@token_required_for_job_id
+@validate_url_params_with(marshmallow_schemas.JobID)
+@validate_form_with(marshmallow_schemas.StructureSearchJobStatistics)
+def submit_custom_statistics_structure_search_job(job_id):
+
+    try:
+        search_type = request.form.get('search_type')
+        time_taken = request.form.get('time_taken')
+        return jsonify(custom_statistics_service.save_custom_statistics_structure_search_job(
+            job_id, search_type, time_taken))
+    except custom_statistics_service.JobNotFoundError:
+        abort(404, f'Job with id {job_id} does not exist!')

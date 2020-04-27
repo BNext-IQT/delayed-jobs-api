@@ -23,7 +23,7 @@ def check_if_job_exists(job_id):
 def save_custom_statistics_test_job(job_id, duration):
     """
     Saves the custom statistics for the test job
-    :param job_id: id of the job, just as a test that the job ecists
+    :param job_id: id of the job, just as a test that the job exists
     :param duration: duration of the job
     """
     check_if_job_exists(job_id)
@@ -34,6 +34,30 @@ def save_custom_statistics_test_job(job_id, duration):
     }
 
     index_name = RUN_CONFIG.get('job_statistics').get('test_job_statistic_index')
+
+    statistics_saver.save_record_to_elasticsearch(doc, index_name)
+    return {'operation_result': 'Statistics successfully saved!'}
+
+
+def save_custom_statistics_structure_search_job(job_id, search_type, time_taken):
+    """
+    Saves the custom statistics for the structure search job
+    :param job_id: id of the job, just as a test that the job exists
+    :param search_type: type of the search executed
+    :param time_taken: time taken to do the search
+    """
+    check_if_job_exists(job_id)
+
+    doc = {
+        'search_type': search_type,
+        'time_taken': time_taken,
+        'host': 'delayed_jobs_k8s',
+        'is_new': False,
+        'request_date': datetime.datetime.utcnow().timestamp() * 1000,
+        'run_env_type': RUN_CONFIG.get('run_env')
+    }
+
+    index_name = RUN_CONFIG.get('job_statistics').get('structure_search_job_statistics_index')
 
     statistics_saver.save_record_to_elasticsearch(doc, index_name)
     return {'operation_result': 'Statistics successfully saved!'}

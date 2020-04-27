@@ -14,3 +14,10 @@ class TestJobStatistics(Schema):
     Class that the schema for saving statistics for the test jobs
     """
     duration = fields.Number(required=True, validate=validate.Range(min=0))
+
+class StructureSearchJobStatistics(Schema):
+    """
+    Class that the schema for saving statistics for the structure search jobs
+    """
+    search_type = fields.String(required=True)
+    time_taken = fields.Number(required=True, validate=validate.Range(min=0))

@@ -376,6 +376,42 @@ paths:
           description: 'Job not found'
       security:
         - JobKeyAuth: []
+  /custom_statistics/submit_statistics/structure_search_job/{job_id}:
+    post:
+      tags:
+        - 'CustomStatistics'
+      summary: 'Submits custom statistics for the structure search job'
+      operationId: 'custom_statistics_structure_search_job'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job for which to save statistics"
+          required: true
+          type: 'string'
+        - name: 'search_type'
+          in: 'formData'
+          description: 'Type of search performed'
+          required: true
+          type: 'string'
+        - name: 'time_taken'
+          in: 'formData'
+          description: 'The time taken to generate the results of the search'
+          required: true
+          type: number
+          minimum: 0
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/StatisticsOperationResult'
+        "400":
+          description: 'Invalid ID supplied. Invalid data supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - JobKeyAuth: []
 securityDefinitions:
   JobKeyAuth:        # arbitrary name for the security scheme
     type: apiKey
