@@ -61,14 +61,14 @@ def save_job_record(job_type, run_env_type, lsf_host, started_at, finished_at,
     """
 
     job_record_dict = get_job_record_dict(
-        job_type=job_type,
-        run_env_type=run_env_type,
+        job_type=str(job_type),
+        run_env_type=str(run_env_type),
         lsf_host=lsf_host,
         started_at=started_at,
         finished_at=finished_at,
         seconds_taken_from_created_to_running=seconds_taken_from_created_to_running,
         seconds_taken_from_running_to_finished_or_error=seconds_taken_from_running_to_finished_or_error,
-        final_state=final_state,
+        final_state=str(final_state),
         num_output_files=num_output_files,
         total_output_bytes=total_output_bytes,
         num_input_files=num_input_files,
@@ -93,8 +93,8 @@ def get_job_cache_record_dict(job_type, run_env_type, was_cached, request_date):
     :return: a dict to be used to save the job cache statistics in the elasticsearch index
     """
     return {
-        'job_type': job_type,
-        'run_env_type': run_env_type,
+        'job_type': str(job_type),
+        'run_env_type': str(run_env_type),
         'was_cached': was_cached,
         'request_date': request_date
     }
