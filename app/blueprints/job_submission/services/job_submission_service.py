@@ -95,6 +95,7 @@ def get_job_input_files_desc(args):
 
 def parse_args_and_submit_job(job_type, form_args, file_args):
 
+    app_logging.debug(f'args received: {json.dumps(form_args)}')
     docker_image_url = delayed_job_models.get_docker_image_url(job_type)
     job_params_only = {param_key: parameter for (param_key, parameter) in form_args.items()}
     job_inputs_only = get_job_input_files_desc(file_args)
