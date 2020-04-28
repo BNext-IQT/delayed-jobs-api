@@ -74,7 +74,7 @@ class InputFile(DB.Model):
     input_key = DB.Column(DB.String(length=120))
     internal_path = DB.Column(DB.Text, nullable=False)
     public_url = DB.Column(DB.Text)
-    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
+    job_id = DB.Column(DB.String(length=120), DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
 class OutputFile(DB.Model):
@@ -84,7 +84,7 @@ class OutputFile(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     internal_path = DB.Column(DB.Text, nullable=False)
     public_url = DB.Column(DB.Text)
-    job_id = DB.Column(DB.String(length=60), DB.ForeignKey('delayed_job.id'), nullable=False)
+    job_id = DB.Column(DB.String(length=120), DB.ForeignKey('delayed_job.id'), nullable=False)
 
 
 class DelayedJob(DB.Model):

@@ -11,6 +11,7 @@ import subprocess
 from pathlib import Path
 import re
 import os.path
+from datetime import datetime
 
 import yaml
 
@@ -19,6 +20,7 @@ from app.authorisation import token_generator
 from app.config import RUN_CONFIG
 from app.models import delayed_job_models
 from app import utils
+from app.job_statistics import statistics_saver
 
 JOBS_RUN_DIR = RUN_CONFIG.get('jobs_run_dir', str(Path().absolute()) + '/jobs_run')
 if not os.path.isabs(JOBS_RUN_DIR):
@@ -93,6 +95,7 @@ def get_job_input_files_desc(args):
 
 def parse_args_and_submit_job(job_type, form_args, file_args):
 
+    app_logging.debug(f'args received: {json.dumps(form_args)}')
     docker_image_url = delayed_job_models.get_docker_image_url(job_type)
     job_params_only = {param_key: parameter for (param_key, parameter) in form_args.items()}
     job_inputs_only = get_job_input_files_desc(file_args)
@@ -107,9 +110,9 @@ def parse_ignore_cache_param(job_params):
     :return: True if must ignore cache, False otherwise
     """
     must_ignore_cache = job_params.get('dl__ignore_cache', False)
-    if must_ignore_cache == 'True':
+    if must_ignore_cache.lower() == 'true':
         return True
-    elif must_ignore_cache == 'False':
+    elif must_ignore_cache.lower() == 'false':
         return False
 
 def job_output_was_lost(job):
@@ -136,6 +139,15 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
         # See if the job already exists
         job = delayed_job_models.get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes)
+
+        # If it exists, continues here. If not see submits it (see except)
+        statistics_saver.save_job_cache_record(
+            job_type=str(job_type),
+            run_env_type=RUN_CONFIG.get('run_env'),
+            was_cached=True,
+            request_date=datetime.utcnow().timestamp() * 1000
+        )
+
         app_logging.debug(f'Job {job.id} already exists, status: {job.status}')
 
         if job.status in [delayed_job_models.JobStatuses.CREATED, delayed_job_models.JobStatuses.QUEUED,
@@ -178,6 +190,12 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
     except delayed_job_models.JobNotFoundError:
 
         job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
+        statistics_saver.save_job_cache_record(
+            job_type=str(job_type),
+            run_env_type=RUN_CONFIG.get('run_env'),
+            was_cached=False,
+            request_date=datetime.utcnow().timestamp() * 1000
+        )
         return get_job_submission_response(job)
 
 
@@ -309,7 +327,13 @@ def create_params_file(job, input_files_desc):
                    f'{RUN_CONFIG.get("base_path", "")}/status/{job.id}',
             'method': 'PATCH'
         },
-        'job_params': json.loads(job.raw_params)
+        'custom_statistics_endpoint': {
+            'url': f'http://{RUN_CONFIG.get("status_update_host")}'
+                   f'{RUN_CONFIG.get("base_path", "")}'
+                   f'/custom_statistics/submit_statistics/{job.type.lower()}_job/{job.id}',
+            'method': 'POST'
+        },
+        'job_params': json.loads(job.raw_params),
     }
 
 

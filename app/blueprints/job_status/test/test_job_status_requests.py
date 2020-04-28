@@ -1,13 +1,8 @@
 """
 Tests for the status namespace
 """
-import datetime
-import io
 import json
-import os
-import shutil
 import unittest
-from pathlib import Path
 
 from app import create_app
 from app.authorisation import token_generator
@@ -96,7 +91,6 @@ class TestStatus(unittest.TestCase):
 
             self.assertEqual(response.status_code, 401,
                              msg='I should not be authorised to modify the status of another job')
-
 
 
     def test_update_job_status(self):

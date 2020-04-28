@@ -66,7 +66,10 @@ class TestJobStatusDaemon(unittest.TestCase):
                         lsf_job_id=i,
                         status=status,
                         lsf_host=assigned_host,
-                        run_environment=run_environment
+                        run_environment=run_environment,
+                        created_at=datetime.utcnow(),
+                        started_at=datetime.utcnow() + timedelta(seconds=1),
+                        finished_at=datetime.utcnow() + timedelta(seconds=2),
                     )
                     job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
                     os.makedirs(job.output_dir_path, exist_ok=True)
@@ -98,7 +101,10 @@ class TestJobStatusDaemon(unittest.TestCase):
                         lsf_job_id=i,
                         status=status,
                         lsf_host=assigned_host,
-                        run_environment=run_environment
+                        run_environment=run_environment,
+                        created_at=datetime.utcnow(),
+                        started_at=datetime.utcnow() + timedelta(seconds=1),
+                        finished_at=datetime.utcnow() + timedelta(seconds=2)
                     )
                     job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
                     os.makedirs(job.output_dir_path, exist_ok=True)
@@ -133,7 +139,10 @@ class TestJobStatusDaemon(unittest.TestCase):
                         lsf_job_id=i,
                         status=status,
                         lsf_host=lsf_host,
-                        run_environment=run_env
+                        run_environment=run_env,
+                        created_at=datetime.utcnow(),
+                        started_at=datetime.utcnow() + timedelta(seconds=1),
+                        finished_at=datetime.utcnow() + timedelta(seconds=2)
                     )
                     job.output_dir_path = job_submission_service.get_job_output_dir_path(job)
                     os.makedirs(job.output_dir_path, exist_ok=True)
@@ -404,7 +413,7 @@ class TestJobStatusDaemon(unittest.TestCase):
 
                     output_urls_must_be.append(output_url_must_be)
 
-            # FINISH to prepare the test scenario
+            # END to prepare the test scenario
 
             daemon.parse_bjobs_output(sample_output)
             job_outputs_got = job.output_files

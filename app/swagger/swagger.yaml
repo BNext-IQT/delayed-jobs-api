@@ -32,6 +32,8 @@ tags:
     url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job
 - name: Admin
   description: Administrative tasks for the system
+- name: CustomStatistics
+  description: Enpoints to save custom statistics for every job, that are not saved by the generic stats
 paths:
   /status/{job_id}:
     get:
@@ -341,6 +343,107 @@ paths:
           description: 'Job not found'
       security:
         - adminTokenAuth: []
+  /custom_statistics/submit_statistics/test_job/{job_id}:
+    post:
+      tags:
+        - 'CustomStatistics'
+      summary: 'Submits custom statistics for the test job'
+      operationId: 'custom_statistics_test_job'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job for which to save statistics"
+          required: true
+          type: 'string'
+        - name: 'duration'
+          in: 'formData'
+          description: 'The duration requested for the job'
+          required: true
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 100
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/StatisticsOperationResult'
+        "400":
+          description: 'Invalid ID supplied. Invalid data supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - JobKeyAuth: []
+  /custom_statistics/submit_statistics/structure_search_job/{job_id}:
+    post:
+      tags:
+        - 'CustomStatistics'
+      summary: 'Submits custom statistics for the structure search job'
+      operationId: 'custom_statistics_structure_search_job'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job for which to save statistics"
+          required: true
+          type: 'string'
+        - name: 'search_type'
+          in: 'formData'
+          description: 'Type of search performed'
+          required: true
+          type: 'string'
+        - name: 'time_taken'
+          in: 'formData'
+          description: 'The time taken to generate the results of the search'
+          required: true
+          type: number
+          minimum: 0
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/StatisticsOperationResult'
+        "400":
+          description: 'Invalid ID supplied. Invalid data supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - JobKeyAuth: []
+  /custom_statistics/submit_statistics/mmv_job/{job_id}:
+    post:
+      tags:
+        - 'CustomStatistics'
+      summary: 'Submits custom statistics for the mmv job'
+      operationId: 'custom_statistics_mmv_job'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: "job_id"
+          in: "path"
+          description: "ID of job for which to save statistics"
+          required: true
+          type: 'string'
+        - name: 'num_sequences'
+          in: 'formData'
+          description: 'The number of sequences processed in the job'
+          required: true
+          type: integer
+          format: int64
+          minimum: 0
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/StatisticsOperationResult'
+        "400":
+          description: 'Invalid ID supplied. Invalid data supplied'
+        "404":
+          description: 'Job not found'
+      security:
+        - JobKeyAuth: []
 securityDefinitions:
   JobKeyAuth:        # arbitrary name for the security scheme
     type: apiKey
@@ -368,6 +471,11 @@ definitions:
       token:
         type: 'string'
   AdminOperationResult:
+    type: "object"
+    properties:
+      operation_result:
+        type: 'string'
+  StatisticsOperationResult:
     type: "object"
     properties:
       operation_result:
