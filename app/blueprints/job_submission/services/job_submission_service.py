@@ -109,11 +109,7 @@ def parse_ignore_cache_param(job_params):
     :param job_params: the dict with the job parametes
     :return: True if must ignore cache, False otherwise
     """
-    must_ignore_cache = job_params.get('dl__ignore_cache', False)
-    if must_ignore_cache == 'True':
-        return True
-    elif must_ignore_cache == 'False':
-        return False
+    return bool(job_params.get('dl__ignore_cache', False))
 
 def job_output_was_lost(job):
     """
