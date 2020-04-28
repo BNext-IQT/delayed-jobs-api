@@ -123,10 +123,12 @@ def save_job_cache_record(job_type, run_env_type, was_cached, request_date):
 def save_record_to_elasticsearch(doc, index_name):
 
     dry_run = RUN_CONFIG.get('job_statistics', {}).get('dry_run', False)
+    es_host = RUN_CONFIG.get('elasticsearch', {}).get('host')
 
     if dry_run:
         app_logging.debug(f'Not actually sending the record to the statistics (dry run): {doc}')
     else:
-        app_logging.debug(f'Sending the following record to the statistics: {doc}')
+        app_logging.debug(f'Sending the following record to the statistics: {doc} '
+                          f'index name: {index_name} es_host: {es_host}')
         result = ES.index(index=index_name, body=doc, doc_type='_doc')
         app_logging.debug(f'Result {result}')
