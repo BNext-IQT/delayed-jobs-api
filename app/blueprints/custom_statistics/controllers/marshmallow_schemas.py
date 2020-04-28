@@ -21,3 +21,9 @@ class StructureSearchJobStatistics(Schema):
     """
     search_type = fields.String(required=True)
     time_taken = fields.Number(required=True, validate=validate.Range(min=0))
+
+class MMVSearchJobStatistics(Schema):
+    """
+    Class that the schema for saving statistics for the structure search jobs
+    """
+    num_sequences = fields.Number(required=True, validate=validate.Range(min=0))

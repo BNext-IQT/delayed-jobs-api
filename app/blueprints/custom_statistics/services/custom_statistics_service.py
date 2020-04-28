@@ -61,3 +61,21 @@ def save_custom_statistics_structure_search_job(job_id, search_type, time_taken)
 
     statistics_saver.save_record_to_elasticsearch(doc, index_name)
     return {'operation_result': 'Statistics successfully saved!'}
+
+def save_custom_statistics_mmv_job(job_id, num_sequences):
+    """
+    Saves the custom statistics for the mmv search job
+    :param job_id: id of the job, just as a test that the job exists
+    :param num_sequences: num sequences processed by the job
+    """
+    check_if_job_exists(job_id)
+
+    doc = {
+        'num_sequences': num_sequences,
+        'request_date': datetime.datetime.utcnow().timestamp() * 1000,
+    }
+
+    index_name = RUN_CONFIG.get('job_statistics').get('mmv_job_statistics_index')
+
+    statistics_saver.save_record_to_elasticsearch(doc, index_name)
+    return {'operation_result': 'Statistics successfully saved!'}
