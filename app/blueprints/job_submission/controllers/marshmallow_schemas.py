@@ -25,5 +25,5 @@ class StructureSearchJobSchema(Schema):
     """
     search_type = fields.String(required=True, validate=validate.OneOf(['SIMILARITY', 'SUBSTRUCTURE', 'CONNECTIVITY']))
     search_term = fields.String(required=True)
-    threshold = fields.String(required=True)
+    threshold = fields.String()
     dl__ignore_cache =fields.Boolean(required=True)
