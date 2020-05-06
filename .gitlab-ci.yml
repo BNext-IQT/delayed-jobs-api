@@ -116,6 +116,7 @@ prepare_config_staging:
   except:
     - schedules
   script:
+    - set -x
     - mkdir -p ${CONFIGS_FOLDER}
     - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
   artifacts:
