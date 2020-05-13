@@ -3,15 +3,19 @@ Blueprint in charge of sending the swagger configuration in json format.
 """
 from pathlib import Path
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 import yaml
 
 from app.config import RUN_CONFIG
+
 
 SWAGGER_BLUEPRINT = Blueprint('swagger', __name__)
 
 @SWAGGER_BLUEPRINT.route('/swagger.json')
 def get_json():
+    """
+    returns the json response with the swagger description
+    """
 
     yaml_file_path = Path(Path().absolute()).joinpath('app', 'swagger', 'swagger.yaml')
 

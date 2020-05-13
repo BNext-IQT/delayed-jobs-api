@@ -347,13 +347,11 @@ functional_tests_prod_public:
     name: $SERVER_IMAGE_TAG
     entrypoint: [""]
   only:
-  - master
-  except:
-    - schedules
+    - master
   script:
-  - set -x
-  - sleep 30 # Give some time for the deployment to take effect.
-  - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}
+    - set -x
+    - sleep 30 # Give some time for the deployment to take effect.
+    - functional_tests/run_functional_tests.py ${SERVER_URL_PROD_PUBLIC} ${DJ_SERVER_ADMIN_USERNAME_PROD_HX} ${DJ_SERVER_ADMIN_PASSWORD_PROD_PUBLIC}
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Schedules
