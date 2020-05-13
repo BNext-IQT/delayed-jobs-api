@@ -8,12 +8,18 @@ variables:
   STATUS_DAEMON_IMAGE_TAG: ${CI_REGISTRY}/${REGISTRY_USER}/${JOB_STATUS_APPLICATION}:${CI_COMMIT_SHORT_SHA}
   DOCKER_DRIVER: overlay
   CONFIGS_FOLDER: run_config
+  # Config staging
   CONFIG_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.yml
   CONFIG_GUNICORN_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/staging.gunicorn.config.py
+  INGRESS_STAGING_FILE_PATH: ${CONFIGS_FOLDER}/ingress-staging.yml
+  # Config prod_hx
   CONFIG_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.yml
   CONFIG_GUNICORN_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/prod_hx.gunicorn.config.py
+  INGRESS_PROD_HX_FILE_PATH: ${CONFIGS_FOLDER}/ingress-prod_hx.yml
+  # Config prod_hh
   CONFIG_PROD_HH_FILE_PATH: ${CONFIGS_FOLDER}/prod_hh.yml
   CONFIG_GUNICORN_PROD_HH_FILE_PATH: ${CONFIGS_FOLDER}/prod_hh.gunicorn.config.py
+  INGRESS_PROD_HH_FILE_PATH: ${CONFIGS_FOLDER}/ingress-prod_hh.yml
 
 image: docker:latest
 
@@ -116,12 +122,14 @@ prepare_config_staging:
   except:
     - schedules
   script:
+    - set -x
     - mkdir -p ${CONFIGS_FOLDER}
     - git clone https://${CONFIG_DEPLOY_GITLAB_USERNAME}:${CONFIG_DEPLOY_GITLAB_TOKEN}@${CONFIGURATIONS_REPO} ${CONFIGS_FOLDER}
   artifacts:
     paths:
       - ${CONFIG_STAGING_FILE_PATH}
       - ${CONFIG_GUNICORN_STAGING_FILE_PATH}
+      - ${INGRESS_STAGING_FILE_PATH}
 
 deploy_to_staging:
   stage: deploy_to_staging
@@ -164,6 +172,9 @@ deploy_to_staging:
   - cat k8s-deployment.yaml
   - kubectl apply -n ${CHEMBL_NS_STAGING} -f k8s-deployment.yaml
   - kubectl get pods -n ${CHEMBL_NS_STAGING}
+  - cat ${INGRESS_STAGING_FILE_PATH}
+  - kubectl apply -n ${CHEMBL_NS_STAGING} -f ${INGRESS_STAGING_FILE_PATH}
+  - kubectl describe ingress -n ${CHEMBL_NS_STAGING}
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Test staging
@@ -205,6 +216,7 @@ prepare_config_prod_hx:
     paths:
       - ${CONFIG_PROD_HX_FILE_PATH}
       - ${CONFIG_GUNICORN_PROD_HX_FILE_PATH}
+      - ${INGRESS_PROD_HX_FILE_PATH}
 
 deploy_to_prod_hx:
   stage: deploy_to_prod_hx
@@ -246,6 +258,9 @@ deploy_to_prod_hx:
     - cat k8s-deployment.yaml
     - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
     - kubectl get pods -n ${CHEMBL_NS_PROD}
+    - cat ${INGRESS_PROD_HX_FILE_PATH}
+    - kubectl apply -n ${CHEMBL_NS_PROD} -f ${INGRESS_PROD_HX_FILE_PATH}
+    - kubectl describe ingress -n ${CHEMBL_NS_PROD}
 
 functional_tests_prod_hx:
   stage: test_prod_hx
@@ -281,6 +296,7 @@ prepare_config_prod_hh:
     paths:
       - ${CONFIG_PROD_HH_FILE_PATH}
       - ${CONFIG_GUNICORN_PROD_HH_FILE_PATH}
+      - ${INGRESS_PROD_HH_FILE_PATH}
 
 deploy_to_prod_hh:
   stage: deploy_to_prod_hh
@@ -322,6 +338,9 @@ deploy_to_prod_hh:
     - cat k8s-deployment.yaml
     - kubectl apply -n ${CHEMBL_NS_PROD} -f k8s-deployment.yaml
     - kubectl get pods -n ${CHEMBL_NS_PROD}
+    - cat ${INGRESS_PROD_HH_FILE_PATH}
+    - kubectl apply -n ${CHEMBL_NS_PROD} -f ${INGRESS_PROD_HH_FILE_PATH}
+    - kubectl describe ingress -n ${CHEMBL_NS_PROD}
 
 functional_tests_prod_hh:
   stage: test_prod_hh
