@@ -252,6 +252,15 @@ def assert_input_files_can_be_downloaded(status_response):
     for input_key, url in input_files_urls.items():
         full_url = f'http://{url}'
         file_request = requests.get(full_url)
-        assert file_request.status_code == 200, f'An input file ({full_url}) could not be downloaded!!'
+
+        status_code = file_request.status_code
+        if status_code != 200:
+
+            print("http didn't work, trying with https")
+            full_url = f'https://{url}'
+            file_request = requests.get(full_url)
+            status_code = file_request.status_code
+
+        assert status_code == 200, f'An input file ({full_url}) could not be downloaded!!'
 
 
