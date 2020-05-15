@@ -230,11 +230,14 @@ def assert_output_files_can_be_downloaded(status_response):
         full_url = f'http://{url}'
         file_request = requests.get(full_url)
 
-        if file_request.status_code != 200:
+        status_code = file_request.status_code
+        if status_code != 200:
+            print("http didn't work, trying with https")
             full_url = f'https://{url}'
             file_request = requests.get(full_url)
+            status_code = file_request.status_code
 
-        assert file_request.status_code == 200, f'A results file ({full_url}) could not be downloaded!!'
+        assert status_code == 200, f'A results file ({full_url}) could not be downloaded!!'
 
 
 def assert_input_files_can_be_downloaded(status_response):
