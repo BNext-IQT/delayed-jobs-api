@@ -2,7 +2,6 @@
     Module that handles the configuration of the app
 """
 import os
-import logging
 from pathlib import Path
 import hashlib
 from enum import Enum

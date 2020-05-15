@@ -229,6 +229,11 @@ def assert_output_files_can_be_downloaded(status_response):
     for output_key, url in output_files_urls.items():
         full_url = f'http://{url}'
         file_request = requests.get(full_url)
+
+        if file_request.status_code != 200:
+            full_url = f'https://{url}'
+            file_request = requests.get(full_url)
+
         assert file_request.status_code == 200, f'A results file ({full_url}) could not be downloaded!!'
 
 
