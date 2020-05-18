@@ -15,7 +15,6 @@ from app.db import DB
 from app.models import utils
 from app.config import RUN_CONFIG
 
-
 DAYS_TO_LIVE = 7  # Days for which the results are kept
 
 
@@ -37,20 +36,25 @@ class JobStatuses(Enum):
     def __str__(self):
         return self.name
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Exceptions
 # ----------------------------------------------------------------------------------------------------------------------
 class JobNotFoundError(Exception):
     """Base class for exceptions."""
 
+
 class InputFileNotFoundError(Exception):
     """Base class for exceptions."""
+
 
 class DockerImageNotSet(Exception):
     """Base class for exceptions."""
 
+
 class JobConfigNotFoundError(Exception):
     """Base class for exceptions."""
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Models
@@ -61,7 +65,7 @@ class DefaultJobConfig(DB.Model):
     """
     job_type = DB.Column(DB.String(length=60), primary_key=True)
     docker_image_url = DB.Column(DB.Text)
-    docker_registry_username = DB.Column(DB.Text) # Username for the container registry (optional)
+    docker_registry_username = DB.Column(DB.Text)  # Username for the container registry (optional)
     docker_registry_password = DB.Column(DB.Text)  # Password for the container registry (optional)
     requirements_script_path = DB.Column(DB.Text)
 
@@ -106,7 +110,7 @@ class DelayedJob(DB.Model):
     api_initial_url = DB.Column(DB.Text)
     docker_image_url = DB.Column(DB.Text)
     timezone = DB.Column(DB.String(length=60), default=str(datetime.timezone.utc))
-    num_failures = DB.Column(DB.Integer, default=0) # How many times the job has failed.
+    num_failures = DB.Column(DB.Integer, default=0)  # How many times the job has failed.
     lsf_job_id = DB.Column(DB.Integer)
     lsf_host = DB.Column(DB.Text)
     requirements_parameters_string = DB.Column(DB.Text)
@@ -118,15 +122,17 @@ class DelayedJob(DB.Model):
     def __repr__(self):
         return f'<DelayedJob ${self.id} ${self.type} ${self.status}>'
 
-    def  public_dict(self, server_base_url='http://0.0.0.0:5000'):
+    def public_dict(self, server_base_url='http://0.0.0.0:5000'):
         """
         Returns a dictionary representation of the object with all the fields that are safe to be public
         :param server_base_url: url to use as base for building the output files urls
         """
         plain_properties = {key: str(getattr(self, key)) for key in ['id', 'type', 'status', 'status_log', 'progress',
-                                                         'created_at', 'started_at', 'finished_at', 'raw_params',
-                                                         'expires_at', 'api_initial_url', 'docker_image_url',
-                                                         'timezone', 'num_failures', 'status_description']}
+                                                                     'created_at', 'started_at', 'finished_at',
+                                                                     'raw_params',
+                                                                     'expires_at', 'api_initial_url',
+                                                                     'docker_image_url',
+                                                                     'timezone', 'num_failures', 'status_description']}
 
         input_files_urls = utils.get_input_files_dict(self.input_files, server_base_url)
         output_files_urls = utils.get_output_files_dict(self.output_files, server_base_url)
@@ -159,6 +165,7 @@ class DelayedJob(DB.Model):
         """
         return len(self.executions)
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------------------------------------------------------
@@ -189,6 +196,7 @@ def generate_job_id(job_type, job_params, docker_image_url, input_files_hashes={
         '+', '-')
 
     return '{}-{}'.format(job_type, base64_search_params_digest)
+
 
 def get_job_config(job_type):
     """
@@ -256,6 +264,7 @@ def get_job_by_id(job_id, force_refresh=False):
 
     return job
 
+
 def get_job_input_file(job_id, input_key):
     """
     :param job_id: job id that owns the input file
@@ -310,7 +319,15 @@ def generate_default_job_configs():
         docker_registry_username='some_user',
         docker_registry_password='some_password'
     )
+
     DB.session.add(mmv_job_config)
+    DB.session.commit()
+
+    biological_sequence_search_job_config = DefaultJobConfig(
+        job_type='BIOLOGICAL_SEQUENCE_SEARCH',
+        docker_image_url='some_url'
+    )
+    DB.session.add(biological_sequence_search_job_config)
     DB.session.commit()
 
 
@@ -338,6 +355,7 @@ def get_job_by_params(job_type, job_params, docker_image_url, input_files_hashes
     job_id = generate_job_id(job_type, job_params, docker_image_url, input_files_hashes)
     return get_job_by_id(job_id)
 
+
 def update_job_progress(job_id, progress, status_log, status_description):
     """
     Updates the job with new data passed in a dict
@@ -360,6 +378,7 @@ def update_job_progress(job_id, progress, status_log, status_description):
     DB.session.commit()
     return job
 
+
 def add_input_file_to_job(job, input_file):
     """
     Adds an input file to a job and saves the job
@@ -369,6 +388,7 @@ def add_input_file_to_job(job, input_file):
     job.input_files.append(input_file)
     DB.session.add(input_file)
     DB.session.commit()
+
 
 def add_output_file_to_job(job, output_file):
     """
@@ -425,6 +445,7 @@ def delete_all_expired_jobs():
 
     return num_deleted
 
+
 def delete_all_jobs_by_type(job_type):
     """
     Deletes all the jobs that have expired
@@ -441,6 +462,7 @@ def delete_all_jobs_by_type(job_type):
         num_deleted += 1
 
     return num_deleted
+
 
 def get_lsf_job_ids_to_check(lsf_host):
     """
@@ -474,6 +496,7 @@ def get_lsf_job_ids_to_check(lsf_host):
     DB.session.commit()
 
     return ids
+
 
 def add_output_to_job(job, internal_path, public_url):
     """

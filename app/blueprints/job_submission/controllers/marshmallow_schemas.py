@@ -50,3 +50,5 @@ class BiologicalSequenceSearchJobSchema(Schema):
     seqrange = fields.String()
     gapalign = fields.Boolean()
     wordsize = fields.Number(validate=validate.Range(min=6, max=28))
+    taxids = fields.String()
+    compstats = fields.String(validate=validate.OneOf(['F', 'D', '1', '2', '3']))

@@ -365,6 +365,21 @@ paths:
           maximum: 28
           enum: [6, 11, 28]
           default: 6
+        - name: 'taxids'
+          in: 'formData'
+          description: "Specify one or more TaxIDs so that the BLAST search becomes taxonomically aware."
+          type: 'string'
+        - name: 'compstats'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-compstats"
+          type: 'string'
+          enum: ['F', 'D', '1', '2', '3']
+          default: 'F'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
   /admin/login:
     get:
       tags:
