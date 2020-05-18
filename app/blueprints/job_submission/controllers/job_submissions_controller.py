@@ -63,7 +63,7 @@ def submit_structure_search_job():
 @SUBMISSION_BLUEPRINT.route('/biological_sequence_search_job', methods=['POST'])
 @validate_form_with(marshmallow_schemas.BiologicalSequenceSearchJobSchema)
 @RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('job_submission'))
-def submit_structure_search_job():
+def submit_biological_sequence_search_job():
     job_type = 'BIOLOGICAL_SEQUENCE_SEARCH'
     form_data = request.form
     form_files = request.files
