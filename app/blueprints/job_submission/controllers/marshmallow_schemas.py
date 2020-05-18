@@ -40,7 +40,7 @@ class BiologicalSequenceSearchJobSchema(Schema):
     matrix = fields.String(validate=validate.OneOf(
         ['BLOSUM45', 'BLOSUM50', 'BLOSUM62', 'BLOSUM80', 'BLOSUM90', 'PAM30', 'PAM70', 'PAM250', 'NONE']))
     alignments = fields.Number(validate=validate.Range(min=0, max=512))
-    scores = fields.Number(validate=validate.Range(min=0, max=1000 / 0))
+    scores = fields.Number(validate=validate.Range(min=0, max=1000))
     exp = fields.String(validate=validate.OneOf(
         ['1e-200', '1e-100', '1e-50', '1e-10', '1e-5', '1e-4', '1e-3', '1e-2', '1e-1', '1.0', '10', '100', '1000']))
     dropoff = fields.Number(validate=validate.Range(min=0, max=10))
