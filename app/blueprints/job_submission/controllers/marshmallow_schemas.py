@@ -52,3 +52,4 @@ class BiologicalSequenceSearchJobSchema(Schema):
     wordsize = fields.Number(validate=validate.Range(min=6, max=28))
     taxids = fields.String()
     compstats = fields.String(validate=validate.OneOf(['F', 'D', '1', '2', '3']))
+    dl__ignore_cache = fields.Boolean(required=True)
