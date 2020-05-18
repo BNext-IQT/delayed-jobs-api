@@ -30,6 +30,16 @@ tags:
   externalDocs:
     description: Source Repository
     url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/mmv_job
+- name: Structure Search Job
+  description: Chemical structure search job
+  externalDocs:
+    description: Source Repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/structure-search-job
+- name: Biological Sequence Search Job
+  description: Chemical structure search job (BLAST)
+  externalDocs:
+    description: Source Repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/structure-search-job
 - name: Admin
   description: Administrative tasks for the system
 - name: CustomStatistics
@@ -245,6 +255,126 @@ paths:
           format: int64
           minimum: 40
           maximum: 100
+        - name: 'dl__ignore_cache'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
+          required: true
+          type: 'boolean'
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
+  /submit/biological_sequence_search_job:
+    post:
+      tags:
+        - 'Biological Sequence Search Job'
+      summary: 'Submits a Job that does the BLAST search'
+      operationId: 'submit_biological_sequence_search_job'
+      consumes:
+        - 'multipart/form-data'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'sequence'
+          in: 'formData'
+          description: "A sequence in any supported format. See https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-sequence"
+          required: true
+          type: 'string'
+          default: ">sp|P35858|ALS_HUMAN Insulin-like growth factor-binding protein complex acid labile subunit OS=Homo sapiens GN=IGFALS PE=1 SV=1 \nMALRKGGLALALLLLSWVALGPRSLEGADPGTPGEAEGPACPAACVCSYDDDADELSVFC\nSSRNLTRLPDGVPGGTQALWLDGNNLSSVPPAAFQNLSSLGFLNLQGGQLGSLEPQALLG\nLENLCHLHLERNQLRSLALGTFAHTPALASLGLSNNRLSRLEDGLFEGLGSLWDLNLGWN\nSLAVLPDAAFRGLGSLRELVLAGNRLAYLQPALFSGLAELRELDLSRNALRAIKANVFVQ\nLPRLQKLYLDRNLIAAVAPGAFLGLKALRWLDLSHNRVAGLLEDTFPGLLGLRVLRLSHN\nAIASLRPRTFKDLHFLEELQLGHNRIRQLAERSFEGLGQLEVLTLDHNQLQEVKAGAFLG\nLTNVAVMNLSGNCLRNLPEQVFRGLGKLHSLHLEGSCLGRIRPHTFTGLSGLRRLFLKDN\nGLVGIEEQSLWGLAELLELDLTSNQLTHLPHRLFQGLGKLEYLLLSRNRLAELPADALGP\nLQRAFWLDVSHNRLEALPNSLLAPLGRLRYLSLRNNSLRTFTPQPPGLERLWLEGNPWDC\nGCPLKALRDFALQNPSAVPRFVQAICEGDDCQPPAYTYNNITCASPPEVVGLDLRDLSEA\nHFAPC"
+        - name: 'matrix'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-matrix"
+          type: 'string'
+          enum: ['BLOSUM45', 'BLOSUM50', 'BLOSUM62', 'BLOSUM80', 'BLOSUM90', 'PAM30', 'PAM70', 'PAM250', 'NONE']
+          default: 'BLOSUM45'
+        - name: 'alignments'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-alignments"
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000
+          enum: [0, 5, 10, 20, 50, 100, 150, 200, 250, 500, 750, 100]
+          default: 50
+        - name: 'scores'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-scores"
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 1000
+          enum: [0, 5, 10, 20, 50, 100, 150, 200, 250, 500, 750, 100]
+          default: 50
+        - name: 'exp'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-exp"
+          type: 'string'
+          enum: ['1e-200', '1e-100', '1e-50', '1e-10', '1e-5', '1e-4', '1e-3', '1e-2', '1e-1', '1.0', '10', '100', '1000']
+          default: '10'
+        - name: 'dropoff'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-dropoff"
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 10
+          enum: [0, 2, 4, 6, 8, 10]
+          default: 0
+        - name: 'gapopen'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-gapopen"
+          type: integer
+          format: int64
+          minimum: -1
+          maximum: 25
+          enum: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+          default: -1
+        - name: 'gapext'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-gapext"
+          type: integer
+          format: int64
+          minimum: -1
+          maximum: 10
+          enum: [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          default: -1
+        - name: 'filter'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-filter"
+          type: 'string'
+          enum: ['F', 'T']
+          default: 'F'
+        - name: 'seqrange'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-seqrange"
+          type: 'string'
+          default: 'START-END'
+        - name: 'gapalign'
+          in: 'formData'
+          description: 'https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-gapalign'
+          type: 'boolean'
+          default: True
+        - name: 'wordsize'
+          in: 'formData'
+          description: "wordsize"
+          type: integer
+          format: int64
+          minimum: 6
+          maximum: 28
+          enum: [6, 11, 28]
+          default: 6
+        - name: 'taxids'
+          in: 'formData'
+          description: "Specify one or more TaxIDs so that the BLAST search becomes taxonomically aware."
+          type: 'string'
+        - name: 'compstats'
+          in: 'formData'
+          description: "https://www.ebi.ac.uk/seqdb/confluence/pages/viewpage.action?pageId=68167377#NCBIBLAST+(ProteinDatabases)-compstats"
+          type: 'string'
+          enum: ['F', 'D', '1', '2', '3']
+          default: 'F'
         - name: 'dl__ignore_cache'
           in: 'formData'
           description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the

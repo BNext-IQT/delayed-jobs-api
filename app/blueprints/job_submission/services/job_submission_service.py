@@ -54,6 +54,7 @@ SUBMISSION_FILE_NAME = 'submit_job.sh'
 
 MAX_RETRIES = 6
 
+
 class JobSubmissionError(Exception):
     """Base class for exceptions in this module."""
 
@@ -94,7 +95,6 @@ def get_job_input_files_desc(args):
 
 
 def parse_args_and_submit_job(job_type, form_args, file_args):
-
     app_logging.debug(f'args received: {json.dumps(form_args)}')
     docker_image_url = delayed_job_models.get_docker_image_url(job_type)
     job_params_only = {param_key: parameter for (param_key, parameter) in form_args.items()}
@@ -103,6 +103,7 @@ def parse_args_and_submit_job(job_type, form_args, file_args):
 
     return submit_job(job_type, job_inputs_only, input_files_hashes, docker_image_url, job_params_only)
 
+
 def parse_ignore_cache_param(job_params):
     """
     parses the dl__ignore_cache parameter from the job params
@@ -110,10 +111,15 @@ def parse_ignore_cache_param(job_params):
     :return: True if must ignore cache, False otherwise
     """
     must_ignore_cache = job_params.get('dl__ignore_cache', False)
+
+    if isinstance(must_ignore_cache, bool):
+        return must_ignore_cache
+
     if must_ignore_cache.lower() == 'true':
         return True
-    elif must_ignore_cache.lower() == 'false':
+    if must_ignore_cache.lower() == 'false':
         return False
+
 
 def job_output_was_lost(job):
     """
@@ -127,6 +133,7 @@ def job_output_was_lost(job):
         if not os.path.isfile(internal_path):
             return True
     return False
+
 
 def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params):
     """
@@ -159,13 +166,13 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
 
             if job.num_failures <= MAX_RETRIES:
                 app_logging.debug(f'{job.id} has failed {job.num_failures}. Max retries is {MAX_RETRIES}. '
-                                 f'I will submit it again')
+                                  f'I will submit it again')
                 job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
                                             job_params)
                 return get_job_submission_response(job)
             else:
                 app_logging.debug(f'{job.id} has failed {job.num_failures} times. Max retries is {MAX_RETRIES}. '
-                                 f'NOT submitting it again')
+                                  f'NOT submitting it again')
                 return get_job_submission_response(job)
 
         elif job.status == delayed_job_models.JobStatuses.FINISHED:
@@ -182,7 +189,8 @@ def submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
             if must_resubmit:
                 app_logging.debug(f'I will delete and submit again {job.id}')
                 delayed_job_models.delete_job(job)
-                job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url, job_params)
+                job = create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker_image_url,
+                                            job_params)
                 return get_job_submission_response(job)
 
         return get_job_submission_response(job)
@@ -218,6 +226,7 @@ def create_and_submit_job(job_type, input_files_desc, input_files_hashes, docker
     prepare_job_and_submit(job, input_files_desc)
     return job
 
+
 def get_job_submission_response(job):
     """
     :param job: the job object for which get the submission response
@@ -226,6 +235,7 @@ def get_job_submission_response(job):
     return {
         'job_id': job.id
     }
+
 
 def get_job_run_dir(job):
     """
@@ -279,6 +289,7 @@ def prepare_job_and_submit(job, input_files_desc):
     prepare_job_submission_script(job)
     submit_job_to_lsf(job)
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Preparation of run folder
 # ----------------------------------------------------------------------------------------------------------------------
@@ -291,6 +302,7 @@ def prepare_run_folder(job, input_files_desc):
 
     create_job_run_dir(job)
     create_params_file(job, input_files_desc)
+
 
 def create_job_run_dir(job):
     """
@@ -309,6 +321,7 @@ def create_job_run_dir(job):
     os.makedirs(job_input_files_dir, exist_ok=True)
 
     app_logging.debug(f'Job run dir is {job_run_dir}')
+
 
 def create_params_file(job, input_files_desc):
     """
@@ -335,7 +348,6 @@ def create_params_file(job, input_files_desc):
         },
         'job_params': json.loads(job.raw_params),
     }
-
 
     run_params_path = get_job_run_params_file_path(job)
 
@@ -377,6 +389,7 @@ def prepare_job_inputs(job, tmp_input_files_desc):
 
     return input_files_desc
 
+
 def prepare_output_dir(job):
     """
     Makes sure to create the output dir for the job
@@ -393,6 +406,7 @@ def prepare_output_dir(job):
     os.makedirs(job_output_dir, exist_ok=True)
 
     app_logging.debug(f'Job output dir is {job_output_dir}')
+
 
 def get_job_resources_params(job):
     """
@@ -538,8 +552,3 @@ def get_lsf_job_id(submission_out):
     job_id = re.split(r'<|>', match.group(0))[1]
 
     return int(job_id)
-
-
-
-
-
