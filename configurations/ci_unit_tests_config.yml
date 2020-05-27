@@ -4,8 +4,6 @@ sql_alchemy:
   create_tables: True
   database_uri:  'sqlite:///:memory:'
   track_modifications: False
-elasticsearch:
-  host: 'some_index'
 run_jobs: False
 admin_username: 'admin'
 admin_password: '123456'
@@ -16,5 +14,10 @@ lsf_submission:
 generate_default_config: True
 job_statistics:
   dry_run: True # If true, do not attempt to save anything, just print it to the debug log. False by default
+  elasticsearch:
+    host: 'some_index'
+    username: 'some_username'
+    password: 'some_password'
+    port: 'some_port'
   general_statistics_index: 'chembl_delayed_jobs_job_record'
   cache_statistics_index: 'chembl_delayed_jobs_job_cache_record'
