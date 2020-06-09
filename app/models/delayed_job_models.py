@@ -68,6 +68,11 @@ class DefaultJobConfig(DB.Model):
     docker_registry_username = DB.Column(DB.Text)  # Username for the container registry (optional)
     docker_registry_password = DB.Column(DB.Text)  # Password for the container registry (optional)
     requirements_script_path = DB.Column(DB.Text)
+    custom_config_repo = DB.Column(DB.Text)
+    custom_config_username = DB.Column(DB.Text)
+    custom_config_password = DB.Column(DB.Text)
+    custom_config_branch = DB.Column(DB.Text)
+    custom_config_file_path = DB.Column(DB.Text)
 
 
 class InputFile(DB.Model):
@@ -328,6 +333,18 @@ def generate_default_job_configs():
         docker_image_url='some_url'
     )
     DB.session.add(biological_sequence_search_job_config)
+    DB.session.commit()
+
+    download_config = DefaultJobConfig(
+        job_type='DOWNLOAD',
+        docker_image_url='some_url',
+        custom_config_repo='some_repo',
+        custom_config_username = 'some_user',
+        custom_config_password = 'some_password',
+        custom_config_branch = 'some_branch',
+        custom_config_file_path = 'config_file_path'
+    )
+    DB.session.add(download_config)
     DB.session.commit()
 
 

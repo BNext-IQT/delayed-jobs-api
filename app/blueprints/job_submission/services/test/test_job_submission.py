@@ -105,7 +105,7 @@ class TestJobSubmitter(unittest.TestCase):
             print('TEST INPUT ')
             print(input_files_desc)
             submission_result = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes,
-                                                         docker_image_url, params)
+                                                                  docker_image_url, params)
 
             job_id = submission_result.get('job_id')
             job_data = delayed_job_models.get_job_by_id(job_id).public_dict()
@@ -210,6 +210,40 @@ class TestJobSubmitter(unittest.TestCase):
             self.assertTrue(os.access(submission_script_file_must_be, os.X_OK),
                             msg=f'The script file for the job ({submission_script_file_must_be}) is not executable!')
 
+    def test_job_with_custom_config_can_be_submitted(self):
+        """
+        Test that a job with a custom config can be submitted
+        """
+        with self.flask_app.app_context():
+
+            # remember that if generate_default_config: True, it generates the default config in the delayed job models
+            job_type = 'DOWNLOAD'
+            docker_image_url = 'some_url'
+
+            input_files_desc, input_files_hashes, params = self.prepare_mock_job_args()
+            submission_result = job_submission_service.submit_job(job_type, input_files_desc, input_files_hashes,
+                                                                  docker_image_url, params)
+
+            job_id = submission_result.get('job_id')
+            job_run_dir_must_be = os.path.join(job_submission_service.JOBS_RUN_DIR, job_id)
+            params_file_must_be = os.path.join(job_run_dir_must_be, job_submission_service.RUN_PARAMS_FILENAME)
+
+            params_file = open(params_file_must_be, 'r')
+            params_got = yaml.load(params_file, Loader=yaml.FullLoader)
+
+            job_got = delayed_job_models.get_job_by_id(job_id)
+            config_must_be = delayed_job_models.get_job_config(job_got.type)
+            custom_config_got = params_got.get('custom_job_config')
+            self.assertIsNotNone(custom_config_got, msg='The custom config is None!')
+
+            for prop_name in ['custom_config_repo', 'custom_config_username', 'custom_config_password',
+                              'custom_config_branch', 'custom_config_file_path']:
+
+                value_got = custom_config_got.get(prop_name)
+                value_must_be = getattr(config_must_be, prop_name)
+                self.assertEqual(value_got, value_must_be, msg=f'{prop_name} was not set up correctly!' )
+
+
     def test_lsf_job_id_is_parsed_correctly_after_submission(self):
 
         lsf_id_must_be = 2010993
@@ -257,13 +291,11 @@ class TestJobSubmitter(unittest.TestCase):
 
             test_job_config.requirements_script_path = source_requirements_script_path
 
-
             resources_params_got = job_submission_service.get_job_resources_params(job)
             resources_params_must_be = ''
 
             self.assertEqual(resources_params_got, resources_params_must_be,
                              msg='The resources params were not calculated correctly!')
-
 
             job_requirements_script_path = Path(job.run_dir_path).joinpath('requirements_calculation.py')
 
@@ -295,9 +327,7 @@ class TestJobSubmitter(unittest.TestCase):
 
             test_job_config.requirements_script_path = source_requirements_script_path
 
-
             resources_params_got = job_submission_service.get_job_resources_params(job)
-
 
             self.assertEqual(resources_params_got, resources_params_must_be,
                              msg='The resources params were not calculated correctly!')
@@ -309,4 +339,3 @@ class TestJobSubmitter(unittest.TestCase):
                             msg='The requirements script was not created!')
 
             os.remove(source_requirements_script_path)
-

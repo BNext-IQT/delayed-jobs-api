@@ -53,3 +53,15 @@ class BiologicalSequenceSearchJobSchema(Schema):
     taxids = fields.String()
     compstats = fields.String(validate=validate.OneOf(['F', 'D', '1', '2', '3']))
     dl__ignore_cache = fields.Boolean(required=True)
+
+
+class DownloadJobSchema(Schema):
+    """
+    Class that defines the schema for the Download job
+    """
+    index_name = fields.String(required=True)
+    query = fields.String(required=True)
+    format = fields.String(required=True)
+    context_obj = fields.String()
+    download_columns_group = fields.String()
+    dl__ignore_cache = fields.Boolean(required=True)

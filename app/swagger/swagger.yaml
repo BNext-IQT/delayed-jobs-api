@@ -35,6 +35,11 @@ tags:
   externalDocs:
     description: Source Repository
     url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/structure-search-job
+- name: Download Job
+  description: Download File generation job
+  externalDocs:
+    description: Source Repository
+    url: https://gitlab.ebi.ac.uk/chembl/chembl/delayed-jobs/download-job
 - name: Biological Sequence Search Job
   description: Chemical structure search job (BLAST)
   externalDocs:
@@ -188,6 +193,7 @@ paths:
           results were saved'
           required: true
           type: 'boolean'
+          default: true
       responses:
         "200":
           description: "successful operation"
@@ -220,6 +226,7 @@ paths:
           results were saved'
           required: true
           type: 'boolean'
+          default: true
       responses:
         "200":
           description: "successful operation"
@@ -261,6 +268,57 @@ paths:
           results were saved'
           required: true
           type: 'boolean'
+          default: true
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/SubmissionResponse"
+  /submit/download_job:
+    post:
+      tags:
+        - 'Download Job'
+      summary: 'Submits a job for creating a file with a subset of data to be downloaded from the interface (CSV, TSV, SDF)'
+      operationId: 'submit_download_job'
+      consumes:
+        - 'multipart/form-data'
+      produces:
+        - 'application/json'
+      parameters:
+        - name: 'index_name'
+          in: 'formData'
+          description: 'Index in ES from which to get the data'
+          required: true
+          type: 'string'
+          default: 'chembl_molecule'
+        - name: 'query'
+          in: 'formData'
+          description: 'The stringified query from which to generate the file'
+          required: true
+          type: 'string'
+          default: '{"query_string": {"query": "molecule_chembl_id:(CHEMBL59)"}}'
+        - name: 'format'
+          in: 'formData'
+          description: 'The desired format of the file. SDF only applies for the index chembl_molecule'
+          required: true
+          type: 'string'
+          default: 'CSV'
+          enum: ['CSV', 'TSV', 'SDF']
+        - name: 'context_obj'
+          in: 'formData'
+          description: 'stringifyied version of a JSON object describing the context of the query'
+          type: 'string'
+        - name: 'download_columns_group'
+          in: 'formData'
+          description: 'group of columns to be included in the final download file as defined in the ES Proxy API'
+          type: 'string'
+        - name: 'dl__ignore_cache'
+          in: 'formData'
+          description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+          results were saved'
+          required: true
+          type: 'boolean'
+          default: true
       responses:
         "200":
           description: "successful operation"

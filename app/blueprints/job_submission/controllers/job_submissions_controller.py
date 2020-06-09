@@ -69,3 +69,14 @@ def submit_biological_sequence_search_job():
     form_files = request.files
 
     return submit_job(job_type, form_data, form_files)
+
+
+@SUBMISSION_BLUEPRINT.route('/download_job', methods=['POST'])
+@validate_form_with(marshmallow_schemas.DownloadJobSchema)
+@RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('job_submission'))
+def submit_download_job():
+    job_type = 'DOWNLOAD'
+    form_data = request.form
+    form_files = request.files
+
+    return submit_job(job_type, form_data, form_files)
