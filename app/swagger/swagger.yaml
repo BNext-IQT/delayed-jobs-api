@@ -193,6 +193,7 @@ paths:
           results were saved'
           required: true
           type: 'boolean'
+          default: true
       responses:
         "200":
           description: "successful operation"
@@ -225,6 +226,7 @@ paths:
           results were saved'
           required: true
           type: 'boolean'
+          default: true
       responses:
         "200":
           description: "successful operation"
@@ -266,6 +268,7 @@ paths:
           results were saved'
           required: true
           type: 'boolean'
+          default: true
       responses:
         "200":
           description: "successful operation"
@@ -308,8 +311,14 @@ paths:
       - name: 'download_columns_group'
         in: 'formData'
         description: 'group of columns to be included in the final download file as defined in the ES Proxy API'
-        required: true
         type: 'string'
+      - name: 'dl__ignore_cache'
+        in: 'formData'
+        description: 'If true, the Delayed Jobs system will ignore the cache and run the job again even if the
+        results were saved'
+        required: true
+        type: 'boolean'
+        default: true
     responses:
       "200":
         description: "successful operation"

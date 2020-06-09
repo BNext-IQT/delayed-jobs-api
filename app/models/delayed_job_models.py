@@ -330,6 +330,13 @@ def generate_default_job_configs():
     DB.session.add(biological_sequence_search_job_config)
     DB.session.commit()
 
+    download_config = DefaultJobConfig(
+        job_type='DOWNLOAD',
+        docker_image_url='some_url'
+    )
+    DB.session.add(download_config)
+    DB.session.commit()
+
 
 def get_docker_image_url(job_type):
     """
