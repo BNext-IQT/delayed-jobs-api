@@ -335,6 +335,7 @@ def create_params_file(job, input_files_desc):
         'job_token': job_token,
         'inputs': prepare_job_inputs(job, input_files_desc),
         'output_dir': get_job_output_dir_path(job),
+        'custom_job_config': get_custom_job_config_repo_params(job),
         'status_update_endpoint': {
             'url': f'http://{RUN_CONFIG.get("status_update_host")}'
                    f'{RUN_CONFIG.get("base_path", "")}/status/{job.id}',
@@ -357,6 +358,21 @@ def create_params_file(job, input_files_desc):
 
     with open(run_params_path, 'w') as out_file:
         out_file.write(yaml.dump(run_params))
+
+
+def get_custom_job_config_repo_params(job):
+    """
+    :param job: job object for which to take the job fig repo.
+    :return: the params of the custom config repo for the job type if it exists {} otherwise
+    """
+    job_config = delayed_job_models.get_job_config(job.type)
+    return {
+        'custom_config_repo': job_config.custom_config_repo,
+        'custom_config_username': job_config.custom_config_username,
+        'custom_config_password': job_config.custom_config_password,
+        'custom_config_branch': job_config.custom_config_branch,
+        'custom_config_file_path': job_config.custom_config_file_path
+    }
 
 
 def prepare_job_inputs(job, tmp_input_files_desc):
