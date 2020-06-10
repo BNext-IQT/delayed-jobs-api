@@ -68,11 +68,17 @@ class DefaultJobConfig(DB.Model):
     docker_registry_username = DB.Column(DB.Text)  # Username for the container registry (optional)
     docker_registry_password = DB.Column(DB.Text)  # Password for the container registry (optional)
     requirements_script_path = DB.Column(DB.Text)
-    custom_config_repo = DB.Column(DB.Text)
-    custom_config_username = DB.Column(DB.Text)
-    custom_config_password = DB.Column(DB.Text)
-    custom_config_branch = DB.Column(DB.Text)
-    custom_config_file_path = DB.Column(DB.Text)
+
+
+class CustomJobConfig(DB.Model):
+    """
+    Class that represents a custom key-value instance for the configuration of jobs, that will be passed to the job's
+    run params
+    """
+    job_type = DB.Column(DB.String(length=60), DB.ForeignKey('default_job_config.job_type'), nullable=False,
+                         primary_key=True)
+    key = DB.Column(DB.Text, primary_key=True)
+    value = DB.Column(DB.Text)
 
 
 class InputFile(DB.Model):
@@ -338,13 +344,25 @@ def generate_default_job_configs():
     download_config = DefaultJobConfig(
         job_type='DOWNLOAD',
         docker_image_url='some_url',
-        custom_config_repo='some_repo',
-        custom_config_username = 'some_user',
-        custom_config_password = 'some_password',
-        custom_config_branch = 'some_branch',
-        custom_config_file_path = 'config_file_path'
     )
     DB.session.add(download_config)
+    DB.session.commit()
+
+    download_custom_config_1 = CustomJobConfig(
+        job_type='DOWNLOAD',
+        key='some_key1',
+        value='some_value1'
+    )
+    DB.session.add(download_custom_config_1)
+    DB.session.commit()
+
+    download_custom_config_2 = CustomJobConfig(
+        job_type='DOWNLOAD',
+        key='some_key2',
+        value='some_value2'
+    )
+
+    DB.session.add(download_custom_config_2)
     DB.session.commit()
 
 
@@ -479,6 +497,14 @@ def delete_all_jobs_by_type(job_type):
         num_deleted += 1
 
     return num_deleted
+
+
+def get_custom_config_values(job_type):
+    """
+    :param job_type: type of the job for which to get the custom configs
+    :return: the objects representing the key-value pairs of the custom config of a job type
+    """
+    return CustomJobConfig.query.filter_by(job_type=job_type)
 
 
 def get_lsf_job_ids_to_check(lsf_host):
