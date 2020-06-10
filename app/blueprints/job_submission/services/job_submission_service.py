@@ -365,14 +365,12 @@ def get_custom_job_config_repo_params(job):
     :param job: job object for which to take the job fig repo.
     :return: the params of the custom config repo for the job type if it exists {} otherwise
     """
-    job_config = delayed_job_models.get_job_config(job.type)
-    return {
-        'custom_config_repo': job_config.custom_config_repo,
-        'custom_config_username': job_config.custom_config_username,
-        'custom_config_password': job_config.custom_config_password,
-        'custom_config_branch': job_config.custom_config_branch,
-        'custom_config_file_path': job_config.custom_config_file_path
-    }
+    custom_config = {}
+    configs = delayed_job_models.get_custom_config_values(job.type)
+    for config in configs:
+        custom_config[config.key] = config.value
+
+    return custom_config
 
 
 def prepare_job_inputs(job, tmp_input_files_desc):

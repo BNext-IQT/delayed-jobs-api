@@ -215,7 +215,6 @@ class TestJobSubmitter(unittest.TestCase):
         Test that a job with a custom config can be submitted
         """
         with self.flask_app.app_context():
-
             # remember that if generate_default_config: True, it generates the default config in the delayed job models
             job_type = 'DOWNLOAD'
             docker_image_url = 'some_url'
@@ -232,17 +231,14 @@ class TestJobSubmitter(unittest.TestCase):
             params_got = yaml.load(params_file, Loader=yaml.FullLoader)
 
             job_got = delayed_job_models.get_job_by_id(job_id)
-            config_must_be = delayed_job_models.get_job_config(job_got.type)
+            configs_must_be = delayed_job_models.get_custom_config_values(job_got.type)
             custom_config_got = params_got.get('custom_job_config')
-            self.assertIsNotNone(custom_config_got, msg='The custom config is None!')
 
-            for prop_name in ['custom_config_repo', 'custom_config_username', 'custom_config_password',
-                              'custom_config_branch', 'custom_config_file_path']:
-
-                value_got = custom_config_got.get(prop_name)
-                value_must_be = getattr(config_must_be, prop_name)
-                self.assertEqual(value_got, value_must_be, msg=f'{prop_name} was not set up correctly!' )
-
+            for config in configs_must_be:
+                key = config.key
+                value_must_be = config.value
+                value_got = custom_config_got.get(key)
+                self.assertEqual(value_got, value_must_be, msg=f'{key} was not set up correctly!')
 
     def test_lsf_job_id_is_parsed_correctly_after_submission(self):
 
