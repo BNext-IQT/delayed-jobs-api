@@ -61,3 +61,22 @@ def submit_custom_statistics_mmv_job(job_id):
         return jsonify(custom_statistics_service.save_custom_statistics_mmv_job(job_id, num_sequences))
     except custom_statistics_service.JobNotFoundError:
         abort(404, f'Job with id {job_id} does not exist!')
+
+
+@CUSTOM_STATISTICS_BLUEPRINT.route('/submit_statistics/download_job/<job_id>', methods=['POST'])
+@token_required_for_job_id
+@validate_url_params_with(marshmallow_schemas.JobID)
+@validate_form_with(marshmallow_schemas.DownloadJobStatistics)
+def submit_custom_statistics_download_job(job_id):
+    try:
+        time_taken = request.form.get('time_taken')
+        desired_format = request.form.get('desired_format')
+        file_size = request.form.get('file_size')
+        es_index = request.form.get('es_index')
+        es_query = request.form.get('es_query')
+        total_items = request.form.get('total_items')
+        return jsonify(
+            custom_statistics_service.save_custom_statistics_download_job(job_id, time_taken, desired_format, file_size,
+                                                                          es_index, es_query, total_items))
+    except custom_statistics_service.JobNotFoundError:
+        abort(404, f'Job with id {job_id} does not exist!')

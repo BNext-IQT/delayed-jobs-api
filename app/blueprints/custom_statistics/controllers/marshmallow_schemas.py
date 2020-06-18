@@ -38,3 +38,15 @@ class MMVSearchJobStatistics(Schema):
     Class that the schema for saving statistics for the structure search jobs
     """
     num_sequences = fields.Number(required=True, validate=validate.Range(min=0))
+
+
+class DownloadJobStatistics(Schema):
+    """
+    Class that the schema for saving statistics for the structure search jobs
+    """
+    time_taken = fields.Number(required=True, validate=validate.Range(min=0))
+    desired_format = fields.String(required=True)
+    file_size = fields.Number(required=True, validate=validate.Range(min=0))
+    es_index = fields.String(required=True)
+    es_query = fields.String(required=True)
+    total_items = fields.Number(required=True, validate=validate.Range(min=0))
