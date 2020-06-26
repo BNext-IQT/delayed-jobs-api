@@ -105,6 +105,7 @@ DEFAULT_RATE_LIMIT = {
         'default_for_all_routes': '3 per second',
         'admin_login': '3 per second',
         'job_submission': '10 per minute',
+        'job_progress_update': '30 per second',
     },
     'storage_url': 'memory://'
 
