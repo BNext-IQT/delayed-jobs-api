@@ -42,7 +42,7 @@ def get_job_input(job_id, input_key):
 @token_required_for_job_id
 @validate_url_params_with(marshmallow_schemas.JobStatus)
 @validate_form_with(marshmallow_schemas.JobStatusUpdate)
-@RATE_LIMITER.limit(RUN_CONFIG.get('rate_limit').get('rates').get('job_progress_update'))
+@RATE_LIMITER.exempt
 def update_job_progress(job_id):
     try:
         progress = int(request.form.get('progress'))
