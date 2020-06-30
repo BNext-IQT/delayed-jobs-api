@@ -20,6 +20,11 @@ spec:
       - name: delayed-jobs-api
         image: <SERVER_IMAGE_TAG>
         imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: <CPU_LIMIT>
+          requests:
+            cpu: <CPU_REQUESTED>
         volumeMounts:
         - name: nfs-volume
           mountPath: <NFS_MOUNT_PATH>
@@ -35,6 +40,11 @@ spec:
       - name: delayed-jobs-status-daemon
         image: <STATUS_DAEMON_IMAGE_TAG>
         imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: <CPU_LIMIT>
+          requests:
+            cpu: <CPU_REQUESTED>
         volumeMounts:
         - name: nfs-volume
           mountPath: <NFS_MOUNT_PATH>
