@@ -2,7 +2,7 @@ Flask==1.1.1
 pylint==2.4.2
 flask-sqlalchemy==2.4.1
 pyjwt==1.7.1
-pyyaml==5.1.2
+pyyaml==5.4
 elasticsearch>=7.0.0,<8.0.0 # Recommended by the official documentation
 requests==2.22.0
 python-dateutil
