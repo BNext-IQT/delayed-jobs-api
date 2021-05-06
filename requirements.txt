@@ -7,7 +7,7 @@ elasticsearch>=7.0.0,<8.0.0 # Recommended by the official documentation
 requests==2.22.0
 python-dateutil
 gunicorn==20.0.4
-flask-cors==3.0.8
+flask-cors==3.0.9
 marshmallow==3.5.0
 Flask-Caching==1.8.0
 pylibmc==1.6.1
